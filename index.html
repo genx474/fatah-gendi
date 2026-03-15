@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fatah Gendi Electronic Labs</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --gold: #f5c518;
+  --gold2: #ffd84d;
+  --gold3: #8a6c00;
+  --amber: #ff9f1c;
+  --cyan: #00e5cc;
+  --blue: #44aaff;
+  --green: #00ff88;
+  --red: #ff3355;
+  --bg: #06050a;
+  --card: #0c0b14;
+  --bdr: #2a2240;
+  --font: 'Share Tech Mono', monospace;
+  --head: 'Orbitron', monospace;
+  --body: 'Rajdhani', sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: #06050a;
+  min-height: 100vh;
+  font-family: var(--body);
+  color: #ccc;
+  overflow-x: hidden;
+}
+
+/* ── ANIMATED BG GRID ─────────────────────────────── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(245,197,24,.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(245,197,24,.04) 1px, transparent 1px);
+  background-size: 48px 48px;
+  z-index: 0;
+  pointer-events: none;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(ellipse 120% 60% at 50% 0%,
+    rgba(245,197,24,.08) 0%, transparent 60%);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.wrap { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; padding: 0 20px 80px; }
+
+/* ── HEADER / HERO ─────────────────────────────────── */
+.hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 56px 20px 40px;
+  position: relative;
+}
+
+/* Circuit lines decoration */
+.hero::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 50%; transform: translateX(-50%);
+  width: 2px; height: 56px;
+  background: linear-gradient(to bottom, transparent, var(--gold));
+}
+
+/* LOGO SVG */
+.logo-wrap {
+  position: relative;
+  margin-bottom: 28px;
+}
+
+.logo-outer {
+  width: 130px; height: 130px;
+  border: 2px solid var(--gold);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
+  animation: logoSpin 20s linear infinite;
+  box-shadow: 0 0 40px rgba(245,197,24,.25), inset 0 0 40px rgba(245,197,24,.05);
+}
+@keyframes logoSpin {
+  from { box-shadow: 0 0 30px rgba(245,197,24,.2), 0 0 60px rgba(245,197,24,.08); }
+  50%  { box-shadow: 0 0 50px rgba(245,197,24,.35), 0 0 90px rgba(245,197,24,.15); }
+  to   { box-shadow: 0 0 30px rgba(245,197,24,.2), 0 0 60px rgba(245,197,24,.08); }
+}
+
+.logo-outer::before {
+  content: '';
+  position: absolute;
+  inset: -8px;
+  border: 1px solid rgba(245,197,24,.25);
+  border-radius: 50%;
+  animation: rotateDash 8s linear infinite;
+  background: conic-gradient(from 0deg, transparent 80%, rgba(245,197,24,.4) 90%, transparent 100%);
+}
+@keyframes rotateDash {
+  to { transform: rotate(360deg); }
+}
+
+.logo-inner {
+  width: 100px; height: 100px;
+  background: radial-gradient(circle at 40% 35%, #1a1500 0%, #06050a 70%);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column;
+  border: 1px solid rgba(245,197,24,.2);
+}
+
+.logo-text-main {
+  font-family: var(--head);
+  font-size: 26px;
+  font-weight: 900;
+  color: var(--gold);
+  text-shadow: 0 0 20px rgba(245,197,24,.8);
+  letter-spacing: -1px;
+  line-height: 1;
+}
+
+.logo-text-sub {
+  font-family: var(--head);
+  font-size: 9px;
+  color: var(--amber);
+  letter-spacing: 3px;
+  margin-top: 3px;
+}
+
+/* Tick marks on outer circle */
+.logo-ticks {
+  position: absolute;
+  width: 100%; height: 100%;
+  top: 0; left: 0;
+  pointer-events: none;
+}
+
+/* TITLE */
+.site-title {
+  font-family: var(--head);
+  font-size: clamp(22px, 5vw, 46px);
+  font-weight: 900;
+  text-align: center;
+  letter-spacing: 3px;
+  line-height: 1.1;
+  margin-bottom: 10px;
+}
+
+.site-title .line1 { color: var(--gold); text-shadow: 0 0 30px rgba(245,197,24,.5); }
+.site-title .line2 {
+  color: transparent;
+  background: linear-gradient(90deg, var(--cyan), var(--gold), var(--amber));
+  -webkit-background-clip: text; background-clip: text;
+  background-size: 200%;
+  animation: shimmer 4s ease-in-out infinite;
+}
+@keyframes shimmer { 0%,100%{background-position:0%} 50%{background-position:100%} }
+
+.site-tagline {
+  font-family: var(--font);
+  font-size: 12px;
+  color: rgba(245,197,24,.5);
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+/* Horizontal divider with circuit style */
+.divider {
+  display: flex; align-items: center; gap: 12px;
+  width: 100%; max-width: 600px;
+  margin: 0 auto 48px;
+}
+.divider-line { flex: 1; height: 1px; background: linear-gradient(to right, transparent, var(--gold3), var(--gold), var(--gold3), transparent); }
+.divider-icon {
+  width: 32px; height: 32px;
+  border: 2px solid var(--gold);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+  background: var(--bg);
+  color: var(--gold);
+  flex-shrink: 0;
+  box-shadow: 0 0 10px rgba(245,197,24,.3);
+}
+
+/* ── STATS BAR ─────────────────────────────────────── */
+.stats {
+  display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;
+  margin-bottom: 52px;
+}
+.stat {
+  background: var(--card);
+  border: 1px solid rgba(245,197,24,.15);
+  border-radius: 10px;
+  padding: 12px 22px;
+  text-align: center;
+  min-width: 110px;
+}
+.stat-n {
+  font-family: var(--head);
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--gold);
+  text-shadow: 0 0 12px rgba(245,197,24,.4);
+  display: block;
+}
+.stat-l { font-family: var(--font); font-size: 9px; color: rgba(245,197,24,.4); letter-spacing: 2px; }
+
+/* ── SECTION HEADINGS ──────────────────────────────── */
+.section-title {
+  font-family: var(--head);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 4px;
+  color: var(--gold);
+  text-transform: uppercase;
+  margin-bottom: 20px;
+  display: flex; align-items: center; gap: 14px;
+}
+.section-title::before, .section-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, var(--gold3), transparent);
+}
+.section-title::before { background: linear-gradient(to left, var(--gold3), transparent); }
+
+/* ── CARD GRID ─────────────────────────────────────── */
+.grid { display: grid; gap: 16px; margin-bottom: 52px; }
+.grid-2 { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+.grid-3 { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+
+.lab-card {
+  background: var(--card);
+  border: 1px solid rgba(245,197,24,.12);
+  border-radius: 14px;
+  padding: 22px 20px;
+  text-decoration: none;
+  display: flex; flex-direction: column; gap: 10px;
+  position: relative;
+  overflow: hidden;
+  transition: transform .2s, border-color .2s, box-shadow .2s;
+  cursor: pointer;
+}
+.lab-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--card-accent, var(--gold)), transparent);
+  opacity: 0;
+  transition: opacity .2s;
+}
+.lab-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(245,197,24,.35);
+  box-shadow: 0 8px 40px rgba(245,197,24,.12);
+}
+.lab-card:hover::before { opacity: 1; }
+
+/* accent colors per category */
+.lab-card.cat-r  { --card-accent: #ff9933; }
+.lab-card.cat-c  { --card-accent: #00e5cc; }
+.lab-card.cat-l  { --card-accent: #00e5cc; }
+.lab-card.cat-d  { --card-accent: #00ccff; }
+.lab-card.cat-t  { --card-accent: #cc44ff; }
+.lab-card.cat-tr { --card-accent: #ffbb00; }
+.lab-card.cat-ac { --card-accent: #00ff88; }
+.lab-card.cat-ap { --card-accent: #44aaff; }
+.lab-card.cat-pr { --card-accent: #00ff88; }
+.lab-card.cat-da { --card-accent: #44aaff; }
+
+.card-icon {
+  font-size: 28px;
+  line-height: 1;
+  margin-bottom: 2px;
+}
+.card-title {
+  font-family: var(--head);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: var(--gold2);
+}
+.card-desc {
+  font-family: var(--font);
+  font-size: 10px;
+  color: rgba(200,200,200,.5);
+  line-height: 1.6;
+}
+.card-tags {
+  display: flex; flex-wrap: wrap; gap: 5px;
+  margin-top: 4px;
+}
+.tag {
+  padding: 2px 8px;
+  border-radius: 20px;
+  border: 1px solid rgba(245,197,24,.2);
+  font-family: var(--font);
+  font-size: 8px;
+  color: rgba(245,197,24,.5);
+  background: rgba(245,197,24,.04);
+  letter-spacing: .5px;
+}
+.tag.new { border-color: rgba(0,255,136,.4); color: rgba(0,255,136,.7); background: rgba(0,255,136,.06); }
+.card-arrow {
+  position: absolute;
+  right: 16px; top: 16px;
+  font-size: 12px;
+  color: rgba(245,197,24,.2);
+  transition: color .2s, transform .2s;
+}
+.lab-card:hover .card-arrow { color: var(--gold); transform: translateX(3px); }
+
+/* ── FEATURED BIG CARDS ────────────────────────────── */
+.feat-card {
+  grid-column: span 2;
+  background: linear-gradient(135deg, #0c0b14 0%, #10091a 100%);
+  border: 1px solid rgba(245,197,24,.2);
+  border-radius: 16px;
+  padding: 28px 26px;
+  text-decoration: none;
+  display: flex; align-items: center; gap: 24px;
+  position: relative; overflow: hidden;
+  transition: transform .2s, box-shadow .2s;
+  cursor: pointer;
+}
+@media(max-width:600px){ .feat-card { grid-column: span 1; flex-direction: column; align-items: flex-start; } }
+.feat-card::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(circle at 80% 50%, rgba(245,197,24,.06) 0%, transparent 60%);
+  pointer-events: none;
+}
+.feat-card:hover { transform: translateY(-4px); box-shadow: 0 12px 60px rgba(245,197,24,.15); }
+.feat-icon { font-size: 48px; flex-shrink: 0; }
+.feat-body { flex: 1; }
+.feat-title { font-family: var(--head); font-size: 14px; font-weight: 700; color: var(--gold2); letter-spacing: 2px; margin-bottom: 6px; }
+.feat-desc { font-family: var(--font); font-size: 10px; color: rgba(200,200,200,.55); line-height: 1.7; }
+.feat-badge {
+  position: absolute; top: 16px; right: 16px;
+  background: rgba(245,197,24,.15);
+  border: 1px solid rgba(245,197,24,.35);
+  border-radius: 20px;
+  padding: 3px 12px;
+  font-family: var(--font);
+  font-size: 9px;
+  color: var(--gold);
+}
+
+/* ── FOOTER ──────────────────────────────────────── */
+.footer {
+  border-top: 1px solid rgba(245,197,24,.1);
+  padding: 36px 20px;
+  text-align: center;
+  position: relative; z-index: 1;
+}
+.footer-logo {
+  font-family: var(--head);
+  font-size: 18px;
+  color: var(--gold);
+  letter-spacing: 2px;
+  margin-bottom: 8px;
+  text-shadow: 0 0 16px rgba(245,197,24,.3);
+}
+.footer-sub { font-family: var(--font); font-size: 10px; color: rgba(245,197,24,.3); letter-spacing: 3px; }
+.footer-copy { font-family: var(--font); font-size: 9px; color: rgba(255,255,255,.15); margin-top: 16px; letter-spacing: 1px; }
+
+/* ── SCROLL REVEAL ────────────────────────────────── */
+.reveal { opacity: 0; transform: translateY(28px); transition: opacity .6s, transform .6s; }
+.reveal.visible { opacity: 1; transform: none; }
+
+/* delay stagger */
+.reveal:nth-child(1){transition-delay:.05s}
+.reveal:nth-child(2){transition-delay:.1s}
+.reveal:nth-child(3){transition-delay:.15s}
+.reveal:nth-child(4){transition-delay:.2s}
+.reveal:nth-child(5){transition-delay:.25s}
+.reveal:nth-child(6){transition-delay:.3s}
+.reveal:nth-child(7){transition-delay:.35s}
+.reveal:nth-child(8){transition-delay:.4s}
+.reveal:nth-child(9){transition-delay:.45s}
+.reveal:nth-child(10){transition-delay:.5s}
+
+/* ── PARTICLES CANVAS ─────────────────────────────── */
+#particles { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+
+/* ── BREADCRUMB/NAV ───────────────────────────────── */
+.topbar {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(6,5,10,.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(245,197,24,.08);
+  padding: 10px 20px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.topbar-brand { font-family: var(--head); font-size: 11px; color: var(--gold); letter-spacing: 2px; }
+.topbar-links { display: flex; gap: 16px; }
+.topbar-link { font-family: var(--font); font-size: 9px; color: rgba(245,197,24,.4); text-decoration: none; letter-spacing: 1px; transition: color .2s; }
+.topbar-link:hover { color: var(--gold); }
+</style>
+</head>
+<body>
+
+<canvas id="particles"></canvas>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <span class="topbar-brand">FG · ELECTRONIC LABS</span>
+  <div class="topbar-links">
+    <a class="topbar-link" href="#komponen">KOMPONEN</a>
+    <a class="topbar-link" href="#rangkaian">RANGKAIAN</a>
+    <a class="topbar-link" href="#digital">DIGITAL/ANALOG</a>
+    <a class="topbar-link" href="#pengaman">PENGAMAN</a>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- ═══ HERO ═══ -->
+  <header class="hero">
+    <!-- Logo -->
+    <div class="logo-wrap">
+      <div class="logo-outer">
+        <div class="logo-inner">
+          <span class="logo-text-main">FG</span>
+          <span class="logo-text-sub">LABS</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Title -->
+    <h1 class="site-title">
+      <span class="line1">FATAH GENDI</span><br>
+      <span class="line2">ELECTRONIC LABS</span>
+    </h1>
+    <p class="site-tagline">◈ Simulasi Elektronika Interaktif ◈</p>
+
+    <!-- Divider -->
+    <div class="divider">
+      <div class="divider-line"></div>
+      <div class="divider-icon">⚡</div>
+      <div class="divider-line"></div>
+    </div>
+  </header>
+
+  <!-- ═══ STATS ═══ -->
+  <div class="stats">
+    <div class="stat reveal"><span class="stat-n">14</span><span class="stat-l">MODUL LAB</span></div>
+    <div class="stat reveal"><span class="stat-n">80+</span><span class="stat-l">ANIMASI</span></div>
+    <div class="stat reveal"><span class="stat-n">100%</span><span class="stat-l">INTERAKTIF</span></div>
+    <div class="stat reveal"><span class="stat-n">0</span><span class="stat-l">DEPENDENCY</span></div>
+    <div class="stat reveal"><span class="stat-n">HTML5</span><span class="stat-l">PURE JS</span></div>
+  </div>
+
+  <!-- ═══ KOMPONEN DASAR ═══ -->
+  <section id="komponen">
+    <div class="section-title">◈ Komponen Dasar Elektronika</div>
+
+    <div class="grid grid-2">
+
+      <a class="lab-card cat-r reveal" href="resistor-interaktif-v2.html">
+        <div class="card-arrow">→</div>
+        <div class="card-icon">🟧</div>
+        <div class="card-title">RESISTOR INTERAKTIF</div>
+        <div class="card-desc">Hukum Ohm, disipasi panas, pembagi tegangan, rangkaian seri &amp; paralel, kode warna 4 pita</div>
+        <div class="card-tags">
+          <span class="tag">Ohm's Law</span>
+          <span class="tag">Pembagi V</span>
+          <span class="tag">Kode Warna</span>
+          <span class="tag">Seri/Paralel</span>
+        </div>
+      </a>
+
+      <a class="lab-card cat-c reveal" href="kapasitor-interaktif.html">
+        <div class="card-arrow">→</div>
+        <div class="card-icon">🔵</div>
+        <div class="card-title">KAPASITOR INTERAKTIF</div>
+        <div class="card-desc">Pengisian/pengosongan, filter power supply, RC timer, kopling audio, simulasi touchscreen</div>
+        <div class="card-tags">
+          <span class="tag">RC Filter</span>
+          <span class="tag">Charging</span>
+          <span class="tag">Timer</span>
+          <span class="tag">Audio</span>
+        </div>
+      </a>
+
+      <a class="lab-card cat-l reveal" href="induktor-interaktif.html">
+        <div class="card-arrow">→</div>
+        <div class="card-icon">🌀</div>
+        <div class="card-title">INDUKTOR INTERAKTIF</div>
+        <div class="card-desc">Medan magnet animasi, rangkaian RL, filter induktor Bode plot, transformator, osilator LC</div>
+        <div class="card-tags">
+          <span class="tag">Medan Magnet</span>
+          <span class="tag">RL Filter</span>
+          <span class="tag">Transformator</span>
+          <span class="tag">LC Osilator</span>
+        </div>
+      </a>
+
+      <a class="lab-card cat-d reveal" href="dioda-interaktif.html">
+        <div class="card-arrow">→</div>
+        <div class="card-icon">🔷</div>
+        <div class="card-title">DIODA INTERAKTIF</div>
+        <div class="card-desc">PN junction, Zener regulator, Schottky, LED 5 warna, fotodioda, varaktor VCO</div>
+        <div class="card-tags">
+          <span class="tag">PN Junction</span>
+          <span class="tag">Zener</span>
+          <span class="tag">LED</span>
+          <span class="tag">Varaktor</span>
+        </div>
+      </a>
+
+      <a class="lab-card cat-t reveal" href="transistor-interaktif.html">
+        <div class="card-arrow">→</div>
+        <div class="card-icon">🟣</div>
+        <div class="card-title">TRANSISTOR INTERAKTIF</div>
+        <div class="card-desc">BJT NPN/PNP, Darlington, N/P-MOSFET, JFET, CMOS inverter — kurva IC-VCE lengkap</div>
+        <div class="card-tags">
+          <span class="tag">NPN/PNP</span>
+          <span class="tag">MOSFET</span>
+          <span class="tag">Amplifier</span>
+          <span class="tag">IC-VCE</span>
+        </div>
+      </a>
+
+      <a class="lab-card cat-tr reveal" href="transformator-interaktif.html">
+        <div class="card-arrow">→</div>
+        <div class="card-icon">🔄</div>
+        <div class="card-title">TRANSFORMATOR INTERAKTIF</div>
+        <div class="card-desc">Prinsip dasar, step-up/down, efek beban, rugi-rugi efisiensi, jenis trafo (daya, isolasi, auto, CT)</div>
+        <div class="card-tags">
+          <span class="tag">Step-Up/Down</span>
+          <span class="tag">Efisiensi</span>
+          <span class="tag">Auto Trafo</span>
+          <span class="tag">Centre-Tap</span>
+        </div>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- ═══ KOMPONEN AKTIF ═══ -->
+  <section>
+    <div class="section-title">◈ Semua Komponen Aktif Elektronika</div>
+    <div class="grid grid-2">
+      <a class="lab-card cat-ac reveal feat-card" href="komponen-aktif-elektronika.html">
+        <div class="feat-icon">⚡</div>
+        <div class="feat-body">
+          <div class="feat-title">KOMPONEN AKTIF — LENGKAP</div>
+          <div class="feat-desc">25 komponen aktif: Dioda (6 jenis) · BJT &amp; Darlington · N/P-MOSFET · JFET · CMOS · SCR · TRIAC · DIAC · IGBT · Op-Amp 4 konfigurasi · Solar Cell · UJT · Tunnel Dioda — semua interaktif dengan slider</div>
+        </div>
+        <div class="feat-badge">25 KOMPONEN</div>
+      </a>
+    </div>
+  </section>
+
+  <!-- ═══ APLIKASI RANGKAIAN ═══ -->
+  <section id="rangkaian">
+    <div class="section-title">◈ Aplikasi Rangkaian Elektronika</div>
+    <div class="grid grid-2">
+      <a class="lab-card cat-ap reveal feat-card" href="aplikasi-rangkaian-elektronika.html">
+        <div class="feat-icon">📐</div>
+        <div class="feat-body">
+          <div class="feat-title">APLIKASI RANGKAIAN R · C · L · DIODA</div>
+          <div class="feat-desc">RC/RL Filter (Bode plot) · Penyearah Bridge + Filter · LC Osilator · RC Timer · Dioda Clipper · Clamper · RLC Seri resonansi — 8 rangkaian nyata dengan animasi partikel</div>
+        </div>
+        <div class="feat-badge">8 RANGKAIAN</div>
+      </a>
+    </div>
+  </section>
+
+  <!-- ═══ DIGITAL & ANALOG ═══ -->
+  <section id="digital">
+    <div class="section-title">◈ Rangkaian Digital &amp; Analog</div>
+    <div class="grid grid-2">
+      <a class="lab-card cat-da reveal feat-card" href="rangkaian-digital-analog.html">
+        <div class="feat-icon">💻</div>
+        <div class="feat-body">
+          <div class="feat-title">DIGITAL &amp; ANALOG — LENGKAP</div>
+          <div class="feat-desc">
+            <strong style="color:rgba(68,170,255,.8)">DIGITAL:</strong> Logic Gates · Flip-Flop · Binary Counter · MUX/DEMUX · Adder · ADC/DAC · PWM<br>
+            <strong style="color:rgba(255,153,51,.8)">ANALOG:</strong> Integrator/Differentiator · Wien Osilator · Timer 555 · Active Filter · Instrumen Amp · PLL · DAC R-2R
+          </div>
+        </div>
+        <div class="feat-badge">14 RANGKAIAN</div>
+      </a>
+    </div>
+  </section>
+
+  <!-- ═══ RANGKAIAN PENGAMAN ═══ -->
+  <section id="pengaman">
+    <div class="section-title">◈ Rangkaian Pengaman Elektronik</div>
+
+    <div class="grid grid-2">
+      <a class="lab-card cat-pr reveal feat-card" href="rangkaian-pengaman-elektronik.html">
+        <div class="feat-icon">🛡️</div>
+        <div class="feat-body">
+          <div class="feat-title">PROTEKSI &amp; KESELAMATAN — LENGKAP</div>
+          <div class="feat-desc">Fuse &amp; PTC Resettable · OVP (Over-Voltage) · OCP Current Limiting · Proteksi Polaritas Terbalik · ESD/TVS Dioda · Crowbar Protection · UVLO · Thermal Shutdown — simulasi fault interaktif</div>
+        </div>
+        <div class="feat-badge">8 PENGAMAN</div>
+      </a>
+    </div>
+  </section>
+
+  <!-- ═══ HALAMAN BARU ═══ -->
+  <section id="baru">
+    <div class="section-title">◈ Halaman Baru — Tambahan</div>
+    <div class="grid grid-2">
+
+      <a class="lab-card cat-ap reveal" href="power-supply.html">
+        <div class="card-arrow">→</div>
+        <div class="card-icon">🔋</div>
+        <div class="card-title">POWER SUPPLY</div>
+        <div class="card-desc">Linear regulator LM7805, LDO dengan thermal, Buck converter, Boost converter, Buck-Boost SEPIC, Charge pump ×2/÷</div>
+        <div class="card-tags">
+          <span class="tag">Linear</span><span class="tag">LDO</span><span class="tag">Buck</span><span class="tag">Boost</span><span class="tag new">baru</span>
+        </div>
+      </a>
+
+      <a class="lab-card cat-ac reveal" href="sensor-aktuator.html">
+        <div class="card-arrow">→</div>
+        <div class="card-icon">🌡</div>
+        <div class="card-title">SENSOR &amp; AKTUATOR</div>
+        <div class="card-desc">Thermistor NTC, LDR otomatis lampu, Wheatstone Bridge strain gauge, Hall Effect, Motor DC H-Bridge, Servo PWM</div>
+        <div class="card-tags">
+          <span class="tag">Thermistor</span><span class="tag">LDR</span><span class="tag">Motor</span><span class="tag">Servo</span><span class="tag new">baru</span>
+        </div>
+      </a>
+
+      <a class="lab-card cat-da reveal feat-card" href="audio-amplifier.html">
+        <div class="feat-icon">🎵</div>
+        <div class="feat-body">
+          <div class="feat-title">AUDIO AMPLIFIER &amp; SIGNAL</div>
+          <div class="feat-desc">Pre-Amp mikrofon · Class A · Class AB Push-Pull · Class D Switching (PWM) · Tone Control EQ 3-band · VU Meter visualizer — semua interaktif</div>
+        </div>
+        <div class="feat-badge new">6 RANGKAIAN</div>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- ═══ QUICK REFERENCE GRID ═══ -->
+  <section>
+    <div class="section-title">◈ Akses Cepat Semua Modul</div>
+    <div class="grid grid-3">
+
+      <a class="lab-card cat-r reveal" href="resistor-interaktif-v2.html">
+        <div class="card-arrow">→</div>
+        <div class="card-icon">🟧</div>
+        <div class="card-title">RESISTOR</div>
+        <div class="card-desc">Ohm, panas, kode warna, seri/paralel</div>
+        <div class="card-tags"><span class="tag">5 animasi</span></div>
+      </a>
+
+      <a class="lab-card cat-c reveal" href="kapasitor-interaktif.html">
+        <div class="card-arrow">→</div>
+        <div class="card-icon">🔵</div>
+        <div class="card-title">KAPASITOR</div>
+        <div class="card-desc">Filter, timer, touchscreen, audio</div>
+        <div class="card-tags"><span class="tag">5 animasi</span></div>
+      </a>
+
+      <a class="lab-card cat-l reveal" href="induktor-interaktif.html">
+        <div class="card-arrow">→</div>
+        <div class="card-icon">🌀</div>
+        <div class="card-title">INDUKTOR</div>
+        <div class="card-desc">Medan magnet, RL, trafo, LC</div>
+        <div class="card-tags"><span class="tag">5 animasi</span></div>
+      </a>
+
+      <a class="lab-card cat-d reveal" href="dioda-interaktif.html">
+        <div class="card-arrow">→</div>
+        <div class="card-icon">🔷</div>
+        <div class="card-title">DIODA</div>
+        <div class="card-desc">PN, Zener, LED, foto, varaktor</div>
+        <div class="card-tags"><span class="tag">5 animasi</span></div>
+      </a>
+
+      <a class="lab-card cat-t reveal" href="transistor-interaktif.html">
+        <div class="card-arrow">→</div>
+        <div class="card-icon">🟣</div>
+        <div class="card-title">TRANSISTOR</div>
+        <div class="card-desc">BJT, MOSFET, kurva, amplifier</div>
+        <div class="card-tags"><span class="tag">5 animasi</span></div>
+      </a>
+
+      <a class="lab-card cat-tr reveal" href="transformator-interaktif.html">
+        <div class="card-arrow">→</div>
+        <div class="card-icon">🔄</div>
+        <div class="card-title">TRANSFORMATOR</div>
+        <div class="card-desc">Step up/down, efisiensi, jenis</div>
+        <div class="card-tags"><span class="tag">5 animasi</span></div>
+      </a>
+
+      <a class="lab-card cat-ac reveal" href="komponen-aktif-elektronika.html">
+        <div class="card-arrow">→</div>
+        <div class="card-icon">⚡</div>
+        <div class="card-title">KOMPONEN AKTIF</div>
+        <div class="card-desc">25 komponen 6 kategori</div>
+        <div class="card-tags"><span class="tag new">25 komponen</span></div>
+      </a>
+
+      <a class="lab-card cat-ap reveal" href="aplikasi-rangkaian-elektronika.html">
+        <div class="card-arrow">→</div>
+        <div class="card-icon">📐</div>
+        <div class="card-title">APLIKASI RANGKAIAN</div>
+        <div class="card-desc">Filter, penyearah, timer, clipper</div>
+        <div class="card-tags"><span class="tag new">8 rangkaian</span></div>
+      </a>
+
+      <a class="lab-card cat-da reveal" href="rangkaian-digital-analog.html">
+        <div class="card-arrow">→</div>
+        <div class="card-icon">💻</div>
+        <div class="card-title">DIGITAL &amp; ANALOG</div>
+        <div class="card-desc">Gates, FF, counter, op-amp, PLL</div>
+        <div class="card-tags"><span class="tag new">14 rangkaian</span></div>
+      </a>
+
+      <a class="lab-card cat-pr reveal" href="rangkaian-pengaman-elektronik.html">
+        <div class="card-arrow">→</div>
+        <div class="card-icon">🛡️</div>
+        <div class="card-title">RANGKAIAN PENGAMAN</div>
+        <div class="card-desc">OVP, OCP, ESD, crowbar, thermal</div>
+        <div class="card-tags"><span class="tag new">8 pengaman</span></div>
+      </a>
+
+      <a class="lab-card cat-c reveal" href="kapasitor-animasi.html">
+        <div class="card-arrow">→</div>
+        <div class="card-icon">🎬</div>
+        <div class="card-title">KAPASITOR ANIMASI</div>
+        <div class="card-desc">Animasi dasar kapasitor interaktif</div>
+        <div class="card-tags"><span class="tag">versi awal</span></div>
+      </a>
+
+      <a class="lab-card cat-ap reveal" href="power-supply.html">
+        <div class="card-arrow">→</div>
+        <div class="card-icon">🔋</div>
+        <div class="card-title">POWER SUPPLY</div>
+        <div class="card-desc">Linear, LDO, Buck, Boost, SEPIC, Charge Pump</div>
+        <div class="card-tags"><span class="tag new">6 topologi</span></div>
+      </a>
+
+      <a class="lab-card cat-ac reveal" href="sensor-aktuator.html">
+        <div class="card-arrow">→</div>
+        <div class="card-icon">🌡</div>
+        <div class="card-title">SENSOR &amp; AKTUATOR</div>
+        <div class="card-desc">NTC, LDR, Bridge, Hall Effect, Motor DC, Servo</div>
+        <div class="card-tags"><span class="tag new">6 sensor</span></div>
+      </a>
+
+      <a class="lab-card cat-da reveal" href="audio-amplifier.html">
+        <div class="card-arrow">→</div>
+        <div class="card-icon">🎵</div>
+        <div class="card-title">AUDIO AMPLIFIER</div>
+        <div class="card-desc">Pre-Amp, Class A/AB/D, Tone Control, VU Meter</div>
+        <div class="card-tags"><span class="tag new">6 rangkaian</span></div>
+      </a>
+
+    </div>
+  </section>
+
+</div><!-- /wrap -->
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-logo">FATAH GENDI · ELECTRONIC LABS</div>
+  <div class="footer-sub">◈ SIMULASI ELEKTRONIKA INTERAKTIF ◈</div>
+</footer>
+
+<script>
+// ── FLOATING PARTICLES ─────────────────────────────────
+(function(){
+  var cvs = document.getElementById("particles");
+  var ctx = cvs.getContext("2d");
+  var W, H, particles = [];
+
+  function resize(){ W = cvs.width = window.innerWidth; H = cvs.height = window.innerHeight; }
+  resize(); window.addEventListener("resize", resize);
+
+  function Particle(){
+    this.x = Math.random() * W;
+    this.y = Math.random() * H;
+    this.vx = (-0.3 + Math.random() * 0.6);
+    this.vy = (-0.2 + Math.random() * 0.4) - 0.1;
+    this.r = 1 + Math.random() * 2;
+    this.alpha = 0.1 + Math.random() * 0.3;
+    this.hue = Math.random() < 0.6 ? 48 : (Math.random() < 0.5 ? 180 : 200);
+  }
+
+  for(var i = 0; i < 80; i++) particles.push(new Particle());
+
+  function draw(ts){
+    ctx.clearRect(0, 0, W, H);
+    particles.forEach(function(p){
+      p.x += p.vx; p.y += p.vy;
+      if(p.x < 0) p.x = W; if(p.x > W) p.x = 0;
+      if(p.y < 0) p.y = H; if(p.y > H) p.y = 0;
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+      ctx.fillStyle = "hsla(" + p.hue + ",100%,60%," + p.alpha + ")";
+      ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
+})();
+
+// ── SCROLL REVEAL ───────────────────────────────────────
+(function(){
+  var obs = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){ e.target.classList.add("visible"); obs.unobserve(e.target); }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll(".reveal").forEach(function(el){ obs.observe(el); });
+})();
+
+// ── CIRCUIT TICK MARKS ON LOGO ──────────────────────────
+(function(){
+  var outer = document.querySelector(".logo-outer");
+  for(var i = 0; i < 24; i++){
+    var tick = document.createElement("div");
+    var angle = (i / 24) * 360;
+    var len = i % 6 === 0 ? 10 : 5;
+    tick.style.cssText = "position:absolute;top:50%;left:50%;width:2px;height:" + len + "px;background:" +
+      (i % 6 === 0 ? "rgba(245,197,24,.8)" : "rgba(245,197,24,.3)") +
+      ";transform:rotate(" + angle + "deg) translateY(-63px);transform-origin:50% 0;margin-left:-1px;";
+    outer.appendChild(tick);
+  }
+})();
+
+// ── HOVER GLOW ON CARDS ─────────────────────────────────
+document.querySelectorAll(".lab-card, .feat-card").forEach(function(card){
+  card.addEventListener("mousemove", function(e){
+    var rect = card.getBoundingClientRect();
+    var x = e.clientX - rect.left;
+    var y = e.clientY - rect.top;
+    card.style.setProperty("--mx", x + "px");
+    card.style.setProperty("--my", y + "px");
+  });
+});
+</script>
+</body>
+</html>
