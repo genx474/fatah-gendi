@@ -1,0 +1,1425 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rangkaian Digital &amp; Analog</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --d:#44aaff;--d2:#aaddff;--dd:#001a33;
+  --a:#ff9933;--a2:#ffcc88;--ad:#2a1000;
+  --g:#00ff88;--r:#ff3355;--y:#ffe044;--p:#cc44ff;--t:#00e5cc;
+  --bg:#020508;--card:#050a0f;--bdr:#0d2233;--dim:#2a5070;
+  --font:'Share Tech Mono',monospace;--head:'Orbitron',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  background:radial-gradient(ellipse 140% 55% at 50% 0%,#061830 0%,#020508 60%);
+  min-height:100vh;font-family:var(--font);color:var(--d2);overflow-x:hidden;
+}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.07) 2px,rgba(0,0,0,.07) 4px);z-index:9999;}
+.wrap{max-width:560px;margin:0 auto;padding:18px 12px 48px;}
+header{text-align:center;margin-bottom:22px;}
+.sub{font-size:9px;letter-spacing:6px;color:#0a1a2a;margin-bottom:5px;}
+h1{font-family:var(--head);font-size:clamp(12px,3.8vw,19px);font-weight:900;
+   color:var(--d);text-shadow:0 0 24px rgba(68,170,255,.5);letter-spacing:2px;margin-bottom:8px;}
+.divline{width:80px;height:2px;background:linear-gradient(to right,transparent,var(--d),transparent);margin:0 auto;}
+
+/* CAT tabs */
+.cat-row{display:flex;gap:6px;margin-bottom:8px;}
+.cat-btn{flex:1;padding:8px 6px;border:2px solid var(--bdr);border-radius:8px;background:var(--card);
+         color:var(--dim);cursor:pointer;font-family:var(--font);font-size:10px;letter-spacing:1px;transition:all .2s;text-align:center;}
+.cat-btn:hover{border-color:var(--d2);color:var(--d2);}
+.cat-btn.on{border-color:var(--d);background:#061830;color:var(--d);box-shadow:0 0 12px rgba(68,170,255,.2);}
+.cat-btn.ana{border-color:var(--a);color:var(--a);background:#150a00;}
+.cat-btn.ana.on{border-color:var(--a2);background:#200e00;box-shadow:0 0 12px rgba(255,153,51,.2);}
+
+/* scene tabs */
+.tabs{display:flex;gap:4px;margin-bottom:12px;overflow-x:auto;padding-bottom:3px;scrollbar-width:none;}
+.tabs::-webkit-scrollbar{display:none;}
+.tab{flex:0 0 auto;padding:5px 10px;border:1px solid var(--bdr);border-radius:6px;
+     background:var(--card);color:var(--dim);cursor:pointer;font-family:var(--font);
+     font-size:9px;letter-spacing:.7px;transition:all .2s;white-space:nowrap;}
+.tab.on{border-color:var(--d);background:#061830;color:var(--d);box-shadow:0 0 10px rgba(68,170,255,.18);}
+.tab.atab.on{border-color:var(--a);background:#150a00;color:var(--a);}
+
+.card{background:var(--card);border:1px solid var(--bdr);border-radius:14px;
+      padding:20px 16px;box-shadow:0 0 36px rgba(68,170,255,.04),inset 0 1px 0 #0d2233;}
+.scene{display:none;flex-direction:column;align-items:center;gap:14px;}
+.scene.on{display:flex;}
+
+.ctrl{width:100%;background:#040810;border:1px solid var(--bdr);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;}
+.ctrl-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.ctrl-lbl{font-size:10px;color:var(--dim);min-width:88px;letter-spacing:.7px;}
+.sl{flex:1;min-width:90px;-webkit-appearance:none;height:4px;
+    background:linear-gradient(to right,var(--d) var(--pct,50%),#0d2233 var(--pct,50%));
+    border-radius:2px;outline:none;cursor:pointer;}
+.sl.asl{background:linear-gradient(to right,var(--a) var(--pct,50%),#2a1000 var(--pct,50%));}
+.sl::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--d);box-shadow:0 0 6px rgba(68,170,255,.7);cursor:pointer;}
+.sl.asl::-webkit-slider-thumb{background:var(--a);}
+.sl::-moz-range-thumb{width:14px;height:14px;border-radius:50%;border:none;background:var(--d);cursor:pointer;}
+.ctrl-val{font-size:11px;color:var(--d);min-width:66px;text-align:right;}
+.ctrl-val.av{color:var(--a);}
+
+.metrics{display:flex;gap:6px;width:100%;flex-wrap:wrap;}
+.metric{flex:1;min-width:68px;background:#040810;border:1px solid var(--bdr);border-radius:7px;padding:6px 8px;text-align:center;}
+.metric-lbl{font-size:8px;color:var(--dim);letter-spacing:1.5px;margin-bottom:2px;}
+.metric-val{font-size:13px;color:var(--d);font-weight:bold;}
+.metric-val.av{color:var(--a);}
+.metric-unit{font-size:8px;color:var(--dim);}
+
+.btns{display:flex;gap:7px;flex-wrap:wrap;justify-content:center;}
+.btn{padding:7px 16px;border:2px solid var(--d);border-radius:7px;background:#061830;
+     color:var(--d);cursor:pointer;font-family:var(--font);font-size:11px;transition:all .15s;}
+.btn:hover{background:#0a2244;}
+.btn.abtn{border-color:var(--a);background:#150a00;color:var(--a);}
+.btn.abtn:hover{background:#200e00;}
+.btn.gbtn{border-color:var(--g);background:#001a0a;color:var(--g);}
+.btn.off{border-color:#0d2233;background:#040810;color:#1a3a50;}
+
+.info{color:var(--dim);font-size:11px;text-align:center;line-height:1.75;width:100%;}
+.info span{color:var(--d);}.info .a{color:var(--a);}.info .g{color:var(--g);}.info .r{color:var(--r);}.info .y{color:var(--y);}
+.atitle{font-family:var(--head);font-size:10px;letter-spacing:2px;color:var(--d2);text-align:center;width:100%;}
+
+canvas{display:block;border-radius:7px;}
+canvas.brd{border:1px solid var(--bdr);background:#040810;}
+footer{text-align:center;margin-top:20px;font-size:9px;letter-spacing:3px;color:#0a1a2a;}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="sub">◈ DIGITAL &amp; ANALOG ◈</div>
+  <h1>RANGKAIAN ELEKTRONIKA DIGITAL &amp; ANALOG</h1>
+  <div class="divline"></div>
+</header>
+
+<!-- CATEGORY -->
+<div class="cat-row">
+  <button class="cat-btn on" id="cat-digital">💻 DIGITAL</button>
+  <button class="cat-btn ana" id="cat-analog">📡 ANALOG</button>
+</div>
+
+<!-- DIGITAL TABS -->
+<div id="dig-tabs">
+<div class="tabs">
+  <button class="tab on" data-s="gates">🔲 Logic Gates</button>
+  <button class="tab" data-s="flipflop">⏲ Flip-Flop</button>
+  <button class="tab" data-s="counter">🔢 Counter</button>
+  <button class="tab" data-s="mux">🔀 MUX/DEMUX</button>
+  <button class="tab" data-s="adder">➕ Adder</button>
+  <button class="tab" data-s="adc">🔁 ADC/DAC</button>
+  <button class="tab" data-s="pwm">〰 PWM</button>
+</div>
+</div>
+
+<!-- ANALOG TABS -->
+<div id="ana-tabs" style="display:none">
+<div class="tabs">
+  <button class="tab atab on" data-s="intdiff">∫ Integrator/Diff</button>
+  <button class="tab atab" data-s="wien">🔊 Wien Osilator</button>
+  <button class="tab atab" data-s="timer555">⏱ Timer 555</button>
+  <button class="tab atab" data-s="activefilter">📊 Active Filter</button>
+  <button class="tab atab" data-s="instruamp">🔬 Instrumen Amp</button>
+  <button class="tab atab" data-s="pll">🔒 PLL</button>
+  <button class="tab atab" data-s="dac_r2r">🎛 DAC R-2R</button>
+</div>
+</div>
+
+<div class="card">
+
+<!-- ════════ DIGITAL SCENES ════════ -->
+
+<!-- LOGIC GATES -->
+<div class="scene on" id="s-gates">
+  <div class="atitle">GERBANG LOGIKA DASAR</div>
+  <canvas id="c-gates" class="brd" width="460" height="220" style="width:100%"></canvas>
+  <div class="ctrl">
+    <div class="ctrl-row"><span class="ctrl-lbl">🔵 Input A</span><input type="range" class="sl" id="gt-a" min="0" max="1" value="0" step="1"><span class="ctrl-val" id="gt-a-v">0 (LOW)</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">🟢 Input B</span><input type="range" class="sl" id="gt-b" min="0" max="1" value="0" step="1"><span class="ctrl-val" id="gt-b-v">0 (LOW)</span></div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-lbl">AND</div><div class="metric-val" id="gt-and">0</div><div class="metric-unit">A·B</div></div>
+    <div class="metric"><div class="metric-lbl">OR</div><div class="metric-val" id="gt-or">0</div><div class="metric-unit">A+B</div></div>
+    <div class="metric"><div class="metric-lbl">NOT A</div><div class="metric-val" id="gt-not">1</div><div class="metric-unit">Ā</div></div>
+    <div class="metric"><div class="metric-lbl">NAND</div><div class="metric-val" id="gt-nand">1</div><div class="metric-unit">̄(A·B)</div></div>
+    <div class="metric"><div class="metric-lbl">NOR</div><div class="metric-val" id="gt-nor">1</div><div class="metric-unit">̄(A+B)</div></div>
+    <div class="metric"><div class="metric-lbl">XOR</div><div class="metric-val" id="gt-xor">0</div><div class="metric-unit">A⊕B</div></div>
+  </div>
+  <div class="info">AND: kedua input HIGH → output HIGH<br>XOR: berbeda → HIGH | <span>NAND/NOR = universal gate</span></div>
+</div>
+
+<!-- FLIP-FLOP -->
+<div class="scene" id="s-flipflop">
+  <div class="atitle">FLIP-FLOP — SR, D, JK</div>
+  <canvas id="c-flipflop" class="brd" width="460" height="210" style="width:100%"></canvas>
+  <div class="ctrl">
+    <div class="ctrl-row"><span class="ctrl-lbl">🔘 Jenis FF</span><input type="range" class="sl" id="ff-type" min="0" max="2" value="0" step="1"><span class="ctrl-val" id="ff-type-v">SR</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">🔵 Input S / J / D</span><input type="range" class="sl" id="ff-s" min="0" max="1" value="0" step="1"><span class="ctrl-val" id="ff-s-v">0</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">🟢 Input R / K / −</span><input type="range" class="sl" id="ff-r" min="0" max="1" value="0" step="1"><span class="ctrl-val" id="ff-r-v">0</span></div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-lbl">Q</div><div class="metric-val" id="ff-q">0</div><div class="metric-unit"></div></div>
+    <div class="metric"><div class="metric-lbl">Q̄</div><div class="metric-val" id="ff-qn">1</div><div class="metric-unit"></div></div>
+    <div class="metric"><div class="metric-lbl">STATE</div><div class="metric-val" id="ff-state" style="font-size:10px">RESET</div><div class="metric-unit"></div></div>
+    <div class="metric"><div class="metric-lbl">CLK EDGE</div><div class="metric-val" id="ff-clk" style="font-size:10px">↑</div><div class="metric-unit"></div></div>
+  </div>
+  <div class="btns">
+    <button class="btn" id="ff-clk-btn">⏲ CLOCK PULSE</button>
+    <button class="btn off" id="ff-reset-btn">↺ RESET</button>
+  </div>
+  <div class="info">SR: Set/Reset | D: Data | JK: universal FF<br><span>Setiap CLK edge → state berubah sesuai input</span></div>
+</div>
+
+<!-- COUNTER -->
+<div class="scene" id="s-counter">
+  <div class="atitle">BINARY COUNTER — 4 BIT</div>
+  <canvas id="c-counter" class="brd" width="460" height="210" style="width:100%"></canvas>
+  <div class="ctrl">
+    <div class="ctrl-row"><span class="ctrl-lbl">📶 Clock speed</span><input type="range" class="sl" id="cnt-spd" min="1" max="10" value="3" step="1"><span class="ctrl-val" id="cnt-spd-v">3 Hz</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">🔢 Modulo</span><input type="range" class="sl" id="cnt-mod" min="2" max="16" value="16" step="1"><span class="ctrl-val" id="cnt-mod-v">16 (4-bit)</span></div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-lbl">DESIMAL</div><div class="metric-val" id="cnt-dec">0</div><div class="metric-unit"></div></div>
+    <div class="metric"><div class="metric-lbl">BINER</div><div class="metric-val" id="cnt-bin">0000</div><div class="metric-unit">MSB→LSB</div></div>
+    <div class="metric"><div class="metric-lbl">HEX</div><div class="metric-val" id="cnt-hex">0x0</div><div class="metric-unit"></div></div>
+    <div class="metric"><div class="metric-lbl">CLK</div><div class="metric-val" id="cnt-clk">0</div><div class="metric-unit">pulse</div></div>
+  </div>
+  <div class="btns">
+    <button class="btn gbtn" id="cnt-run">▶ RUN</button>
+    <button class="btn" id="cnt-step">⏭ STEP</button>
+    <button class="btn off" id="cnt-stop">⏹ STOP</button>
+    <button class="btn off" id="cnt-clr">↺ CLEAR</button>
+  </div>
+  <div class="info">4 JK Flip-Flop cascade → <span>biner naik otomatis</span><br>Modulo N: reset di count = N</div>
+</div>
+
+<!-- MUX/DEMUX -->
+<div class="scene" id="s-mux">
+  <div class="atitle">MULTIPLEXER 4:1 &amp; DEMULTIPLEXER 1:4</div>
+  <canvas id="c-mux" class="brd" width="460" height="210" style="width:100%"></canvas>
+  <div class="ctrl">
+    <div class="ctrl-row"><span class="ctrl-lbl">🔘 MUX: S1S0</span><input type="range" class="sl" id="mx-sel" min="0" max="3" value="0" step="1"><span class="ctrl-val" id="mx-sel-v">00 → I0</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">🔵 I0 I1 I2 I3</span><input type="range" class="sl" id="mx-in" min="0" max="15" value="5" step="1"><span class="ctrl-val" id="mx-in-v">0101</span></div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-lbl">SEL</div><div class="metric-val" id="mx-msel">00</div><div class="metric-unit">S1S0</div></div>
+    <div class="metric"><div class="metric-lbl">MUX OUT</div><div class="metric-val" id="mx-mout">0</div><div class="metric-unit"></div></div>
+    <div class="metric"><div class="metric-lbl">DEMUX Y</div><div class="metric-val" id="mx-dy">Y0</div><div class="metric-unit">aktif</div></div>
+    <div class="metric"><div class="metric-lbl">OUTPUT</div><div class="metric-val" id="mx-dout">0</div><div class="metric-unit">at Y</div></div>
+  </div>
+  <div class="info">MUX 4:1: pilih 1 dari 4 input berdasar Select<br>DEMUX 1:4: arahkan 1 input ke 1 dari 4 output</div>
+</div>
+
+<!-- ADDER -->
+<div class="scene" id="s-adder">
+  <div class="atitle">HALF ADDER &amp; FULL ADDER</div>
+  <canvas id="c-adder" class="brd" width="460" height="210" style="width:100%"></canvas>
+  <div class="ctrl">
+    <div class="ctrl-row"><span class="ctrl-lbl">🔵 Bit A</span><input type="range" class="sl" id="ad-a" min="0" max="1" value="0" step="1"><span class="ctrl-val" id="ad-a-v">0</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">🟢 Bit B</span><input type="range" class="sl" id="ad-b" min="0" max="1" value="0" step="1"><span class="ctrl-val" id="ad-b-v">0</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">🟡 Cin (carry-in)</span><input type="range" class="sl" id="ad-cin" min="0" max="1" value="0" step="1"><span class="ctrl-val" id="ad-cin-v">0</span></div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-lbl">HA Sum</div><div class="metric-val" id="ad-ha-s">0</div><div class="metric-unit">A⊕B</div></div>
+    <div class="metric"><div class="metric-lbl">HA Carry</div><div class="metric-val" id="ad-ha-c">0</div><div class="metric-unit">A·B</div></div>
+    <div class="metric"><div class="metric-lbl">FA Sum</div><div class="metric-val" id="ad-fa-s">0</div><div class="metric-unit">A⊕B⊕Cin</div></div>
+    <div class="metric"><div class="metric-lbl">FA Cout</div><div class="metric-val" id="ad-fa-c">0</div><div class="metric-unit">majority</div></div>
+  </div>
+  <div class="info">Half Adder: 2 input → Sum(XOR) + Carry(AND)<br>Full Adder: <span>3 input termasuk Carry-In</span> → blok dasar ALU</div>
+</div>
+
+<!-- ADC/DAC -->
+<div class="scene" id="s-adc">
+  <div class="atitle">ADC (Analog→Digital) &amp; DAC (Digital→Analog)</div>
+  <canvas id="c-adc" class="brd" width="460" height="210" style="width:100%"></canvas>
+  <div class="ctrl">
+    <div class="ctrl-row"><span class="ctrl-lbl">📈 Vin analog</span><input type="range" class="sl" id="ac-vin" min="0" max="5" value="3.3" step="0.01"><span class="ctrl-val" id="ac-vin-v">3.30 V</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">🔢 Resolusi (bit)</span><input type="range" class="sl" id="ac-bits" min="2" max="10" value="8" step="1"><span class="ctrl-val" id="ac-bits-v">8 bit</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">⚡ Vref</span><input type="range" class="sl" id="ac-vref" min="1" max="5" value="5" step="0.1"><span class="ctrl-val" id="ac-vref-v">5.0 V</span></div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-lbl">ADC code</div><div class="metric-val" id="ac-code">168</div><div class="metric-unit">dec</div></div>
+    <div class="metric"><div class="metric-lbl">BINER</div><div class="metric-val" id="ac-bin" style="font-size:9px">10101000</div><div class="metric-unit"></div></div>
+    <div class="metric"><div class="metric-lbl">LSB</div><div class="metric-val" id="ac-lsb">19.6</div><div class="metric-unit">mV</div></div>
+    <div class="metric"><div class="metric-lbl">ERROR</div><div class="metric-val" id="ac-err">±0.5</div><div class="metric-unit">LSB</div></div>
+  </div>
+  <div class="info">ADC code = Vin/Vref × (2ⁿ−1) | LSB = Vref/2ⁿ<br>Resolusi lebih tinggi → <span>error kuantisasi makin kecil</span></div>
+</div>
+
+<!-- PWM -->
+<div class="scene" id="s-pwm">
+  <div class="atitle">PWM — PULSE WIDTH MODULATION</div>
+  <canvas id="c-pwm" class="brd" width="460" height="210" style="width:100%"></canvas>
+  <div class="ctrl">
+    <div class="ctrl-row"><span class="ctrl-lbl">📶 Duty Cycle</span><input type="range" class="sl" id="pw-duty" min="0" max="100" value="50" step="1"><span class="ctrl-val" id="pw-duty-v">50 %</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">📶 Frekuensi</span><input type="range" class="sl" id="pw-freq" min="10" max="10000" value="1000" step="10"><span class="ctrl-val" id="pw-freq-v">1000 Hz</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">⚡ Vpeak</span><input type="range" class="sl" id="pw-vp" min="1" max="24" value="5" step="0.5"><span class="ctrl-val" id="pw-vp-v">5 V</span></div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-lbl">Vavg</div><div class="metric-val" id="pw-vavg">2.50</div><div class="metric-unit">V</div></div>
+    <div class="metric"><div class="metric-lbl">Ton</div><div class="metric-val" id="pw-ton">500</div><div class="metric-unit">µs</div></div>
+    <div class="metric"><div class="metric-lbl">Toff</div><div class="metric-val" id="pw-toff">500</div><div class="metric-unit">µs</div></div>
+    <div class="metric"><div class="metric-lbl">PERIODE</div><div class="metric-val" id="pw-t">1.0</div><div class="metric-unit">ms</div></div>
+  </div>
+  <div class="info">Vavg = Vpeak × Duty/100 → <span>kontrol motor, LED, konverter DC-DC</span><br>Frekuensi tinggi → ripple kecil setelah filter LC</div>
+</div>
+
+<!-- ════════ ANALOG SCENES ════════ -->
+
+<!-- INTEGRATOR & DIFFERENTIATOR -->
+<div class="scene" id="s-intdiff">
+  <div class="atitle">OP-AMP INTEGRATOR &amp; DIFFERENTIATOR</div>
+  <canvas id="c-intdiff" class="brd" width="460" height="210" style="width:100%"></canvas>
+  <div class="ctrl">
+    <div class="ctrl-row"><span class="ctrl-lbl">🔘 Mode</span><input type="range" class="sl asl" id="id-mode" min="0" max="1" value="0" step="1"><span class="ctrl-val av" id="id-mode-v">Integrator</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">📶 Frekuensi</span><input type="range" class="sl asl" id="id-f" min="10" max="5000" value="100" step="10"><span class="ctrl-val av" id="id-f-v">100 Hz</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">⚙ R</span><input type="range" class="sl asl" id="id-r" min="1000" max="100000" value="10000" step="1000"><span class="ctrl-val av" id="id-r-v">10 kΩ</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">🔌 C</span><input type="range" class="sl asl" id="id-c" min="1" max="1000" value="100" step="1"><span class="ctrl-val av" id="id-c-v">100 nF</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">🔘 Bentuk sinyal</span><input type="range" class="sl asl" id="id-wave" min="0" max="2" value="0" step="1"><span class="ctrl-val av" id="id-wave-v">Kotak</span></div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-lbl">τ = RC</div><div class="metric-val av" id="id-tau">1.0</div><div class="metric-unit">ms</div></div>
+    <div class="metric"><div class="metric-lbl">fc</div><div class="metric-val av" id="id-fc">159</div><div class="metric-unit">Hz</div></div>
+    <div class="metric"><div class="metric-lbl">GAIN @ f</div><div class="metric-val av" id="id-gain">-3.0</div><div class="metric-unit">dB</div></div>
+    <div class="metric"><div class="metric-lbl">FASA</div><div class="metric-val av" id="id-phase">-90°</div><div class="metric-unit"></div></div>
+  </div>
+  <div class="info">Integrator: output = −(1/RC)∫Vin dt → <span>kotak→segitiga</span><br>Differentiator: output = −RC×dVin/dt → <span>segitiga→kotak</span></div>
+</div>
+
+<!-- WIEN BRIDGE OSCILLATOR -->
+<div class="scene" id="s-wien">
+  <div class="atitle">WIEN BRIDGE OSCILLATOR — SINUS GENERATOR</div>
+  <canvas id="c-wien" class="brd" width="460" height="210" style="width:100%"></canvas>
+  <div class="ctrl">
+    <div class="ctrl-row"><span class="ctrl-lbl">⚙ R Wien</span><input type="range" class="sl asl" id="wn-r" min="1000" max="100000" value="10000" step="1000"><span class="ctrl-val av" id="wn-r-v">10 kΩ</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">🔌 C Wien</span><input type="range" class="sl asl" id="wn-c" min="1" max="1000" value="10" step="1"><span class="ctrl-val av" id="wn-c-v">10 nF</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">📢 Gain (Rf/R1)</span><input type="range" class="sl asl" id="wn-gain" min="1" max="10" value="3" step="0.1"><span class="ctrl-val av" id="wn-gain-v">3.0</span></div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-lbl">f osilasi</div><div class="metric-val av" id="wn-fr">1592</div><div class="metric-unit">Hz</div></div>
+    <div class="metric"><div class="metric-lbl">Gain loop</div><div class="metric-val av" id="wn-gloop">3.00</div><div class="metric-unit">×</div></div>
+    <div class="metric"><div class="metric-lbl">STATUS</div><div class="metric-val av" id="wn-status" style="font-size:10px">OSILASI</div><div class="metric-unit"></div></div>
+    <div class="metric"><div class="metric-lbl">ω₀</div><div class="metric-val av" id="wn-w0">10.0</div><div class="metric-unit">krad/s</div></div>
+  </div>
+  <div class="info">Syarat osilasi: Gain loop = 3 (Rf = 2×R1)<br>f₀ = <span>1/(2πRC)</span> | Gain &gt; 3 → saturasi, &lt; 3 → mati</div>
+</div>
+
+<!-- 555 TIMER -->
+<div class="scene" id="s-timer555">
+  <div class="atitle">TIMER 555 — ASTABLE &amp; MONOSTABLE</div>
+  <canvas id="c-timer555" class="brd" width="460" height="210" style="width:100%"></canvas>
+  <div class="ctrl">
+    <div class="ctrl-row"><span class="ctrl-lbl">🔘 Mode</span><input type="range" class="sl asl" id="t5-mode" min="0" max="1" value="0" step="1"><span class="ctrl-val av" id="t5-mode-v">Astable</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">⚙ Ra</span><input type="range" class="sl asl" id="t5-ra" min="1000" max="100000" value="10000" step="1000"><span class="ctrl-val av" id="t5-ra-v">10 kΩ</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">⚙ Rb</span><input type="range" class="sl asl" id="t5-rb" min="1000" max="100000" value="10000" step="1000"><span class="ctrl-val av" id="t5-rb-v">10 kΩ</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">🔌 C</span><input type="range" class="sl asl" id="t5-c" min="1" max="1000" value="10" step="1"><span class="ctrl-val av" id="t5-c-v">10 µF</span></div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-lbl">Ton</div><div class="metric-val av" id="t5-ton">138</div><div class="metric-unit">ms</div></div>
+    <div class="metric"><div class="metric-lbl">Toff</div><div class="metric-val av" id="t5-toff">69</div><div class="metric-unit">ms</div></div>
+    <div class="metric"><div class="metric-lbl">Frekuensi</div><div class="metric-val av" id="t5-freq">4.8</div><div class="metric-unit">Hz</div></div>
+    <div class="metric"><div class="metric-lbl">Duty</div><div class="metric-val av" id="t5-duty">66.7</div><div class="metric-unit">%</div></div>
+  </div>
+  <div class="info">Astable: Ton=0.693(Ra+Rb)C | Toff=0.693·Rb·C<br>Monostable: <span>T=1.1·R·C</span> (satu pulsa per trigger)</div>
+</div>
+
+<!-- ACTIVE FILTER -->
+<div class="scene" id="s-activefilter">
+  <div class="atitle">ACTIVE FILTER — SALLEN-KEY (2ND ORDER)</div>
+  <canvas id="c-activefilter" class="brd" width="460" height="210" style="width:100%"></canvas>
+  <div class="ctrl">
+    <div class="ctrl-row"><span class="ctrl-lbl">🔘 Tipe</span><input type="range" class="sl asl" id="af-type" min="0" max="2" value="0" step="1"><span class="ctrl-val av" id="af-type-v">Low-Pass</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">⚙ R</span><input type="range" class="sl asl" id="af-r" min="1000" max="100000" value="10000" step="1000"><span class="ctrl-val av" id="af-r-v">10 kΩ</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">🔌 C</span><input type="range" class="sl asl" id="af-c" min="1" max="1000" value="10" step="1"><span class="ctrl-val av" id="af-c-v">10 nF</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">📐 Q factor</span><input type="range" class="sl asl" id="af-q" min="0.1" max="5" value="0.707" step="0.01"><span class="ctrl-val av" id="af-q-v">0.71 (Butter.)</span></div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-lbl">fc</div><div class="metric-val av" id="af-fc">1592</div><div class="metric-unit">Hz</div></div>
+    <div class="metric"><div class="metric-lbl">Roll-off</div><div class="metric-val av">-40</div><div class="metric-unit">dB/dec</div></div>
+    <div class="metric"><div class="metric-lbl">Q</div><div class="metric-val av" id="af-mq">0.71</div><div class="metric-unit"></div></div>
+    <div class="metric"><div class="metric-lbl">RESPON</div><div class="metric-val av" id="af-resp" style="font-size:9px">Butterworth</div><div class="metric-unit"></div></div>
+  </div>
+  <div class="info">2nd order: roll-off <span>-40dB/dekade</span> (vs -20dB order 1)<br>Q=0.707 Butterworth (flat) | Q&gt;1 → peaking resonansi</div>
+</div>
+
+<!-- INSTRUMENTATION AMP -->
+<div class="scene" id="s-instruamp">
+  <div class="atitle">INSTRUMENTATION AMPLIFIER — SENSOR BRIDGE</div>
+  <canvas id="c-instruamp" class="brd" width="460" height="210" style="width:100%"></canvas>
+  <div class="ctrl">
+    <div class="ctrl-row"><span class="ctrl-lbl">📈 V1 (sensor+)</span><input type="range" class="sl asl" id="ia-v1" min="-2" max="2" value="0.5" step="0.01"><span class="ctrl-val av" id="ia-v1-v">0.50 V</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">📉 V2 (sensor−)</span><input type="range" class="sl asl" id="ia-v2" min="-2" max="2" value="0.4" step="0.01"><span class="ctrl-val av" id="ia-v2-v">0.40 V</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">🎚 Gain (Rg)</span><input type="range" class="sl asl" id="ia-rg" min="100" max="50000" value="1000" step="100"><span class="ctrl-val av" id="ia-rg-v">Gain=100</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">🔊 CMRR</span><input type="range" class="sl asl" id="ia-cmrr" min="60" max="140" value="100" step="5"><span class="ctrl-val av" id="ia-cmrr-v">100 dB</span></div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-lbl">Vdiff</div><div class="metric-val av" id="ia-vdiff">100</div><div class="metric-unit">mV</div></div>
+    <div class="metric"><div class="metric-lbl">GAIN</div><div class="metric-val av" id="ia-gain">100</div><div class="metric-unit">×</div></div>
+    <div class="metric"><div class="metric-lbl">Vout</div><div class="metric-val av" id="ia-vout">10.0</div><div class="metric-unit">V</div></div>
+    <div class="metric"><div class="metric-lbl">CMRR</div><div class="metric-val av" id="ia-mcmrr">100</div><div class="metric-unit">dB</div></div>
+  </div>
+  <div class="info">3 op-amp: 2 buffer + 1 diff → <span>Gain = 1 + 2R/Rg</span><br>CMRR tinggi → tolak noise bersama (EMI, ground hum)</div>
+</div>
+
+<!-- PLL -->
+<div class="scene" id="s-pll">
+  <div class="atitle">PHASE-LOCKED LOOP (PLL)</div>
+  <canvas id="c-pll" class="brd" width="460" height="210" style="width:100%"></canvas>
+  <div class="ctrl">
+    <div class="ctrl-row"><span class="ctrl-lbl">📶 Fin (kHz)</span><input type="range" class="sl asl" id="pl-fin" min="1" max="100" value="10" step="0.5"><span class="ctrl-val av" id="pl-fin-v">10.0 kHz</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">🔒 Fvco center</span><input type="range" class="sl asl" id="pl-fvco" min="1" max="100" value="10" step="0.5"><span class="ctrl-val av" id="pl-fvco-v">10.0 kHz</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">🔢 N (divider)</span><input type="range" class="sl asl" id="pl-n" min="1" max="16" value="1" step="1"><span class="ctrl-val av" id="pl-n-v">÷1</span></div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-lbl">Fin</div><div class="metric-val av" id="pl-mfin">10.0</div><div class="metric-unit">kHz</div></div>
+    <div class="metric"><div class="metric-lbl">Fout</div><div class="metric-val av" id="pl-mfout">10.0</div><div class="metric-unit">kHz</div></div>
+    <div class="metric"><div class="metric-lbl">LOCK</div><div class="metric-val av" id="pl-lock" style="font-size:10px">LOCKED</div><div class="metric-unit"></div></div>
+    <div class="metric"><div class="metric-lbl">Fout/Fin</div><div class="metric-val av" id="pl-ratio">1.0</div><div class="metric-unit">×</div></div>
+  </div>
+  <div class="info">PD → LPF → VCO → feedback divider ÷N<br>Fout = N × Fin → <span>frequency synthesis / clock multiply</span></div>
+</div>
+
+<!-- DAC R-2R -->
+<div class="scene" id="s-dac_r2r">
+  <div class="atitle">DAC R-2R LADDER — 4 BIT</div>
+  <canvas id="c-dac_r2r" class="brd" width="460" height="210" style="width:100%"></canvas>
+  <div class="ctrl">
+    <div class="ctrl-row"><span class="ctrl-lbl">🔵 Bit 3 (MSB)</span><input type="range" class="sl asl" id="dr-b3" min="0" max="1" value="1" step="1"><span class="ctrl-val av" id="dr-b3-v">1</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">🔵 Bit 2</span><input type="range" class="sl asl" id="dr-b2" min="0" max="1" value="0" step="1"><span class="ctrl-val av" id="dr-b2-v">0</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">🔵 Bit 1</span><input type="range" class="sl asl" id="dr-b1" min="0" max="1" value="1" step="1"><span class="ctrl-val av" id="dr-b1-v">1</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">🔵 Bit 0 (LSB)</span><input type="range" class="sl asl" id="dr-b0" min="0" max="1" value="0" step="1"><span class="ctrl-val av" id="dr-b0-v">0</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">⚡ Vref</span><input type="range" class="sl asl" id="dr-vref" min="1" max="10" value="5" step="0.1"><span class="ctrl-val av" id="dr-vref-v">5.0 V</span></div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-lbl">KODE</div><div class="metric-val av" id="dr-code">1010</div><div class="metric-unit">biner</div></div>
+    <div class="metric"><div class="metric-lbl">DESIMAL</div><div class="metric-val av" id="dr-dec">10</div><div class="metric-unit">/15</div></div>
+    <div class="metric"><div class="metric-lbl">Vout</div><div class="metric-val av" id="dr-vout">3.33</div><div class="metric-unit">V</div></div>
+    <div class="metric"><div class="metric-lbl">LSB</div><div class="metric-val av" id="dr-lsb">333</div><div class="metric-unit">mV</div></div>
+  </div>
+  <div class="info">Tangga R-2R: hanya 2 nilai resistor (R dan 2R)<br>Vout = Vref × <span>kode / 2ⁿ</span> → konversi digital ke analog</div>
+</div>
+
+</div><!-- /card -->
+<footer>◈ RANGKAIAN DIGITAL &amp; ANALOG INTERAKTIF ◈</footer>
+</div>
+
+<script>
+"use strict";
+var activeS = "gates", activeCat = "digital";
+function el(id){ return document.getElementById(id); }
+function fmtR(v){ if(v>=1e6)return(v/1e6).toFixed(2)+" MΩ"; if(v>=1e3)return(v/1e3).toFixed(1)+" kΩ"; return v.toFixed(0)+" Ω"; }
+
+// Category switch
+el("cat-digital").addEventListener("click",function(){
+  activeCat="digital"; el("cat-digital").classList.add("on"); el("cat-analog").classList.remove("on");
+  el("dig-tabs").style.display=""; el("ana-tabs").style.display="none";
+  switchScene("gates");
+});
+el("cat-analog").addEventListener("click",function(){
+  activeCat="analog"; el("cat-analog").classList.add("on"); el("cat-digital").classList.remove("on");
+  el("dig-tabs").style.display="none"; el("ana-tabs").style.display="";
+  switchScene("intdiff");
+});
+
+// Slider update
+document.querySelectorAll(".sl").forEach(function(s){
+  function u(){ s.style.setProperty("--pct",((s.value-s.min)/(s.max-s.min)*100).toFixed(1)+"%"); }
+  u(); s.addEventListener("input",u);
+});
+
+// Tabs
+document.querySelectorAll(".tab").forEach(function(t){
+  t.addEventListener("click",function(){
+    var parent=t.closest(".tabs");
+    if(parent) parent.querySelectorAll(".tab").forEach(function(x){x.classList.remove("on");});
+    t.classList.add("on"); switchScene(t.dataset.s);
+  });
+});
+
+function switchScene(id){
+  document.querySelectorAll(".scene").forEach(function(x){x.classList.remove("on");});
+  var sc=el("s-"+id); if(sc) sc.classList.add("on");
+  activeS=id;
+}
+
+// Draw helpers
+function rr(ctx,x,y,w,h,r){
+  ctx.beginPath(); ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y); ctx.arcTo(x+w,y,x+w,y+r,r);
+  ctx.lineTo(x+w,y+h-r); ctx.arcTo(x+w,y+h,x+w-r,y+h,r); ctx.lineTo(x+r,y+h);
+  ctx.arcTo(x,y+h,x,y+h-r,r); ctx.lineTo(x,y+r); ctx.arcTo(x,y,x+r,y,r); ctx.closePath();
+}
+function wl(ctx,x1,y1,x2,y2,col,w){ ctx.strokeStyle=col||"#0d2233"; ctx.lineWidth=w||2; ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke(); }
+function dot(ctx,x,y,r,col,glow){ ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fillStyle=col; if(glow){ctx.shadowColor=col;ctx.shadowBlur=glow;} ctx.fill(); ctx.shadowBlur=0; }
+function sigCol(v){ return v?"#00ff88":"#44aaff"; }
+function sigGlow(v){ return v?8:4; }
+
+function drawGateBody(ctx,cx,cy,label,col){
+  col=col||"#44aaff"; ctx.fillStyle="#040810"; ctx.strokeStyle=col; ctx.lineWidth=2;
+  rr(ctx,cx-20,cy-14,40,28,4); ctx.fill(); ctx.stroke();
+  ctx.fillStyle=col; ctx.font="bold 8px Share Tech Mono"; ctx.textAlign="center"; ctx.fillText(label,cx,cy+3);
+}
+function drawLEDout(ctx,x,y,val,label){
+  ctx.beginPath(); ctx.arc(x,y,9,0,Math.PI*2);
+  ctx.fillStyle=val?"#00ff88":"#001a10"; ctx.strokeStyle=val?"#00ff88":"#0d3322"; ctx.lineWidth=2;
+  ctx.shadowColor=val?"#00ff88":"transparent"; ctx.shadowBlur=val?14:0; ctx.fill(); ctx.stroke(); ctx.shadowBlur=0;
+  ctx.fillStyle=val?"#000":"#224a33"; ctx.font="7px Share Tech Mono"; ctx.textAlign="center"; ctx.fillText(val?"1":"0",x,y+3);
+  ctx.fillStyle=val?"#00ff88":"#224a33"; ctx.font="7px Share Tech Mono"; ctx.fillText(label,x,y+18);
+}
+
+// ══════════════════════════════════════════════════════════════
+// LOGIC GATES
+// ══════════════════════════════════════════════════════════════
+(function(){
+  var cvs=el("c-gates"),ctx=cvs.getContext("2d");
+  var A=0,B=0;
+  function read(){
+    A=parseInt(el("gt-a").value); B=parseInt(el("gt-b").value);
+    el("gt-a-v").textContent=A+" ("+(A?"HIGH":"LOW")+")"; el("gt-b-v").textContent=B+" ("+(B?"HIGH":"LOW")+")";
+    var and=A&B,or=A|B,not=A^1,nand=(A&B)^1,nor=(A|B)^1,xor=A^B;
+    el("gt-and").textContent=and; el("gt-or").textContent=or; el("gt-not").textContent=not;
+    el("gt-nand").textContent=nand; el("gt-nor").textContent=nor; el("gt-xor").textContent=xor;
+    [["gt-and",and],["gt-or",or],["gt-not",not],["gt-nand",nand],["gt-nor",nor],["gt-xor",xor]].forEach(function(p){
+      el(p[0]).style.color=p[1]?"var(--g)":"var(--d)";
+    });
+  }
+  ["gt-a","gt-b"].forEach(function(id){el(id).addEventListener("input",read);});
+  function draw(){
+    if(activeS!=="gates"){requestAnimationFrame(draw);return;}
+    var W=cvs.width,H=cvs.height;
+    ctx.clearRect(0,0,W,H);
+    var gates=[
+      {name:"AND",fn:function(a,b){return a&b;},col:"#44aaff"},
+      {name:"OR", fn:function(a,b){return a|b;},col:"#44aaff"},
+      {name:"NOT",fn:function(a,b){return a^1;},col:"#cc44ff"},
+      {name:"NAND",fn:function(a,b){return(a&b)^1;},col:"#ff9933"},
+      {name:"NOR", fn:function(a,b){return(a|b)^1;},col:"#ff9933"},
+      {name:"XOR", fn:function(a,b){return a^b;},col:"#00e5cc"},
+    ];
+    var cols=3, rows=2, gw=W/cols, gh=H/rows;
+    gates.forEach(function(g,i){
+      var col=i%cols, row=Math.floor(i/cols);
+      var cx=col*gw+gw/2, cy=row*gh+gh/2;
+      var out=g.fn(A,B);
+      var gc=out?g.col:g.col+"55";
+      drawGateBody(ctx,cx,cy,g.name,gc);
+      // inputs
+      if(g.name!=="NOT"){
+        wl(ctx,cx-36,cy-8,cx-20,cy-8,sigCol(A)); dot(ctx,cx-34,cy-8,3,sigCol(A),sigGlow(A));
+        wl(ctx,cx-36,cy+8,cx-20,cy+8,sigCol(B)); dot(ctx,cx-34,cy+8,3,sigCol(B),sigGlow(B));
+        ctx.fillStyle=sigCol(A); ctx.font="7px Share Tech Mono"; ctx.textAlign="right"; ctx.fillText("A",cx-38,cy-5);
+        ctx.fillStyle=sigCol(B); ctx.fillText("B",cx-38,cy+11);
+      } else {
+        wl(ctx,cx-36,cy,cx-20,cy,sigCol(A)); dot(ctx,cx-34,cy,3,sigCol(A),sigGlow(A));
+        ctx.fillStyle=sigCol(A); ctx.font="7px Share Tech Mono"; ctx.textAlign="right"; ctx.fillText("A",cx-38,cy+3);
+      }
+      // output
+      wl(ctx,cx+20,cy,cx+34,cy,out?"#00ff88":"#224a44");
+      dot(ctx,cx+32,cy,4,out?"#00ff88":"#224a44",out?12:0);
+      ctx.fillStyle=out?"#00ff88":"#224a44"; ctx.font="bold 8px Share Tech Mono"; ctx.textAlign="left";
+      ctx.shadowColor=out?"#00ff88":"transparent"; ctx.shadowBlur=out?8:0;
+      ctx.fillText(out?"1":"0",cx+36,cy+3); ctx.shadowBlur=0;
+    });
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw); read();
+})();
+
+// ══════════════════════════════════════════════════════════════
+// FLIP-FLOP
+// ══════════════════════════════════════════════════════════════
+(function(){
+  var cvs=el("c-flipflop"),ctx=cvs.getContext("2d");
+  var ffType=0,S=0,R2=0,Q=0,clkCount=0;
+  var TYPES=["SR","D","JK"];
+  function read(){
+    ffType=parseInt(el("ff-type").value); S=parseInt(el("ff-s").value); R2=parseInt(el("ff-r").value);
+    el("ff-type-v").textContent=TYPES[ffType];
+    el("ff-s-v").textContent=S; el("ff-r-v").textContent=R2;
+    updateDisplay();
+  }
+  function updateDisplay(){
+    el("ff-q").textContent=Q; el("ff-qn").textContent=Q^1;
+    var states=["RESET","SET"];
+    el("ff-state").textContent=states[Q]||"UNDEF";
+    el("ff-state").style.color=Q?"var(--g)":"var(--d)";
+    el("ff-q").style.color=Q?"var(--g)":"var(--d)"; el("ff-qn").style.color=(Q^1)?"var(--g)":"var(--d)";
+    el("ff-clk").textContent="↑ #"+clkCount;
+  }
+  el("ff-clk-btn").addEventListener("click",function(){
+    clkCount++;
+    if(ffType===0){ // SR
+      if(S===1&&R2===0) Q=1; else if(S===0&&R2===1) Q=0; else if(S===0&&R2===0){} // hold
+    } else if(ffType===1){ // D
+      Q=S;
+    } else { // JK
+      if(S===1&&R2===1) Q=Q^1; else if(S===1&&R2===0) Q=1; else if(S===0&&R2===1) Q=0;
+    }
+    updateDisplay();
+  });
+  el("ff-reset-btn").addEventListener("click",function(){ Q=0; clkCount=0; updateDisplay(); });
+  ["ff-type","ff-s","ff-r"].forEach(function(id){el(id).addEventListener("input",read);});
+
+  function draw(){
+    if(activeS!=="flipflop"){requestAnimationFrame(draw);return;}
+    var W=cvs.width,H=cvs.height;
+    ctx.clearRect(0,0,W,H);
+    var cx=W/2,cy=H/2-10;
+
+    // FF body
+    rr(ctx,cx-50,cy-44,100,88,6);
+    ctx.fillStyle="#040810"; ctx.strokeStyle="#44aaff"; ctx.lineWidth=2; ctx.fill(); ctx.stroke();
+    ctx.fillStyle="#44aaff"; ctx.font="bold 9px Share Tech Mono"; ctx.textAlign="center";
+    ctx.fillText(TYPES[ffType]+" FF",cx,cy-28);
+
+    // Input labels based on type
+    var sLabel=ffType===0?"S":ffType===1?"D":"J";
+    var rLabel=ffType===0?"R":ffType===1?"−":"K";
+    ctx.fillStyle=sigCol(S); ctx.font="9px Share Tech Mono"; ctx.textAlign="right";
+    ctx.fillText(sLabel+"="+S,cx-54,cy-14);
+    if(ffType!==1){ ctx.fillStyle=sigCol(R2); ctx.fillText(rLabel+"="+R2,cx-54,cy+14); }
+    ctx.fillStyle="#44aaff"; ctx.fillText("CLK",cx-54,cy+36);
+    wl(ctx,cx-50,cy-18,cx-50,cy-18,"#44aaff"); // just dot
+    wl(ctx,cx-66,cy-18,cx-50,cy-18,sigCol(S)); wl(ctx,cx-66,cy+18,cx-50,cy+18,sigCol(R2));
+    wl(ctx,cx-66,cy+34,cx-50,cy+34,"#ff9933");
+    // CLK
+    ctx.strokeStyle="#ff9933"; ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.moveTo(cx-62,cy+28); ctx.lineTo(cx-62,cy+34); ctx.lineTo(cx-56,cy+34); ctx.lineTo(cx-56,cy+28); ctx.lineTo(cx-50,cy+28); ctx.stroke();
+
+    // Outputs
+    wl(ctx,cx+50,cy-18,cx+80,cy-18,Q?"#00ff88":"#224a44"); wl(ctx,cx+50,cy+18,cx+80,cy+18,(Q^1)?"#00ff88":"#224a44");
+    dot(ctx,cx+78,cy-18,5,Q?"#00ff88":"#224a44",Q?12:0);
+    dot(ctx,cx+78,cy+18,5,(Q^1)?"#00ff88":"#224a44",(Q^1)?12:0);
+    ctx.fillStyle=Q?"#00ff88":"#224a44"; ctx.font="bold 9px Share Tech Mono"; ctx.textAlign="left";
+    ctx.shadowColor=Q?"#00ff88":"transparent"; ctx.shadowBlur=Q?8:0; ctx.fillText("Q="+Q,cx+82,cy-14); ctx.shadowBlur=0;
+    ctx.fillStyle=(Q^1)?"#00ff88":"#224a44"; ctx.shadowColor=(Q^1)?"#00ff88":"transparent"; ctx.shadowBlur=(Q^1)?8:0;
+    ctx.fillText("Q̄="+(Q^1),cx+82,cy+22); ctx.shadowBlur=0;
+
+    // Truth table mini
+    var ttx=20,tty=H-60;
+    ctx.fillStyle="#0a1620"; rr(ctx,ttx,tty,120,50,4); ctx.fill();
+    ctx.strokeStyle="#0d2233"; ctx.lineWidth=1; rr(ctx,ttx,tty,120,50,4); ctx.stroke();
+    ctx.fillStyle="var(--dim)"; ctx.font="7px Share Tech Mono"; ctx.textAlign="center";
+    if(ffType===0) ctx.fillText("S=1,R=0→SET | S=0,R=1→RESET",ttx+60,tty+14);
+    else if(ffType===1) ctx.fillText("D=1→Q=1 | D=0→Q=0 on CLK↑",ttx+60,tty+14);
+    else ctx.fillText("J=K=1→toggle | J=1,K=0→SET",ttx+60,tty+14);
+    ctx.fillStyle="var(--dim)"; ctx.fillText("Hold atau Toggle sesuai input",ttx+60,tty+30);
+
+    // State display
+    ctx.fillStyle=Q?"#00ff88":"#44aaff"; ctx.font="bold 11px Share Tech Mono"; ctx.textAlign="center";
+    ctx.shadowColor=ctx.fillStyle; ctx.shadowBlur=8;
+    ctx.fillText(Q?"● SET (Q=1)":"○ RESET (Q=0)",W*3/4+10,H/2+30);
+    ctx.shadowBlur=0;
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw); read();
+})();
+
+// ══════════════════════════════════════════════════════════════
+// BINARY COUNTER
+// ══════════════════════════════════════════════════════════════
+(function(){
+  var cvs=el("c-counter"),ctx=cvs.getContext("2d");
+  var spd=3,MOD=16,count=0,running=false,clkTotal=0;
+  var lastClk=null,history=[];for(var i=0;i<32;i++)history.push(0);
+
+  function read(){
+    spd=parseInt(el("cnt-spd").value); MOD=parseInt(el("cnt-mod").value);
+    el("cnt-spd-v").textContent=spd+" Hz"; el("cnt-mod-v").textContent=MOD+(MOD===16?" (4-bit)":MOD===8?" (3-bit)":"");
+    if(count>=MOD){count=0;}
+    updateDisplay();
+  }
+  ["cnt-spd","cnt-mod"].forEach(function(id){el(id).addEventListener("input",read);});
+
+  function step(){
+    count=(count+1)%MOD; clkTotal++;
+    history.shift(); history.push(count);
+    updateDisplay();
+  }
+  function updateDisplay(){
+    el("cnt-dec").textContent=count; el("cnt-bin").textContent=count.toString(2).padStart(4,"0");
+    el("cnt-hex").textContent="0x"+count.toString(16).toUpperCase(); el("cnt-clk").textContent=clkTotal;
+  }
+  el("cnt-run").addEventListener("click",function(){ running=true; lastClk=null; });
+  el("cnt-step").addEventListener("click",function(){ step(); });
+  el("cnt-stop").addEventListener("click",function(){ running=false; lastClk=null; });
+  el("cnt-clr").addEventListener("click",function(){ running=false; count=0; clkTotal=0; lastClk=null; history.fill(0); updateDisplay(); });
+
+  function draw(ts){
+    if(activeS!=="counter"){requestAnimationFrame(draw);return;}
+    var W=cvs.width,H=cvs.height;
+    ctx.clearRect(0,0,W,H);
+
+    if(running){
+      if(!lastClk)lastClk=ts;
+      if(ts-lastClk>=1000/spd){ step(); lastClk=ts; }
+    }
+
+    // 4 bit display (big)
+    var bits=count.toString(2).padStart(4,"0");
+    var bx=W/2-80,by=30;
+    for(var i=0;i<4;i++){
+      var bv=parseInt(bits[i]);
+      var bxp=bx+i*44;
+      rr(ctx,bxp,by,36,44,5);
+      ctx.fillStyle=bv?"#001a0a":"#040810"; ctx.strokeStyle=bv?"#00ff88":"#0d2233"; ctx.lineWidth=2;
+      ctx.shadowColor=bv?"#00ff88":"transparent"; ctx.shadowBlur=bv?12:0; ctx.fill(); ctx.stroke(); ctx.shadowBlur=0;
+      ctx.fillStyle=bv?"#00ff88":"#224a33"; ctx.font="bold 20px Share Tech Mono"; ctx.textAlign="center";
+      ctx.shadowColor=bv?"#00ff88":"transparent"; ctx.shadowBlur=bv?10:0; ctx.fillText(bits[i],bxp+18,by+30); ctx.shadowBlur=0;
+      ctx.fillStyle="var(--dim)"; ctx.font="7px Share Tech Mono"; ctx.textAlign="center";
+      ctx.fillText("Q"+(3-i),bxp+18,by+54);
+    }
+    // Decimal / Hex
+    ctx.fillStyle="#44aaff"; ctx.font="bold 18px Share Tech Mono"; ctx.textAlign="center";
+    ctx.shadowColor="#44aaff"; ctx.shadowBlur=8; ctx.fillText(count,W-60,by+30); ctx.shadowBlur=0;
+    ctx.fillStyle="var(--dim)"; ctx.font="8px Share Tech Mono"; ctx.fillText("DEC",W-60,by+44);
+    ctx.fillStyle="#cc44ff"; ctx.font="bold 14px Share Tech Mono"; ctx.textAlign="center";
+    ctx.fillText("0x"+count.toString(16).toUpperCase(),W-60,by+62);
+
+    // History waveform (CLK + Q0-Q3)
+    var wy=110,wh=12,wgap=5,wx=10,ww=W-20;
+    var labels=["CLK","Q0","Q1","Q2","Q3"];
+    history.forEach(function(val,i){
+      // we can't do per-bit history easily, skip and draw current state bar
+    });
+    // Simpler: draw progress bar
+    var prog=count/Math.max(MOD-1,1);
+    ctx.fillStyle="#040810"; rr(ctx,wx,wy,ww,20,3); ctx.fill();
+    ctx.fillStyle="#44aaff"; ctx.shadowColor="#44aaff"; ctx.shadowBlur=6;
+    rr(ctx,wx,wy,prog*ww,20,3); ctx.fill(); ctx.shadowBlur=0;
+    ctx.fillStyle="#fff"; ctx.font="8px Share Tech Mono"; ctx.textAlign="center";
+    ctx.fillText(count+"/"+MOD+" ("+((prog*100).toFixed(0))+"%) — "+bits,W/2,wy+13);
+
+    // 4 bit waveform strips
+    var wsy=140;
+    for(var b=0;b<4;b++){
+      var stripY=wsy+b*16;
+      var bval=parseInt(bits[3-b]);
+      ctx.fillStyle="var(--dim)"; ctx.font="7px Share Tech Mono"; ctx.textAlign="left"; ctx.fillText("Q"+b,wx,stripY+8);
+      ctx.fillStyle=bval?"#001a0a":"#040810"; ctx.strokeStyle="var(--bdr)"; ctx.lineWidth=1;
+      rr(ctx,wx+22,stripY,ww-24,12,2); ctx.fill(); ctx.stroke();
+      if(bval){ ctx.fillStyle="#00ff88"; ctx.shadowColor="#00ff88"; ctx.shadowBlur=4; rr(ctx,wx+22,stripY,ww-24,12,2); ctx.fill(); ctx.shadowBlur=0; }
+      ctx.fillStyle=bval?"#001a0a":"var(--dim)"; ctx.font="7px Share Tech Mono"; ctx.textAlign="center";
+      ctx.fillText(bits[3-b],W/2,stripY+8);
+    }
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw); read();
+})();
+
+// ══════════════════════════════════════════════════════════════
+// MUX/DEMUX
+// ══════════════════════════════════════════════════════════════
+(function(){
+  var cvs=el("c-mux"),ctx=cvs.getContext("2d");
+  var SEL=0,INS=5;
+  function read(){
+    SEL=parseInt(el("mx-sel").value); INS=parseInt(el("mx-in").value);
+    var selBin=SEL.toString(2).padStart(2,"0"); var inBin=INS.toString(2).padStart(4,"0");
+    el("mx-sel-v").textContent=selBin+" → I"+SEL; el("mx-in-v").textContent=inBin;
+    var muxOut=parseInt(inBin[3-SEL]); var dyOut="Y"+SEL;
+    el("mx-msel").textContent=selBin; el("mx-mout").textContent=muxOut;
+    el("mx-dy").textContent=dyOut; el("mx-dout").textContent=muxOut;
+    el("mx-mout").style.color=muxOut?"var(--g)":"var(--d)"; el("mx-dout").style.color=muxOut?"var(--g)":"var(--d)";
+  }
+  ["mx-sel","mx-in"].forEach(function(id){el(id).addEventListener("input",read);});
+
+  function draw(){
+    if(activeS!=="mux"){requestAnimationFrame(draw);return;}
+    var W=cvs.width,H=cvs.height;
+    ctx.clearRect(0,0,W,H);
+    var inBin=INS.toString(2).padStart(4,"0");
+    var muxOut=parseInt(inBin[3-SEL]);
+
+    // MUX
+    var mx=130,my=H/2;
+    rr(ctx,mx-30,my-50,60,100,5);
+    ctx.fillStyle="#040810"; ctx.strokeStyle="#44aaff"; ctx.lineWidth=2; ctx.fill(); ctx.stroke();
+    ctx.fillStyle="#44aaff"; ctx.font="bold 8px Share Tech Mono"; ctx.textAlign="center";
+    ctx.fillText("MUX",mx,my-34); ctx.fillText("4:1",mx,my-24);
+
+    for(var i=0;i<4;i++){
+      var iy=my-38+i*26; var iv=parseInt(inBin[3-i]); var active=SEL===i;
+      wl(ctx,mx-50,iy,mx-30,iy,active?sigCol(iv):"#0d2233",active?2:1);
+      dot(ctx,mx-48,iy,3,sigCol(iv),iv&&active?8:0);
+      ctx.fillStyle=active?sigCol(iv):"var(--dim)"; ctx.font="7px Share Tech Mono"; ctx.textAlign="right";
+      ctx.fillText("I"+i+"="+iv,mx-52,iy+3);
+      if(active){
+        ctx.strokeStyle=sigCol(iv); ctx.lineWidth=2; ctx.setLineDash([2,3]);
+        ctx.beginPath(); ctx.moveTo(mx-30,iy); ctx.lineTo(mx+30,my); ctx.stroke(); ctx.setLineDash([]);
+      }
+    }
+    // SEL
+    wl(ctx,mx,my+50,mx,my+70,"#ffe044",2); ctx.fillStyle="#ffe044"; ctx.font="7px Share Tech Mono"; ctx.textAlign="center"; ctx.fillText("S="+SEL.toString(2).padStart(2,"0"),mx,my+82);
+    // Output
+    wl(ctx,mx+30,my,mx+60,my,muxOut?"#00ff88":"#224a44",2);
+    dot(ctx,mx+58,my,5,muxOut?"#00ff88":"#224a44",muxOut?12:0);
+    ctx.fillStyle=muxOut?"#00ff88":"var(--dim)"; ctx.font="bold 9px Share Tech Mono"; ctx.textAlign="left";
+    ctx.shadowColor=muxOut?"#00ff88":"transparent"; ctx.shadowBlur=muxOut?8:0;
+    ctx.fillText("OUT="+muxOut,mx+62,my+4); ctx.shadowBlur=0;
+
+    // DEMUX
+    var dx=310,dy=H/2;
+    rr(ctx,dx-30,dy-50,60,100,5);
+    ctx.fillStyle="#040810"; ctx.strokeStyle="#cc44ff"; ctx.lineWidth=2; ctx.fill(); ctx.stroke();
+    ctx.fillStyle="#cc44ff"; ctx.font="bold 8px Share Tech Mono"; ctx.textAlign="center";
+    ctx.fillText("DEMUX",dx,dy-34); ctx.fillText("1:4",dx,dy-24);
+    // input
+    wl(ctx,dx-60,dy,dx-30,dy,muxOut?"#00ff88":"#224a44",2);
+    dot(ctx,dx-58,dy,3,muxOut?"#00ff88":"#224a44",muxOut?6:0);
+    ctx.fillStyle="var(--dim)"; ctx.font="7px Share Tech Mono"; ctx.textAlign="right"; ctx.fillText("IN="+muxOut,dx-62,dy+3);
+    wl(ctx,dx,dy+50,dx,dy+70,"#ffe044",2); ctx.fillStyle="#ffe044"; ctx.font="7px Share Tech Mono"; ctx.textAlign="center"; ctx.fillText("S="+SEL.toString(2).padStart(2,"0"),dx,dy+82);
+    // outputs
+    for(var j=0;j<4;j++){
+      var jy=dy-38+j*26; var active2=SEL===j; var jv=active2?muxOut:0;
+      wl(ctx,dx+30,jy,dx+55,jy,active2&&jv?"#cc44ff":"#0d2233",active2?2:1);
+      dot(ctx,dx+53,jy,3,active2&&jv?"#cc44ff":"#0d2233",active2&&jv?8:0);
+      ctx.fillStyle=active2?"#cc44ff":"var(--dim)"; ctx.font="7px Share Tech Mono"; ctx.textAlign="left";
+      ctx.fillText("Y"+j+"="+jv,dx+57,jy+3);
+    }
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw); read();
+})();
+
+// ══════════════════════════════════════════════════════════════
+// ADDER
+// ══════════════════════════════════════════════════════════════
+(function(){
+  var cvs=el("c-adder"),ctx=cvs.getContext("2d");
+  var A2=0,B2=0,Cin=0;
+  function read(){
+    A2=parseInt(el("ad-a").value); B2=parseInt(el("ad-b").value); Cin=parseInt(el("ad-cin").value);
+    el("ad-a-v").textContent=A2; el("ad-b-v").textContent=B2; el("ad-cin-v").textContent=Cin;
+    var haS=A2^B2, haC=A2&B2; var faS=A2^B2^Cin; var faC=(A2&B2)|(B2&Cin)|(A2&Cin);
+    el("ad-ha-s").textContent=haS; el("ad-ha-c").textContent=haC;
+    el("ad-fa-s").textContent=faS; el("ad-fa-c").textContent=faC;
+    [["ad-ha-s",haS],["ad-ha-c",haC],["ad-fa-s",faS],["ad-fa-c",faC]].forEach(function(p){el(p[0]).style.color=p[1]?"var(--g)":"var(--d)";});
+  }
+  ["ad-a","ad-b","ad-cin"].forEach(function(id){el(id).addEventListener("input",read);});
+
+  function draw(){
+    if(activeS!=="adder"){requestAnimationFrame(draw);return;}
+    var W=cvs.width,H=cvs.height;
+    ctx.clearRect(0,0,W,H);
+    var haS=A2^B2, haC=A2&B2, faS=A2^B2^Cin, faC=(A2&B2)|(B2&Cin)|(A2&Cin);
+    var cy=H/2;
+
+    // Half Adder (left)
+    var hax=120,hay=cy;
+    rr(ctx,hax-44,hay-32,88,64,5); ctx.fillStyle="#040810"; ctx.strokeStyle="#44aaff"; ctx.lineWidth=2; ctx.fill(); ctx.stroke();
+    ctx.fillStyle="#44aaff"; ctx.font="bold 8px Share Tech Mono"; ctx.textAlign="center"; ctx.fillText("HALF",hax,hay-14); ctx.fillText("ADDER",hax,hay-4);
+    wl(ctx,hax-62,hay-16,hax-44,hay-16,sigCol(A2)); ctx.fillStyle=sigCol(A2); ctx.font="7px Share Tech Mono"; ctx.textAlign="right"; ctx.fillText("A="+A2,hax-64,hay-12);
+    wl(ctx,hax-62,hay+16,hax-44,hay+16,sigCol(B2)); ctx.fillStyle=sigCol(B2); ctx.textAlign="right"; ctx.fillText("B="+B2,hax-64,hay+20);
+    wl(ctx,hax+44,hay-14,hax+72,hay-14,haS?"#00ff88":"#224a44"); dot(ctx,hax+70,hay-14,4,haS?"#00ff88":"#224a44",haS?10:0);
+    wl(ctx,hax+44,hay+14,hax+72,hay+14,haC?"#ff9933":"#224a44"); dot(ctx,hax+70,hay+14,4,haC?"#ff9933":"#224a44",haC?10:0);
+    ctx.fillStyle=haS?"#00ff88":"var(--dim)"; ctx.font="7px Share Tech Mono"; ctx.textAlign="left"; ctx.fillText("S="+haS,hax+74,hay-10);
+    ctx.fillStyle=haC?"#ff9933":"var(--dim)"; ctx.fillText("C="+haC,hax+74,hay+18);
+
+    // Full Adder (right)
+    var fax=330,fay=cy;
+    rr(ctx,fax-44,fay-40,88,80,5); ctx.fillStyle="#040810"; ctx.strokeStyle="#cc44ff"; ctx.lineWidth=2; ctx.fill(); ctx.stroke();
+    ctx.fillStyle="#cc44ff"; ctx.font="bold 8px Share Tech Mono"; ctx.textAlign="center"; ctx.fillText("FULL",fax,fay-20); ctx.fillText("ADDER",fax,fay-10); ctx.fillText("(2×HA)",fax,fay+2);
+    wl(ctx,fax-62,fay-24,fax-44,fay-24,sigCol(A2)); ctx.fillStyle=sigCol(A2); ctx.textAlign="right"; ctx.fillText("A="+A2,fax-64,fay-20);
+    wl(ctx,fax-62,fay,fax-44,fay,sigCol(B2)); ctx.fillStyle=sigCol(B2); ctx.textAlign="right"; ctx.fillText("B="+B2,fax-64,fay+4);
+    wl(ctx,fax-62,fay+24,fax-44,fay+24,sigCol(Cin)); ctx.fillStyle=sigCol(Cin); ctx.fillText("Cin="+Cin,fax-64,fay+28);
+    wl(ctx,fax+44,fay-14,fax+72,fay-14,faS?"#00ff88":"#224a44"); dot(ctx,fax+70,fay-14,4,faS?"#00ff88":"#224a44",faS?10:0);
+    wl(ctx,fax+44,fay+14,fax+72,fay+14,faC?"#ff9933":"#224a44"); dot(ctx,fax+70,fay+14,4,faC?"#ff9933":"#224a44",faC?10:0);
+    ctx.fillStyle=faS?"#00ff88":"var(--dim)"; ctx.textAlign="left"; ctx.fillText("Sum="+faS,fax+74,fay-10);
+    ctx.fillStyle=faC?"#ff9933":"var(--dim)"; ctx.fillText("Cout="+faC,fax+74,fay+18);
+
+    // Result label
+    var sum=A2+B2+Cin;
+    ctx.fillStyle="#ffe044"; ctx.font="bold 10px Share Tech Mono"; ctx.textAlign="center"; ctx.shadowColor="#ffe044"; ctx.shadowBlur=8;
+    ctx.fillText(A2+" + "+B2+" + Cin("+Cin+") = "+sum+" → "+sum.toString(2).padStart(2,"0")+"₂",W/2,H-14); ctx.shadowBlur=0;
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw); read();
+})();
+
+// ══════════════════════════════════════════════════════════════
+// ADC/DAC
+// ══════════════════════════════════════════════════════════════
+(function(){
+  var cvs=el("c-adc"),ctx=cvs.getContext("2d");
+  var Vin=3.3,BITS=8,VREF=5;
+  function read(){
+    Vin=parseFloat(el("ac-vin").value); BITS=parseInt(el("ac-bits").value); VREF=parseFloat(el("ac-vref").value);
+    el("ac-vin-v").textContent=Vin.toFixed(2)+" V"; el("ac-bits-v").textContent=BITS+" bit"; el("ac-vref-v").textContent=VREF.toFixed(1)+" V";
+    var levels=Math.pow(2,BITS); var code=Math.round(Vin/VREF*(levels-1)); code=Math.min(code,levels-1);
+    var lsb=VREF/levels*1000;
+    el("ac-code").textContent=code; el("ac-bin").textContent=code.toString(2).padStart(BITS,"0").slice(-8);
+    el("ac-lsb").textContent=lsb.toFixed(1); el("ac-err").textContent="±0.5";
+  }
+  ["ac-vin","ac-bits","ac-vref"].forEach(function(id){el(id).addEventListener("input",read);});
+
+  function draw(ts){
+    if(activeS!=="adc"){requestAnimationFrame(draw);return;}
+    var W=cvs.width,H=cvs.height,t=ts/400;
+    ctx.clearRect(0,0,W,H);
+    var levels=Math.pow(2,BITS); var code=Math.round(Vin/VREF*(levels-1));
+    code=Math.min(code,levels-1); var lsb=VREF/levels;
+
+    // Analog input (left)
+    var ax=20,aw=100,ay=H/2,ah=28;
+    // animated analog signal
+    ctx.strokeStyle="#ff9933"; ctx.lineWidth=2; ctx.setLineDash([]);
+    ctx.beginPath();
+    for(var i=0;i<=aw;i++){
+      var y=ay-Math.sin((i/aw)*Math.PI*2-t)*ah*0.8;
+      if(i===0)ctx.moveTo(ax+i,y); else ctx.lineTo(ax+i,y);
+    }ctx.stroke();
+    // Vin marker
+    var vinY=ay-(Vin/VREF)*ah*1.2;
+    ctx.strokeStyle="#ffe044"; ctx.lineWidth=1.5; ctx.setLineDash([3,4]);
+    ctx.beginPath(); ctx.moveTo(ax,vinY); ctx.lineTo(ax+aw,vinY); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle="#ffe044"; ctx.font="8px Share Tech Mono"; ctx.textAlign="left"; ctx.fillText(Vin.toFixed(2)+"V",ax,vinY-4);
+
+    // ADC block
+    var adcX=ax+aw+40,adcY=H/2;
+    rr(ctx,adcX-28,adcY-28,56,56,5); ctx.fillStyle="#040810"; ctx.strokeStyle="#44aaff"; ctx.lineWidth=2; ctx.fill(); ctx.stroke();
+    ctx.fillStyle="#44aaff"; ctx.font="bold 8px Share Tech Mono"; ctx.textAlign="center";
+    ctx.fillText("ADC",adcX,adcY-8); ctx.fillText(BITS+"bit",adcX,adcY+4); ctx.fillText("SAR",adcX,adcY+16);
+    wl(ctx,ax+aw,adcY,adcX-28,adcY,"#ff9933",2);
+
+    // Quantization steps
+    var qx=adcX+28+20,qw=80,qy=H/2,qh=40;
+    ctx.fillStyle="#040810"; rr(ctx,qx,qy-qh,qw,qh*2,3); ctx.fill();
+    ctx.strokeStyle="#0d2233"; rr(ctx,qx,qy-qh,qw,qh*2,3); ctx.stroke();
+    var stepH=qh*2/Math.min(levels,16);
+    for(var s=0;s<Math.min(levels,16);s++){
+      var sy=qy-qh+s*stepH;
+      var sc=s===Math.min(code,15)?1:0;
+      ctx.fillStyle=sc?"rgba(68,170,255,0.4)":"rgba(68,170,255,0.05)";
+      ctx.fillRect(qx+2,sy,qw-4,stepH-1);
+      if(sc){ ctx.strokeStyle="#44aaff"; ctx.lineWidth=1.5; ctx.strokeRect(qx+2,sy,qw-4,stepH-1); }
+    }
+    ctx.fillStyle="#44aaff"; ctx.font="7px Share Tech Mono"; ctx.textAlign="center"; ctx.fillText("Q steps ("+Math.min(levels,16)+"shown)",qx+qw/2,qy+qh+12);
+
+    // Digital output
+    var bStr=code.toString(2).padStart(BITS,"0");
+    var dox=qx+qw+20,doy=H/2;
+    for(var b=0;b<Math.min(BITS,8);b++){
+      var bv=parseInt(bStr[b]);
+      var bx=dox+b*(bv?12:12),bby=doy+16;
+      // show as vertical lines (serial-like)
+      var barH=bv?30:10;
+      ctx.fillStyle=bv?"#44aaff":"#0d2233"; ctx.shadowColor=bv?"#44aaff":"transparent"; ctx.shadowBlur=bv?5:0;
+      ctx.fillRect(dox+b*11,doy-barH/2,8,barH); ctx.shadowBlur=0;
+    }
+    ctx.fillStyle="#44aaff"; ctx.font="7px Share Tech Mono"; ctx.textAlign="center"; ctx.fillText("CODE: "+bStr.slice(0,8),dox+Math.min(BITS,8)*11/2,doy+26);
+    ctx.fillText(code+" DEC",dox+Math.min(BITS,8)*11/2,doy+36);
+
+    // LSB indicator
+    ctx.fillStyle="var(--dim)"; ctx.font="8px Share Tech Mono"; ctx.textAlign="center";
+    ctx.fillText("LSB="+lsb.toFixed(2)+"V  |  "+levels+" levels  |  "+BITS+"-bit",W/2,H-10);
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw); read();
+})();
+
+// ══════════════════════════════════════════════════════════════
+// PWM
+// ══════════════════════════════════════════════════════════════
+(function(){
+  var cvs=el("c-pwm"),ctx=cvs.getContext("2d");
+  var DUTY=50,FREQ2=1000,VP=5;
+  function read(){
+    DUTY=parseFloat(el("pw-duty").value); FREQ2=parseFloat(el("pw-freq").value); VP=parseFloat(el("pw-vp").value);
+    el("pw-duty-v").textContent=DUTY+"%"; el("pw-freq-v").textContent=FREQ2+" Hz"; el("pw-vp-v").textContent=VP+" V";
+    var T=1/FREQ2*1000; var ton=T*DUTY/100; var toff=T*(1-DUTY/100); var vavg=VP*DUTY/100;
+    el("pw-vavg").textContent=vavg.toFixed(2); el("pw-ton").textContent=ton.toFixed(0); el("pw-toff").textContent=toff.toFixed(0); el("pw-t").textContent=T.toFixed(1);
+  }
+  ["pw-duty","pw-freq","pw-vp"].forEach(function(id){el(id).addEventListener("input",read);});
+
+  function draw(ts){
+    if(activeS!=="pwm"){requestAnimationFrame(draw);return;}
+    var W=cvs.width,H=cvs.height,t=ts/1000;
+    ctx.clearRect(0,0,W,H);
+
+    var gx=14,gy=14,gw=W-28,gh=H-70;
+    ctx.fillStyle="#040810"; rr(ctx,gx,gy,gw,gh,4); ctx.fill();
+    ctx.strokeStyle="#0d2233"; ctx.lineWidth=1; ctx.setLineDash([2,5]);
+    ctx.beginPath(); ctx.moveTo(gx,gy+gh/2); ctx.lineTo(gx+gw,gy+gh/2); ctx.stroke(); ctx.setLineDash([]);
+
+    var dc=DUTY/100; var cy=gy+gh*0.15; var by2=gy+gh*0.85; var spd=FREQ2/200;
+
+    // PWM waveform
+    ctx.beginPath(); ctx.strokeStyle="#44aaff"; ctx.lineWidth=2.5; ctx.shadowColor="#44aaff"; ctx.shadowBlur=5;
+    for(var px=0;px<=gw;px++){
+      var phase=((px/gw*4+t*spd)%1);
+      var high=phase<dc;
+      var y=high?cy:by2;
+      if(px===0)ctx.moveTo(gx+px,y);
+      else{
+        var prevPhase=(((px-1)/gw*4+t*spd)%1);
+        var prevHigh=prevPhase<dc;
+        if(high!==prevHigh){ ctx.lineTo(gx+px,prevHigh?cy:by2); ctx.lineTo(gx+px,y); }
+        else ctx.lineTo(gx+px,y);
+      }
+    }ctx.stroke(); ctx.shadowBlur=0;
+
+    // Vavg line
+    var vavg=VP*DUTY/100; var vavgY=by2-(vavg/VP)*(by2-cy);
+    ctx.strokeStyle="#ffe044"; ctx.lineWidth=1.5; ctx.setLineDash([4,5]);
+    ctx.beginPath(); ctx.moveTo(gx,vavgY); ctx.lineTo(gx+gw,vavgY); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle="#ffe044"; ctx.font="8px Share Tech Mono"; ctx.textAlign="right";
+    ctx.fillText("Vavg="+vavg.toFixed(2)+"V",gx+gw,vavgY-4);
+
+    // Labels
+    ctx.fillStyle="#44aaff"; ctx.font="8px Share Tech Mono"; ctx.textAlign="left"; ctx.fillText(VP+"V",gx+2,cy+10);
+    ctx.fillStyle="var(--dim)"; ctx.fillText("0V",gx+2,by2-3);
+
+    // Bottom info bar
+    var bx=14,bby=H-42,bw=W-28,bh=14;
+    ctx.fillStyle="#040810"; rr(ctx,bx,bby,bw,bh,3); ctx.fill();
+    ctx.fillStyle="#44aaff"; ctx.shadowColor="#44aaff"; ctx.shadowBlur=4;
+    rr(ctx,bx,bby,bw*dc,bh,3); ctx.fill(); ctx.shadowBlur=0;
+    ctx.fillStyle="#fff"; ctx.font="8px Share Tech Mono"; ctx.textAlign="center"; ctx.fillText("Duty="+DUTY+"% | Ton="+(1/FREQ2*1000*dc).toFixed(0)+"µs | Toff="+(1/FREQ2*1000*(1-dc)).toFixed(0)+"µs",W/2,bby+9);
+    ctx.fillStyle="var(--dim)"; ctx.fillText("Vavg="+vavg.toFixed(2)+"V  Aplikasi: motor speed, DC-DC converter, LED dimmer",W/2,H-10);
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw); read();
+})();
+
+// ══════════════════════════════════════════════════════════════
+// INTEGRATOR / DIFFERENTIATOR
+// ══════════════════════════════════════════════════════════════
+(function(){
+  var cvs=el("c-intdiff"),ctx=cvs.getContext("2d");
+  var MODE=0,F=100,R=10000,C2=100,WAVE=0;
+  function read(){
+    MODE=parseInt(el("id-mode").value); F=parseFloat(el("id-f").value);
+    R=parseFloat(el("id-r").value); C2=parseFloat(el("id-c").value); WAVE=parseInt(el("id-wave").value);
+    el("id-mode-v").textContent=MODE===0?"Integrator":"Differentiator";
+    el("id-f-v").textContent=F+" Hz"; el("id-r-v").textContent=fmtR(R); el("id-c-v").textContent=C2+" nF"; el("id-wave-v").textContent=["Kotak","Segitiga","Sinus"][WAVE];
+    var C=C2*1e-9; var tau=R*C; var fc=1/(2*Math.PI*tau);
+    var XC=1/(2*Math.PI*F*C); var gain=20*Math.log10(MODE===0?XC/R:R/XC)*0;
+    var lp=R/Math.sqrt(R*R+XC*XC); var hp=XC/Math.sqrt(R*R+XC*XC);
+    var g=MODE===0?lp:hp; var gdb=20*Math.log10(g);
+    el("id-tau").textContent=(tau*1000).toFixed(2); el("id-fc").textContent=fc.toFixed(1);
+    el("id-gain").textContent=gdb.toFixed(1); el("id-phase").textContent=MODE===0?"-90°":"+90°";
+  }
+  ["id-mode","id-f","id-r","id-c","id-wave"].forEach(function(id){el(id).addEventListener("input",read);});
+
+  function draw(ts){
+    if(activeS!=="intdiff"){requestAnimationFrame(draw);return;}
+    var W=cvs.width,H=cvs.height,t=ts/300;
+    ctx.clearRect(0,0,W,H);
+    var spd=F/100; var gy=H/2,amp=H/2-16;
+
+    function inputSig(x){ // 0..1
+      var ph=(x*4+t*spd)%1;
+      if(WAVE===0) return ph<0.5?1:-1;
+      if(WAVE===1) return ph<0.5?ph*4-1:3-ph*4;
+      return Math.sin(ph*Math.PI*2);
+    }
+    function outputSig(x){ // simplified
+      if(MODE===0){ // integrator: square→tri, tri→parabola, sin→-cos
+        if(WAVE===0){ var ph2=(x*4+t*spd)%1; return ph2<0.5?ph2*4-1:3-ph2*4; }
+        if(WAVE===1){ var ph3=(x*4+t*spd)%1; return ph3<0.5?Math.pow(ph3*2,2)-0.5:Math.pow((1-ph3)*2,2)-0.5; }
+        return -Math.cos((x*4+t*spd)*Math.PI*2);
+      } else { // differentiator: square→spikes, tri→square, sin→cos
+        if(WAVE===0){ var ph4=(x*4+t*spd)%1; return Math.abs(ph4-0.5)<0.05?((ph4<0.5)?1:-1)*10:0; }
+        if(WAVE===1){ var ph5=(x*4+t*spd)%1; return ph5<0.5?1:-1; }
+        return Math.cos((x*4+t*spd)*Math.PI*2);
+      }
+    }
+
+    var gw=W-28,gx=14;
+    // Background
+    ctx.fillStyle="#040810"; rr(ctx,gx,8,gw,H-20,4); ctx.fill();
+    ctx.strokeStyle="#0d2233"; ctx.lineWidth=1; ctx.setLineDash([2,5]);
+    ctx.beginPath(); ctx.moveTo(gx,gy); ctx.lineTo(gx+gw,gy); ctx.stroke(); ctx.setLineDash([]);
+
+    // Input
+    ctx.beginPath(); ctx.strokeStyle="rgba(255,153,51,0.5)"; ctx.lineWidth=1.5;
+    for(var px=0;px<=gw;px++){
+      var v=inputSig(px/gw); var y=gy-v*amp*0.42;
+      if(px===0)ctx.moveTo(gx+px,y); else ctx.lineTo(gx+px,y);
+    }ctx.stroke();
+
+    // Output
+    ctx.beginPath(); ctx.strokeStyle="#44aaff"; ctx.lineWidth=2.5; ctx.shadowColor="#44aaff"; ctx.shadowBlur=5;
+    var maxOut=0;
+    for(var px2=0;px2<=gw;px2++){var o=Math.abs(outputSig(px2/gw));if(o>maxOut)maxOut=o;}
+    maxOut=Math.max(maxOut,0.1);
+    for(var px3=0;px3<=gw;px3++){
+      var v2=outputSig(px3/gw); var y2=gy-v2/maxOut*amp*0.42;
+      y2=Math.max(8,Math.min(H-12,y2));
+      if(px3===0)ctx.moveTo(gx+px3,y2); else ctx.lineTo(gx+px3,y2);
+    }ctx.stroke(); ctx.shadowBlur=0;
+
+    ctx.fillStyle="rgba(255,153,51,0.6)"; ctx.font="8px Share Tech Mono"; ctx.textAlign="left"; ctx.fillText("Vin: "+["Kotak","Segitiga","Sinus"][WAVE],gx+4,20);
+    ctx.fillStyle="#44aaff"; ctx.fillText("Vout ("+(MODE===0?"∫":"d/dt")+"):"+["Segitiga","Parabola","-cos/cos"][WAVE],gx+4,30);
+    ctx.fillStyle="var(--dim)"; ctx.fillText("τ=RC="+(R*C2*1e-9*1000).toFixed(2)+"ms  fc="+(1/(2*Math.PI*R*C2*1e-9)).toFixed(0)+"Hz",gx+4,H-8);
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw); read();
+})();
+
+// ══════════════════════════════════════════════════════════════
+// WIEN BRIDGE OSCILLATOR
+// ══════════════════════════════════════════════════════════════
+(function(){
+  var cvs=el("c-wien"),ctx=cvs.getContext("2d");
+  var Rw=10000,Cw=10,GAIN=3;
+  function read(){
+    Rw=parseFloat(el("wn-r").value); Cw=parseFloat(el("wn-c").value); GAIN=parseFloat(el("wn-gain").value);
+    el("wn-r-v").textContent=fmtR(Rw); el("wn-c-v").textContent=Cw+" nF"; el("wn-gain-v").textContent=GAIN.toFixed(1);
+    var C=Cw*1e-9; var f0=1/(2*Math.PI*Rw*C); var w0=2*Math.PI*f0;
+    var st=Math.abs(GAIN-3)<0.05?"OSILASI":GAIN>3.05?"SATURASI":"MATI";
+    el("wn-fr").textContent=f0.toFixed(0); el("wn-gloop").textContent=GAIN.toFixed(2);
+    el("wn-status").textContent=st; el("wn-status").style.color=st==="OSILASI"?"var(--g)":st==="SATURASI"?"var(--y)":"var(--r)";
+    el("wn-w0").textContent=(w0/1000).toFixed(1);
+  }
+  ["wn-r","wn-c","wn-gain"].forEach(function(id){el(id).addEventListener("input",read);});
+
+  function draw(ts){
+    if(activeS!=="wien"){requestAnimationFrame(draw);return;}
+    var W=cvs.width,H=cvs.height,t=ts/300;
+    ctx.clearRect(0,0,W,H);
+    var C=Cw*1e-9; var f0=1/(2*Math.PI*Rw*C);
+    var oscillating=Math.abs(GAIN-3)<0.05; var saturated=GAIN>3.05;
+    var amp=oscillating?1:saturated?1:GAIN/3*0.3; var spd=f0/1000;
+    var gy=H/2, gamp=H/2-16;
+
+    ctx.fillStyle="#040810"; rr(ctx,14,8,W-28,H-20,4); ctx.fill();
+    ctx.strokeStyle="#0d2233"; ctx.lineWidth=1; ctx.setLineDash([2,5]);
+    ctx.beginPath(); ctx.moveTo(14,gy); ctx.lineTo(W-14,gy); ctx.stroke(); ctx.setLineDash([]);
+
+    var col=oscillating?"#ff9933":saturated?"#ff3355":"#224a44";
+    ctx.beginPath(); ctx.strokeStyle=col; ctx.lineWidth=2.5; ctx.shadowColor=col; ctx.shadowBlur=oscillating?8:4;
+    for(var px=0;px<=W-28;px++){
+      var rawSin=Math.sin((px/(W-28)*4+t*spd)*Math.PI*2);
+      var v=saturated?Math.sign(rawSin)*0.95:rawSin*amp;
+      var y=gy-v*gamp*0.85;
+      if(px===0)ctx.moveTo(14+px,y); else ctx.lineTo(14+px,y);
+    }ctx.stroke(); ctx.shadowBlur=0;
+
+    ctx.fillStyle=col; ctx.font="bold 9px Share Tech Mono"; ctx.textAlign="center"; ctx.shadowColor=col; ctx.shadowBlur=oscillating?8:0;
+    ctx.fillText(oscillating?"✓ OSILASI STABIL (Gain=3)":saturated?"⚠ SATURASI (Gain>3→distorsi)":"✗ OSILASI MATI (Gain<3)",W/2,H-28); ctx.shadowBlur=0;
+    ctx.fillStyle="var(--dim)"; ctx.font="8px Share Tech Mono"; ctx.fillText("f₀=1/(2πRC)="+f0.toFixed(0)+"Hz  Rf=2×R1 untuk Gain=3",W/2,H-12);
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw); read();
+})();
+
+// ══════════════════════════════════════════════════════════════
+// 555 TIMER
+// ══════════════════════════════════════════════════════════════
+(function(){
+  var cvs=el("c-timer555"),ctx=cvs.getContext("2d");
+  var MODE=0,Ra=10000,Rb=10000,C3=10;
+  function read(){
+    MODE=parseInt(el("t5-mode").value); Ra=parseFloat(el("t5-ra").value); Rb=parseFloat(el("t5-rb").value); C3=parseFloat(el("t5-c").value);
+    el("t5-mode-v").textContent=MODE===0?"Astable":"Monostable";
+    el("t5-ra-v").textContent=fmtR(Ra); el("t5-rb-v").textContent=fmtR(Rb); el("t5-c-v").textContent=C3+" µF";
+    var C=C3*1e-6;
+    var ton=0.693*(Ra+Rb)*C*1000; var toff=0.693*Rb*C*1000; var freq=1.44/((Ra+2*Rb)*C); var duty=(Ra+Rb)/(Ra+2*Rb)*100;
+    el("t5-ton").textContent=ton.toFixed(1); el("t5-toff").textContent=toff.toFixed(1); el("t5-freq").textContent=freq.toFixed(2); el("t5-duty").textContent=duty.toFixed(1);
+  }
+  ["t5-mode","t5-ra","t5-rb","t5-c"].forEach(function(id){el(id).addEventListener("input",read);});
+
+  function draw(ts){
+    if(activeS!=="timer555"){requestAnimationFrame(draw);return;}
+    var W=cvs.width,H=cvs.height,t=ts/300;
+    ctx.clearRect(0,0,W,H);
+    var C=C3*1e-6; var ton2=0.693*(Ra+Rb)*C; var toff2=0.693*Rb*C; var T=ton2+toff2;
+    var dc=(ton2/T); var freq2=1/T; var spd=freq2/2;
+
+    // 555 block diagram (left)
+    var bx=14,by=24,bw=100,bh=H-48;
+    rr(ctx,bx,by,bw,bh,5); ctx.fillStyle="#040810"; ctx.strokeStyle="#ff9933"; ctx.lineWidth=2; ctx.fill(); ctx.stroke();
+    ctx.fillStyle="#ff9933"; ctx.font="bold 8px Share Tech Mono"; ctx.textAlign="center";
+    ctx.fillText("555",bx+bw/2,by+18); ctx.fillText("TIMER",bx+bw/2,by+30);
+    // pins
+    ctx.fillStyle="var(--dim)"; ctx.font="6px Share Tech Mono"; ctx.textAlign="left";
+    ["GND","TRIG","OUT","RST"].forEach(function(p,i){ ctx.fillText(p,bx+4,by+48+i*16); });
+    ctx.textAlign="right";
+    ["VCC","DIS","THR","CV"].forEach(function(p,i){ ctx.fillText(p,bx+bw-4,by+48+i*16); });
+
+    // Waveforms (right)
+    var gx=130,gy1=H*0.25,gy2=H*0.5,gy3=H*0.78;
+    var gw=W-gx-14,gh=H*0.15;
+
+    function drawStrip(gY,label,col,fn){
+      ctx.fillStyle="#040810"; rr(ctx,gx,gY-gh/2,gw,gh,3); ctx.fill();
+      ctx.strokeStyle="#0d2233"; ctx.lineWidth=1; ctx.setLineDash([2,4]);
+      ctx.beginPath(); ctx.moveTo(gx,gY); ctx.lineTo(gx+gw,gY); ctx.stroke(); ctx.setLineDash([]);
+      ctx.beginPath(); ctx.strokeStyle=col; ctx.lineWidth=2; ctx.shadowColor=col; ctx.shadowBlur=4;
+      for(var px=0;px<=gw;px++){ var v=fn(px/gw); var y=gY-v*gh*0.44; if(px===0)ctx.moveTo(gx+px,y); else ctx.lineTo(gx+px,y); }
+      ctx.stroke(); ctx.shadowBlur=0;
+      ctx.fillStyle=col; ctx.font="7px Share Tech Mono"; ctx.textAlign="left"; ctx.fillText(label,gx+2,gY-gh/2-3);
+    }
+
+    // Cap voltage (triangle-ish charging)
+    drawStrip(gy1,"Vc (cap)","#ff9933",function(x){
+      var ph=((x*3+t*spd)%1); return ph<dc?0.33+ph/dc*0.34:0.67-(ph-dc)/(1-dc)*0.34;
+    });
+    // Output square wave
+    drawStrip(gy2,"Vout (PWM)","#44aaff",function(x){
+      var ph=((x*3+t*spd)%1); return ph<dc?1:-1;
+    });
+    // Discharge
+    drawStrip(gy3,"Discharge","#cc44ff",function(x){
+      var ph=((x*3+t*spd)%1); return ph>=dc?1:-1;
+    });
+
+    ctx.fillStyle="var(--dim)"; ctx.font="8px Share Tech Mono"; ctx.textAlign="center";
+    ctx.fillText(MODE===0?"Astable: f=1.44/((Ra+2Rb)C)="+freq2.toFixed(1)+"Hz  Duty="+dc.toFixed(0)+"%":"Monostable: T=1.1·R·C",W/2,H-8);
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw); read();
+})();
+
+// ══════════════════════════════════════════════════════════════
+// ACTIVE FILTER
+// ══════════════════════════════════════════════════════════════
+(function(){
+  var cvs=el("c-activefilter"),ctx=cvs.getContext("2d");
+  var FTYPE=0,Raf=10000,Caf=10,QAF=0.707;
+  var FTYPES=["Low-Pass","High-Pass","Band-Pass"];
+  function read(){
+    FTYPE=parseInt(el("af-type").value); Raf=parseFloat(el("af-r").value); Caf=parseFloat(el("af-c").value); QAF=parseFloat(el("af-q").value);
+    el("af-type-v").textContent=FTYPES[FTYPE]; el("af-r-v").textContent=fmtR(Raf); el("af-c-v").textContent=Caf+" nF"; el("af-q-v").textContent=QAF.toFixed(2)+(Math.abs(QAF-0.707)<0.01?" (Butter.)":"");
+    var C=Caf*1e-9; var fc2=1/(2*Math.PI*Raf*C);
+    var resp=QAF<0.5?"Bessel/overdamped":Math.abs(QAF-0.707)<0.05?"Butterworth":QAF>1.5?"Chebyshev":"Transitional";
+    el("af-fc").textContent=fc2.toFixed(0); el("af-mq").textContent=QAF.toFixed(2); el("af-resp").textContent=resp;
+    el("af-resp").style.color=Math.abs(QAF-0.707)<0.05?"var(--g)":QAF>1.5?"var(--y)":"var(--d)";
+  }
+  ["af-type","af-r","af-c","af-q"].forEach(function(id){el(id).addEventListener("input",read);});
+
+  function draw(){
+    if(activeS!=="activefilter"){requestAnimationFrame(draw);return;}
+    var W=cvs.width,H=cvs.height;
+    ctx.clearRect(0,0,W,H);
+    var C=Caf*1e-9; var fc=1/(2*Math.PI*Raf*C); var w0=2*Math.PI*fc;
+    var gx=44,gy=14,gw=W-60,gh=H-46;
+    ctx.fillStyle="#040810"; rr(ctx,gx,gy,gw,gh,4); ctx.fill();
+    ctx.strokeStyle="#0d2233"; ctx.lineWidth=1; ctx.setLineDash([2,5]);
+    for(var j=1;j<5;j++){ ctx.beginPath(); ctx.moveTo(gx,gy+gh*j/5); ctx.lineTo(gx+gw,gy+gh*j/5); ctx.stroke(); }
+    ctx.setLineDash([]);
+    var fMin=fc/100,fMax=fc*100;
+    // 2nd order response
+    function gain2nd(f){
+      var w=2*Math.PI*f; var ratio=w/w0;
+      if(FTYPE===0) return 1/Math.sqrt(Math.pow(1-ratio*ratio,2)+Math.pow(ratio/QAF,2));
+      if(FTYPE===1) return ratio*ratio/Math.sqrt(Math.pow(1-ratio*ratio,2)+Math.pow(ratio/QAF,2));
+      return (ratio/QAF)/Math.sqrt(Math.pow(1-ratio*ratio,2)+Math.pow(ratio/QAF,2));
+    }
+    var col="#ff9933";
+    ctx.beginPath(); ctx.strokeStyle=col; ctx.lineWidth=2.5; ctx.shadowColor=col; ctx.shadowBlur=5;
+    for(var px=0;px<=gw;px++){
+      var f=fMin*Math.pow(fMax/fMin,px/gw); var g=gain2nd(f);
+      var gdb=20*Math.log10(Math.max(g,1e-6)); var gclamp=Math.max(-50,Math.min(6,gdb));
+      var py=gy+gh*(1-(gclamp+50)/56);
+      if(px===0)ctx.moveTo(gx+px,py); else ctx.lineTo(gx+px,py);
+    }ctx.stroke(); ctx.shadowBlur=0;
+    // fc marker
+    var fcX=gx+(Math.log(fc/fMin)/Math.log(fMax/fMin))*gw;
+    if(fcX>gx&&fcX<gx+gw){ ctx.strokeStyle="#44aaff"; ctx.lineWidth=1.5; ctx.setLineDash([3,4]); ctx.beginPath(); ctx.moveTo(fcX,gy); ctx.lineTo(fcX,gy+gh); ctx.stroke(); ctx.setLineDash([]); ctx.fillStyle="#44aaff"; ctx.font="8px Share Tech Mono"; ctx.textAlign="center"; ctx.fillText("fc="+fc.toFixed(0)+"Hz",fcX,gy+8); }
+    // -3dB, -40dB lines
+    var db3y=gy+gh*(1-(-3+50)/56); var db40y=gy+gh*(1-(-40+50)/56);
+    ctx.strokeStyle="rgba(255,80,80,0.3)"; ctx.lineWidth=1; ctx.setLineDash([2,4]);
+    ctx.beginPath(); ctx.moveTo(gx,db3y); ctx.lineTo(gx+gw,db3y); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(gx,db40y); ctx.lineTo(gx+gw,db40y); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle="rgba(255,80,80,0.5)"; ctx.font="7px Share Tech Mono"; ctx.textAlign="right"; ctx.fillText("-3dB",gx-2,db3y+4); ctx.fillText("-40dB",gx-2,db40y+4);
+    ctx.fillStyle="var(--dim)"; ctx.font="8px Share Tech Mono"; ctx.textAlign="center"; ctx.fillText("f →",gx+gw/2,gy+gh+12); ctx.fillText("Gain",gx-22,gy+gh/2);
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw); read();
+})();
+
+// ══════════════════════════════════════════════════════════════
+// INSTRUMENTATION AMP
+// ══════════════════════════════════════════════════════════════
+(function(){
+  var cvs=el("c-instruamp"),ctx=cvs.getContext("2d");
+  var V1=0.5,V2=0.4,RG=1000,CMRR=100;
+  function read(){
+    V1=parseFloat(el("ia-v1").value); V2=parseFloat(el("ia-v2").value); RG=parseFloat(el("ia-rg").value); CMRR=parseFloat(el("ia-cmrr").value);
+    var Rfix=49900; var gain=1+2*Rfix/RG; var Vdiff=(V1-V2)*1000; var Vout=Math.max(-12,Math.min(12,(V1-V2)*gain));
+    el("ia-v1-v").textContent=V1.toFixed(2)+" V"; el("ia-v2-v").textContent=V2.toFixed(2)+" V";
+    el("ia-rg-v").textContent="Gain="+gain.toFixed(0);
+    el("ia-vdiff").textContent=Vdiff.toFixed(0); el("ia-gain").textContent=gain.toFixed(0); el("ia-vout").textContent=Vout.toFixed(2); el("ia-mcmrr").textContent=CMRR;
+    el("ia-vout").style.color=Math.abs(Vout)>10?"var(--r)":Math.abs(Vout)>5?"var(--y)":"var(--g)";
+  }
+  ["ia-v1","ia-v2","ia-rg","ia-cmrr"].forEach(function(id){el(id).addEventListener("input",read);});
+
+  function draw(){
+    if(activeS!=="instruamp"){requestAnimationFrame(draw);return;}
+    var W=cvs.width,H=cvs.height;
+    ctx.clearRect(0,0,W,H);
+    var Rfix=49900; var gain=1+2*Rfix/RG; var Vout=Math.max(-12,Math.min(12,(V1-V2)*gain));
+    var Vcm=(V1+V2)/2;
+    var cy=H/2;
+
+    // Stage 1: two input buffers
+    function drawOpTri(cx,cy2){
+      ctx.fillStyle="#040810"; ctx.strokeStyle="#ff9933"; ctx.lineWidth=2;
+      ctx.beginPath(); ctx.moveTo(cx-20,cy2-18); ctx.lineTo(cx-20,cy2+18); ctx.lineTo(cx+20,cy2); ctx.closePath(); ctx.fill(); ctx.stroke();
+    }
+    var oa1x=120,oa1y=cy-36; var oa2x=120,oa2y=cy+36;
+    drawOpTri(oa1x,oa1y); drawOpTri(oa2x,oa2y);
+    ctx.fillStyle="#ff9933"; ctx.font="7px Share Tech Mono"; ctx.textAlign="center"; ctx.fillText("A1",oa1x,oa1y+3); ctx.fillText("A2",oa2x,oa2y+3);
+    // inputs
+    wl(ctx,20,oa1y-10,oa1x-20,oa1y-10,sigCol(V1>0)); wl(ctx,20,oa2y-10,oa2x-20,oa2y-10,sigCol(V2>0));
+    ctx.fillStyle="#ff9933"; ctx.font="8px Share Tech Mono"; ctx.textAlign="right";
+    ctx.fillText("V1="+V1.toFixed(2)+"V",18,oa1y-6); ctx.fillText("V2="+V2.toFixed(2)+"V",18,oa2y-6);
+    // Rg between outputs
+    wl(ctx,oa1x+20,oa1y,oa1x+20,oa1y+18,"#ff9933",2); wl(ctx,oa2x+20,oa2y,oa2x+20,oa2y-18,"#ff9933",2);
+    ctx.fillStyle="#040810"; ctx.strokeStyle="#ff9933"; ctx.lineWidth=2; rr(ctx,oa1x+12,oa1y+18,16,36,3); ctx.fill(); ctx.stroke();
+    ctx.fillStyle="#ff9933"; ctx.font="7px Share Tech Mono"; ctx.textAlign="center"; ctx.fillText("Rg",oa1x+20,cy);
+
+    // Stage 2: difference amp
+    var oa3x=300,oa3y=cy;
+    drawOpTri(oa3x,oa3y); ctx.fillStyle="#44aaff"; ctx.font="7px Share Tech Mono"; ctx.textAlign="center"; ctx.fillText("A3",oa3x,oa3y+3);
+    wl(ctx,oa1x+20,oa1y,oa3x-40,oa1y,"#ff9933"); wl(ctx,oa3x-40,oa1y,oa3x-20,oa3y-10,"#ff9933");
+    wl(ctx,oa2x+20,oa2y,oa3x-40,oa2y,"#ff9933"); wl(ctx,oa3x-40,oa2y,oa3x-20,oa3y+10,"#ff9933");
+
+    // output
+    wl(ctx,oa3x+20,oa3y,W-20,oa3y,"#44aaff",2);
+    var oc=Math.abs(Vout)>10?"#ff3355":Math.abs(Vout)>5?"#ffe044":"#44aaff";
+    ctx.fillStyle=oc; ctx.font="bold 10px Share Tech Mono"; ctx.textAlign="right"; ctx.shadowColor=oc; ctx.shadowBlur=8;
+    ctx.fillText("Vout="+Vout.toFixed(2)+"V",W-4,oa3y+4); ctx.shadowBlur=0;
+    ctx.fillStyle="var(--dim)"; ctx.font="8px Share Tech Mono"; ctx.textAlign="center";
+    ctx.fillText("Gain="+(gain.toFixed(0))+"  Vdiff="+((V1-V2)*1000).toFixed(0)+"mV  Vcm="+Vcm.toFixed(2)+"V  CMRR="+CMRR+"dB",W/2,H-8);
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw); read();
+})();
+
+// ══════════════════════════════════════════════════════════════
+// PLL
+// ══════════════════════════════════════════════════════════════
+(function(){
+  var cvs=el("c-pll"),ctx=cvs.getContext("2d");
+  var Fin=10,Fvco=10,N=1;
+  function read(){
+    Fin=parseFloat(el("pl-fin").value); Fvco=parseFloat(el("pl-fvco").value); N=parseInt(el("pl-n").value);
+    el("pl-fin-v").textContent=Fin.toFixed(1)+" kHz"; el("pl-fvco-v").textContent=Fvco.toFixed(1)+" kHz"; el("pl-n-v").textContent="÷"+N;
+    var Fout=Fin*N; var locked=Math.abs(Fvco-Fin)<0.5;
+    el("pl-mfin").textContent=Fin.toFixed(1); el("pl-mfout").textContent=Fout.toFixed(1);
+    el("pl-lock").textContent=locked?"LOCKED":"UNLOCKED"; el("pl-lock").style.color=locked?"var(--g)":"var(--r)";
+    el("pl-ratio").textContent=N;
+  }
+  ["pl-fin","pl-fvco","pl-n"].forEach(function(id){el(id).addEventListener("input",read);});
+
+  function draw(ts){
+    if(activeS!=="pll"){requestAnimationFrame(draw);return;}
+    var W=cvs.width,H=cvs.height,t=ts/300;
+    ctx.clearRect(0,0,W,H);
+    var Fout=Fin*N; var locked=Math.abs(Fvco-Fin)<0.5;
+    var cy=H/2;
+
+    // PLL block diagram
+    var blocks=[{label:"Phase\nDetector",x:70},{label:"LPF",x:160},{label:"VCO",x:250},{label:"÷"+N,x:340}];
+    blocks.forEach(function(b){
+      rr(ctx,b.x-28,cy-20,56,40,4); ctx.fillStyle="#040810"; ctx.strokeStyle="#ff9933"; ctx.lineWidth=2; ctx.fill(); ctx.stroke();
+      ctx.fillStyle="#ff9933"; ctx.font="7px Share Tech Mono"; ctx.textAlign="center";
+      b.label.split("\n").forEach(function(l,i){ctx.fillText(l,b.x,cy-4+i*12);});
+    });
+    // connect blocks
+    for(var i=0;i<blocks.length-1;i++) wl(ctx,blocks[i].x+28,cy,blocks[i+1].x-28,cy,"#ff9933",2);
+    // feedback from divider back to PD
+    wl(ctx,340,cy+20,340,cy+60,"#ff9933",2); wl(ctx,340,cy+60,70,cy+60,"#ff9933",2); wl(ctx,70,cy+60,70,cy+20,"#ff9933",2);
+    ctx.fillStyle="#ff9933"; ctx.font="7px Share Tech Mono"; ctx.textAlign="center"; ctx.fillText("FEEDBACK",200,cy+72);
+    // input
+    wl(ctx,14,cy,42,cy,"#44aaff",2); ctx.fillStyle="#44aaff"; ctx.font="8px Share Tech Mono"; ctx.textAlign="right"; ctx.fillText("Fin="+Fin+"kHz",12,cy+4);
+    // output
+    wl(ctx,250+28,cy-10,W-14,cy-10,locked?"#00ff88":"#ff3355",2); ctx.fillStyle=locked?"#00ff88":"#ff3355"; ctx.font="8px Share Tech Mono"; ctx.textAlign="left"; ctx.fillText("Fout="+Fout+"kHz",W-12,cy-6);
+
+    // Waveforms
+    var wy=20,wh=18,wx2=14,ww=W-28;
+    ctx.strokeStyle="#0d2233"; ctx.lineWidth=1; ctx.setLineDash([2,4]);
+    ctx.beginPath(); ctx.moveTo(wx2,wy); ctx.lineTo(wx2+ww,wy); ctx.stroke(); ctx.setLineDash([]);
+    // Reference
+    ctx.beginPath(); ctx.strokeStyle="#44aaff"; ctx.lineWidth=2;
+    for(var px=0;px<=ww;px++){
+      var ph=((px/ww*6+t*Fin/5)%1); var y=wy-(ph<0.5?1:-1)*wh*0.8;
+      if(px===0)ctx.moveTo(wx2+px,y); else{var pp=((  (px-1)/ww*6+t*Fin/5)%1); if((ph<0.5)!=(pp<0.5)){ctx.lineTo(wx2+px,pp<0.5?wy-wh*0.8:wy+wh*0.8);} ctx.lineTo(wx2+px,y);}
+    }ctx.stroke();
+    ctx.fillStyle="#44aaff"; ctx.font="7px Share Tech Mono"; ctx.textAlign="left"; ctx.fillText("Fin",wx2,wy-wh-3);
+
+    // Lock indicator
+    ctx.fillStyle=locked?"#00ff88":"#ff3355"; ctx.font="bold 10px Share Tech Mono"; ctx.textAlign="center"; ctx.shadowColor=ctx.fillStyle; ctx.shadowBlur=locked?10:0;
+    ctx.fillText(locked?"🔒 PHASE LOCKED — Fout=N×Fin="+Fout+"kHz":"🔓 UNLOCKED — adjusting...",W/2,H-8); ctx.shadowBlur=0;
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw); read();
+})();
+
+// ══════════════════════════════════════════════════════════════
+// DAC R-2R LADDER
+// ══════════════════════════════════════════════════════════════
+(function(){
+  var cvs=el("c-dac_r2r"),ctx=cvs.getContext("2d");
+  var B=[1,0,1,0],VREF=5;
+  function read(){
+    B=[parseInt(el("dr-b3").value),parseInt(el("dr-b2").value),parseInt(el("dr-b1").value),parseInt(el("dr-b0").value)];
+    VREF=parseFloat(el("dr-vref").value);
+    el("dr-b3-v").textContent=B[0]; el("dr-b2-v").textContent=B[1]; el("dr-b1-v").textContent=B[2]; el("dr-b0-v").textContent=B[3];
+    el("dr-vref-v").textContent=VREF.toFixed(1)+" V";
+    var code=B[0]*8+B[1]*4+B[2]*2+B[3]; var Vout=VREF*code/16;
+    el("dr-code").textContent=B.join(""); el("dr-dec").textContent=code; el("dr-vout").textContent=Vout.toFixed(2); el("dr-lsb").textContent=(VREF/16*1000).toFixed(0);
+  }
+  ["dr-b3","dr-b2","dr-b1","dr-b0","dr-vref"].forEach(function(id){el(id).addEventListener("input",read);});
+
+  function draw(){
+    if(activeS!=="dac_r2r"){requestAnimationFrame(draw);return;}
+    var W=cvs.width,H=cvs.height;
+    ctx.clearRect(0,0,W,H);
+    var code=B[0]*8+B[1]*4+B[2]*2+B[3]; var Vout=VREF*code/16;
+    var R=1, nodes=4, gapX=W/(nodes+1);
+
+    // Draw R-2R ladder
+    var ry=H/2-30;
+    for(var i=0;i<nodes;i++){
+      var nx=(i+1)*gapX;
+      // horizontal R
+      if(i<nodes-1){
+        ctx.fillStyle="#040810"; ctx.strokeStyle="#ff9933"; ctx.lineWidth=2;
+        rr(ctx,nx+10,ry-7,gapX-20,14,3); ctx.fill(); ctx.stroke();
+        ctx.strokeStyle="#ff9933"; ctx.lineWidth=1.3; ctx.beginPath(); var zx=nx+14; ctx.moveTo(zx,ry);
+        for(var z=0;z<=5;z++) ctx.lineTo(zx+z*(gapX-28)/5,ry+(z%2===0?-5:5));
+        ctx.lineTo(nx+gapX-14,ry); ctx.stroke();
+        ctx.fillStyle="#ff9933"; ctx.font="7px Share Tech Mono"; ctx.textAlign="center"; ctx.fillText("R",nx+gapX/2,ry-10);
+      }
+      // 2R to GND
+      wl(ctx,nx,ry,nx,ry+20,"#44aaff",2);
+      ctx.fillStyle="#040810"; ctx.strokeStyle="#44aaff"; ctx.lineWidth=2; rr(ctx,nx-12,ry+20,24,28,3); ctx.fill(); ctx.stroke();
+      ctx.strokeStyle="#44aaff"; ctx.lineWidth=1.3; ctx.beginPath(); ctx.moveTo(nx,ry+21);
+      for(var z2=0;z2<=5;z2++) ctx.lineTo(nx+(z2%2===0?-7:7),ry+21+z2*24/5);
+      ctx.lineTo(nx,ry+45); ctx.stroke();
+      ctx.fillStyle="#44aaff"; ctx.font="7px Share Tech Mono"; ctx.textAlign="center"; ctx.fillText("2R",nx,ry+56);
+
+      // Bit input
+      wl(ctx,nx,ry+48,nx,ry+72,B[i]?"#00ff88":"#224a44",2);
+      ctx.beginPath(); ctx.arc(nx,ry+78,8,0,Math.PI*2);
+      ctx.fillStyle=B[i]?"#001a0a":"#040810"; ctx.strokeStyle=B[i]?"#00ff88":"#0d2233"; ctx.lineWidth=2;
+      ctx.shadowColor=B[i]?"#00ff88":"transparent"; ctx.shadowBlur=B[i]?10:0; ctx.fill(); ctx.stroke(); ctx.shadowBlur=0;
+      ctx.fillStyle=B[i]?"#00ff88":"#224a33"; ctx.font="bold 8px Share Tech Mono"; ctx.textAlign="center"; ctx.fillText(B[i],nx,ry+81);
+      ctx.fillStyle=B[i]?"#00ff88":"var(--dim)"; ctx.font="7px Share Tech Mono"; ctx.fillText("b"+(3-i),nx,ry+93);
+      // node dot
+      dot(ctx,nx,ry,4,B[i]?"#ff9933":"#224a44",B[i]?6:0);
+    }
+    // Output wire
+    wl(ctx,nodes*gapX,ry,nodes*gapX+gapX*0.5,ry,"#ff9933",2);
+    // Op-amp output
+    ctx.beginPath(); ctx.arc(nodes*gapX+gapX*0.5+16,ry,16,0,Math.PI*2);
+    ctx.fillStyle="#040810"; ctx.strokeStyle="#ff9933"; ctx.lineWidth=2; ctx.fill(); ctx.stroke();
+    ctx.fillStyle="#ff9933"; ctx.font="7px Share Tech Mono"; ctx.textAlign="center"; ctx.fillText("A",nodes*gapX+gapX*0.5+16,ry-2); ctx.fillText("buf",nodes*gapX+gapX*0.5+16,ry+8);
+    // Vout label
+    ctx.fillStyle="#ffe044"; ctx.font="bold 11px Share Tech Mono"; ctx.textAlign="center"; ctx.shadowColor="#ffe044"; ctx.shadowBlur=10;
+    ctx.fillText("Vout = "+Vout.toFixed(2)+"V",W/2,H-24); ctx.shadowBlur=0;
+    ctx.fillStyle="var(--dim)"; ctx.font="8px Share Tech Mono"; ctx.fillText("Code: "+B.join("")+"₂ = "+code+" | Vout="+VREF+"×"+code+"/16",W/2,H-10);
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw); read();
+})();
+</script>
+</body>
+</html>

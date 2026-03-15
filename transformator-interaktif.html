@@ -1,0 +1,1229 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Animasi Transformator Interaktif</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --a:#ffbb00; --a2:#ffdd88; --ad:#2a1e00; --ag:rgba(255,187,0,.13);
+  --b:#44ccff; --b2:#aaeeff; --g:#00ff88; --r:#ff3355; --p:#cc44ff;
+  --bg:#080600; --card:#0d0900; --bdr:#3a2a00; --dim:#7a6020;
+  --font:'Share Tech Mono',monospace; --head:'Orbitron',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  background:radial-gradient(ellipse 130% 60% at 50% 0%,#241800 0%,#080600 65%);
+  min-height:100vh; font-family:var(--font); color:var(--a2); overflow-x:hidden;
+}
+body::after{
+  content:''; position:fixed; inset:0; pointer-events:none;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.07) 2px,rgba(0,0,0,.07) 4px);
+  z-index:9999;
+}
+.wrap{max-width:540px;margin:0 auto;padding:20px 14px 48px;}
+
+header{text-align:center;margin-bottom:26px;}
+.sub{font-size:10px;letter-spacing:6px;color:#4a3500;margin-bottom:6px;}
+h1{font-family:var(--head);font-size:clamp(16px,5vw,24px);font-weight:900;
+   color:var(--a);text-shadow:0 0 28px rgba(255,187,0,.55);letter-spacing:3px;margin-bottom:10px;}
+.divline{width:90px;height:2px;background:linear-gradient(to right,transparent,var(--a),transparent);margin:0 auto;}
+
+.tabs{display:flex;gap:5px;margin-bottom:18px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;}
+.tabs::-webkit-scrollbar{display:none;}
+.tab{flex:0 0 auto;padding:7px 12px;border:1px solid var(--bdr);border-radius:8px;
+     background:var(--card);color:var(--dim);cursor:pointer;font-family:var(--font);
+     font-size:10px;letter-spacing:1px;transition:all .2s;white-space:nowrap;}
+.tab:hover{border-color:var(--a2);color:var(--a2);}
+.tab.on{border-color:var(--a);background:#1e1200;color:var(--a);box-shadow:0 0 14px rgba(255,187,0,.2);}
+
+.card{background:var(--card);border:1px solid var(--bdr);border-radius:16px;
+      padding:24px 18px;box-shadow:0 0 40px rgba(255,187,0,.04),inset 0 1px 0 #3a2a00;}
+
+.scene{display:none;flex-direction:column;align-items:center;gap:18px;}
+.scene.on{display:flex;}
+
+.ctrl{width:100%;background:#080600;border:1px solid var(--bdr);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:10px;}
+.ctrl-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.ctrl-lbl{font-size:11px;color:var(--dim);min-width:96px;letter-spacing:1px;}
+.sl{flex:1;min-width:100px;-webkit-appearance:none;height:4px;
+    background:linear-gradient(to right,var(--a) var(--pct,50%),#3a2a00 var(--pct,50%));
+    border-radius:2px;outline:none;cursor:pointer;}
+.sl::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--a);box-shadow:0 0 8px rgba(255,187,0,.7);cursor:pointer;}
+.sl::-moz-range-thumb{width:16px;height:16px;border-radius:50%;border:none;background:var(--a);box-shadow:0 0 8px rgba(255,187,0,.7);cursor:pointer;}
+.ctrl-val{font-size:12px;color:var(--a);min-width:72px;text-align:right;}
+
+.metrics{display:flex;gap:8px;width:100%;flex-wrap:wrap;}
+.metric{flex:1;min-width:78px;background:#080600;border:1px solid var(--bdr);border-radius:8px;padding:8px 10px;text-align:center;}
+.metric-lbl{font-size:9px;color:var(--dim);letter-spacing:2px;margin-bottom:3px;}
+.metric-val{font-size:14px;color:var(--a);font-weight:bold;}
+.metric-unit{font-size:9px;color:var(--dim);}
+
+.btns{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;}
+.btn{padding:9px 20px;border:2px solid var(--a);border-radius:8px;background:#1e1200;
+     color:var(--a);cursor:pointer;font-family:var(--font);font-size:12px;letter-spacing:1px;
+     box-shadow:0 0 10px rgba(255,187,0,.15);transition:all .15s;}
+.btn:hover{background:#2a1800;box-shadow:0 0 18px rgba(255,187,0,.3);}
+.btn.on{background:#2a1800;border-color:var(--a2);box-shadow:0 0 20px rgba(255,187,0,.4);}
+.btn.off{border-color:#2a1800;background:#080600;color:#4a3510;box-shadow:none;}
+.btn.off:hover{border-color:#4a3510;color:#7a5520;}
+
+.badge{padding:7px 22px;border-radius:30px;font-size:12px;letter-spacing:2px;transition:all .3s;text-align:center;border:1px solid;}
+.info{color:var(--dim);font-size:12px;text-align:center;line-height:1.8;}
+.info span{color:var(--a);}.info .b{color:var(--b);}.info .g{color:var(--g);}.info .r{color:var(--r);}
+
+canvas{display:block;border-radius:8px;}
+canvas.brd{border:1px solid var(--bdr);background:#080600;}
+footer{text-align:center;margin-top:22px;font-size:10px;letter-spacing:4px;color:#2a1e00;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="sub">◈ SIMULASI INTERAKTIF ◈</div>
+    <h1>TRANSFORMATOR INTERAKTIF</h1>
+    <div class="divline"></div>
+  </header>
+
+  <div class="tabs">
+    <button class="tab on" data-s="basic">🔄 Prinsip Dasar</button>
+    <button class="tab" data-s="stepud">⬆⬇ Step-Up/Down</button>
+    <button class="tab" data-s="load">⚡ Efek Beban</button>
+    <button class="tab" data-s="losses">🔥 Rugi-Rugi</button>
+    <button class="tab" data-s="types">🔧 Jenis Trafo</button>
+  </div>
+
+  <div class="card">
+
+    <!-- SCENE 1: PRINSIP DASAR -->
+    <div class="scene on" id="s-basic">
+      <canvas id="c-basic" class="brd" width="460" height="220" style="width:100%"></canvas>
+      <div class="ctrl">
+        <div class="ctrl-row">
+          <span class="ctrl-lbl">⚡ Vin (Vp)</span>
+          <input type="range" class="sl" id="bs-vin" min="1" max="240" value="220" step="1">
+          <span class="ctrl-val" id="bs-vin-v">220 V</span>
+        </div>
+        <div class="ctrl-row">
+          <span class="ctrl-lbl">🌀 Lilitan N1</span>
+          <input type="range" class="sl" id="bs-n1" min="10" max="2000" value="1000" step="10">
+          <span class="ctrl-val" id="bs-n1-v">1000</span>
+        </div>
+        <div class="ctrl-row">
+          <span class="ctrl-lbl">🌀 Lilitan N2</span>
+          <input type="range" class="sl" id="bs-n2" min="10" max="2000" value="500" step="10">
+          <span class="ctrl-val" id="bs-n2-v">500</span>
+        </div>
+        <div class="ctrl-row">
+          <span class="ctrl-lbl">📶 Frekuensi</span>
+          <input type="range" class="sl" id="bs-freq" min="10" max="1000" value="50" step="5">
+          <span class="ctrl-val" id="bs-freq-v">50 Hz</span>
+        </div>
+      </div>
+      <div class="metrics">
+        <div class="metric"><div class="metric-lbl">RASIO (a)</div><div class="metric-val" id="bs-ratio">2.0</div><div class="metric-unit">:1</div></div>
+        <div class="metric"><div class="metric-lbl">Vout</div><div class="metric-val" id="bs-vout">110</div><div class="metric-unit">V</div></div>
+        <div class="metric"><div class="metric-lbl">FLUKS MAX</div><div class="metric-val" id="bs-flux">0.99</div><div class="metric-unit">mWb</div></div>
+        <div class="metric"><div class="metric-lbl">JENIS</div><div class="metric-val" id="bs-type" style="font-size:10px">STEP-DOWN</div><div class="metric-unit"></div></div>
+      </div>
+      <div class="badge" id="bs-badge" style="background:#1e1200;border-color:var(--a);color:var(--a)">⬇ STEP-DOWN</div>
+      <div class="info">Vout = Vin × <span>N2/N1</span> &nbsp;|&nbsp; Φmax = Vin/(4.44×f×N1)<br>Fluks magnetik sebagai <span>perantara energi</span></div>
+    </div>
+
+    <!-- SCENE 2: STEP-UP / STEP-DOWN -->
+    <div class="scene" id="s-stepud">
+      <canvas id="c-stepud" class="brd" width="460" height="210" style="width:100%"></canvas>
+      <div class="ctrl">
+        <div class="ctrl-row">
+          <span class="ctrl-lbl">⚡ Vin</span>
+          <input type="range" class="sl" id="su-vin" min="1" max="240" value="12" step="1">
+          <span class="ctrl-val" id="su-vin-v">12 V</span>
+        </div>
+        <div class="ctrl-row">
+          <span class="ctrl-lbl">🌀 N1</span>
+          <input type="range" class="sl" id="su-n1" min="10" max="2000" value="100" step="10">
+          <span class="ctrl-val" id="su-n1-v">100</span>
+        </div>
+        <div class="ctrl-row">
+          <span class="ctrl-lbl">🌀 N2</span>
+          <input type="range" class="sl" id="su-n2" min="10" max="2000" value="500" step="10">
+          <span class="ctrl-val" id="su-n2-v">500</span>
+        </div>
+        <div class="ctrl-row">
+          <span class="ctrl-lbl">👤 Beban (Ω)</span>
+          <input type="range" class="sl" id="su-rl" min="10" max="10000" value="1000" step="10">
+          <span class="ctrl-val" id="su-rl-v">1.0 kΩ</span>
+        </div>
+      </div>
+      <div class="metrics">
+        <div class="metric"><div class="metric-lbl">Vout</div><div class="metric-val" id="su-vout">60.0</div><div class="metric-unit">V</div></div>
+        <div class="metric"><div class="metric-lbl">I2</div><div class="metric-val" id="su-i2">60.0</div><div class="metric-unit">mA</div></div>
+        <div class="metric"><div class="metric-lbl">I1</div><div class="metric-val" id="su-i1">300</div><div class="metric-unit">mA</div></div>
+        <div class="metric"><div class="metric-lbl">DAYA</div><div class="metric-val" id="su-p">3.60</div><div class="metric-unit">W</div></div>
+      </div>
+      <div class="badge" id="su-badge" style="background:#1e1200;border-color:var(--a);color:var(--a)">⬆ STEP-UP 5:1</div>
+      <div class="info">I1/I2 = <span>N2/N1</span> (kebalikan tegangan)<br>Daya masuk = Daya keluar (ideal)</div>
+    </div>
+
+    <!-- SCENE 3: EFEK BEBAN -->
+    <div class="scene" id="s-load">
+      <canvas id="c-load" class="brd" width="460" height="210" style="width:100%"></canvas>
+      <div class="ctrl">
+        <div class="ctrl-row">
+          <span class="ctrl-lbl">⚡ Vin</span>
+          <input type="range" class="sl" id="ld-vin" min="1" max="240" value="220" step="1">
+          <span class="ctrl-val" id="ld-vin-v">220 V</span>
+        </div>
+        <div class="ctrl-row">
+          <span class="ctrl-lbl">🌀 N1 / N2</span>
+          <input type="range" class="sl" id="ld-ratio" min="1" max="20" value="10" step="0.5">
+          <span class="ctrl-val" id="ld-ratio-v">10 : 1</span>
+        </div>
+        <div class="ctrl-row">
+          <span class="ctrl-lbl">👤 Beban (Ω)</span>
+          <input type="range" class="sl" id="ld-rl" min="10" max="10000" value="100" step="10">
+          <span class="ctrl-val" id="ld-rl-v">100 Ω</span>
+        </div>
+        <div class="ctrl-row">
+          <span class="ctrl-lbl">⚙ R kawat</span>
+          <input type="range" class="sl" id="ld-rw" min="0" max="20" value="2" step="0.5">
+          <span class="ctrl-val" id="ld-rw-v">2 Ω</span>
+        </div>
+      </div>
+      <div class="metrics">
+        <div class="metric"><div class="metric-lbl">Vout ideal</div><div class="metric-val" id="ld-videal">22.0</div><div class="metric-unit">V</div></div>
+        <div class="metric"><div class="metric-lbl">Vout nyata</div><div class="metric-val" id="ld-vreal">21.1</div><div class="metric-unit">V</div></div>
+        <div class="metric"><div class="metric-lbl">REG. TGN</div><div class="metric-val" id="ld-vreg">4.1</div><div class="metric-unit">%</div></div>
+        <div class="metric"><div class="metric-lbl">I beban</div><div class="metric-val" id="ld-il">211</div><div class="metric-unit">mA</div></div>
+      </div>
+      <div class="info">Regulasi tegangan = (Vno-load − Vfull-load)/Vfull-load × 100%<br><span>Makin kecil → trafo makin ideal</span></div>
+    </div>
+
+    <!-- SCENE 4: RUGI-RUGI -->
+    <div class="scene" id="s-losses">
+      <canvas id="c-losses" class="brd" width="460" height="210" style="width:100%"></canvas>
+      <div class="ctrl">
+        <div class="ctrl-row">
+          <span class="ctrl-lbl">⚡ Daya masuk</span>
+          <input type="range" class="sl" id="ls-pin" min="10" max="1000" value="100" step="5">
+          <span class="ctrl-val" id="ls-pin-v">100 W</span>
+        </div>
+        <div class="ctrl-row">
+          <span class="ctrl-lbl">🔥 Rugi tembaga</span>
+          <input type="range" class="sl" id="ls-cu" min="0" max="30" value="3" step="0.5">
+          <span class="ctrl-val" id="ls-cu-v">3 %</span>
+        </div>
+        <div class="ctrl-row">
+          <span class="ctrl-lbl">🌀 Rugi inti (Fe)</span>
+          <input type="range" class="sl" id="ls-fe" min="0" max="20" value="2" step="0.5">
+          <span class="ctrl-val" id="ls-fe-v">2 %</span>
+        </div>
+        <div class="ctrl-row">
+          <span class="ctrl-lbl">💨 Rugi stray</span>
+          <input type="range" class="sl" id="ls-st" min="0" max="10" value="0.5" step="0.1">
+          <span class="ctrl-val" id="ls-st-v">0.5 %</span>
+        </div>
+      </div>
+      <div class="metrics">
+        <div class="metric"><div class="metric-lbl">P masuk</div><div class="metric-val" id="ls-mpin">100</div><div class="metric-unit">W</div></div>
+        <div class="metric"><div class="metric-lbl">P keluar</div><div class="metric-val" id="ls-mpout">94.5</div><div class="metric-unit">W</div></div>
+        <div class="metric"><div class="metric-lbl">P rugi</div><div class="metric-val" id="ls-ploss">5.5</div><div class="metric-unit">W</div></div>
+        <div class="metric"><div class="metric-lbl">EFISIENSI</div><div class="metric-val" id="ls-eff">94.5</div><div class="metric-unit">%</div></div>
+      </div>
+      <div class="info">Rugi tembaga (I²R) + Rugi inti (histeresis+eddy) + Stray<br><span>Trafo besar → efisiensi 98–99%</span></div>
+    </div>
+
+    <!-- SCENE 5: JENIS TRAFO -->
+    <div class="scene" id="s-types">
+      <div class="btns">
+        <button class="btn on"  id="tp-pow-btn">🏭 Daya</button>
+        <button class="btn off" id="tp-iso-btn">🔒 Isolasi</button>
+        <button class="btn off" id="tp-aut-btn">⚡ Auto</button>
+        <button class="btn off" id="tp-ct-btn">📡 CT</button>
+      </div>
+      <canvas id="c-types" class="brd" width="460" height="220" style="width:100%"></canvas>
+      <div class="ctrl">
+        <div class="ctrl-row">
+          <span class="ctrl-lbl">⚡ Vin</span>
+          <input type="range" class="sl" id="tp-vin" min="1" max="240" value="220" step="1">
+          <span class="ctrl-val" id="tp-vin-v">220 V</span>
+        </div>
+        <div class="ctrl-row">
+          <span class="ctrl-lbl">🌀 Rasio</span>
+          <input type="range" class="sl" id="tp-ratio" min="0.1" max="20" value="10" step="0.1">
+          <span class="ctrl-val" id="tp-ratio-v">10.0 : 1</span>
+        </div>
+      </div>
+      <div class="metrics">
+        <div class="metric"><div class="metric-lbl">Vout</div><div class="metric-val" id="tp-vout">22.0</div><div class="metric-unit">V</div></div>
+        <div class="metric"><div class="metric-lbl">ISOLASI</div><div class="metric-val" id="tp-iso" style="font-size:10px">YA</div><div class="metric-unit"></div></div>
+        <div class="metric"><div class="metric-lbl">KEGUNAAN</div><div class="metric-val" id="tp-use" style="font-size:9px">PLN→rumah</div><div class="metric-unit"></div></div>
+      </div>
+      <div class="info" id="tp-info">Trafo daya: <span>mengubah tegangan AC</span> skala besar<br>Inti besi laminasi untuk kurangi eddy current</div>
+    </div>
+
+  </div>
+  <footer>◈ SIMULASI TRANSFORMATOR INTERAKTIF ◈</footer>
+</div>
+
+<script>
+"use strict";
+
+var activeScene = "basic";
+
+// ── GLOBAL UTILS ────────────────────────────────────────────
+function el(id) { return document.getElementById(id); }
+
+function fmtR(v) {
+  if (v >= 1e6) return (v / 1e6).toFixed(2) + " MΩ";
+  if (v >= 1e3) return (v / 1e3).toFixed(1) + " kΩ";
+  return v.toFixed(0) + " Ω";
+}
+
+document.querySelectorAll(".sl").forEach(function(s) {
+  function upd() {
+    var p = ((s.value - s.min) / (s.max - s.min) * 100).toFixed(1) + "%";
+    s.style.setProperty("--pct", p);
+  }
+  upd();
+  s.addEventListener("input", upd);
+});
+
+document.querySelectorAll(".tab").forEach(function(t) {
+  t.addEventListener("click", function() {
+    document.querySelectorAll(".tab").forEach(function(x) { x.classList.remove("on"); });
+    document.querySelectorAll(".scene").forEach(function(x) { x.classList.remove("on"); });
+    t.classList.add("on");
+    activeScene = t.dataset.s;
+    el("s-" + activeScene).classList.add("on");
+  });
+});
+
+// rounded rect
+function rr(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y); ctx.lineTo(x + w - r, y);
+  ctx.arcTo(x + w, y, x + w, y + r, r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.arcTo(x + w, y + h, x + w - r, y + h, r);
+  ctx.lineTo(x + r, y + h);
+  ctx.arcTo(x, y + h, x, y + h - r, r);
+  ctx.lineTo(x, y + r);
+  ctx.arcTo(x, y, x + r, y, r);
+  ctx.closePath();
+}
+
+// draw coil arc bumps
+function drawCoil(ctx, cx, cy, turns, totalW, h, col, glow) {
+  var tw = totalW / turns;
+  col = col || "#ffbb00";
+  ctx.strokeStyle = col;
+  ctx.lineWidth = 2.5;
+  if (glow > 0) { ctx.shadowColor = col; ctx.shadowBlur = glow; }
+  for (var i = 0; i < turns; i++) {
+    var sx = cx - totalW / 2 + i * tw;
+    ctx.beginPath();
+    ctx.arc(sx + tw / 2, cy, h / 2, Math.PI, 0);
+    ctx.stroke();
+  }
+  ctx.shadowBlur = 0;
+  // leads
+  ctx.beginPath();
+  ctx.moveTo(cx - totalW / 2 - 14, cy);
+  ctx.lineTo(cx - totalW / 2, cy);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(cx + totalW / 2, cy);
+  ctx.lineTo(cx + totalW / 2 + 14, cy);
+  ctx.stroke();
+}
+
+// draw iron core (rectangle)
+function drawCore(ctx, x, y, w, h, fluxNorm) {
+  // lamination layers
+  var layers = 6;
+  for (var i = 0; i < layers; i++) {
+    var lx = x + i * (w / layers);
+    var lw = w / layers - 1;
+    var alpha = 0.5 + fluxNorm * 0.5;
+    ctx.fillStyle = "rgba(100,60,10," + alpha + ")";
+    ctx.fillRect(lx, y, lw, h);
+  }
+  ctx.strokeStyle = "#8a5a10";
+  ctx.lineWidth = 2;
+  ctx.strokeRect(x, y, w, h);
+  // flux arrows
+  if (fluxNorm > 0.05) {
+    var steps = 4;
+    for (var j = 0; j < steps; j++) {
+      var ax = x + (j + 0.5) * (w / steps);
+      var ay = y + h / 2;
+      ctx.fillStyle = "rgba(255,200,50," + (fluxNorm * 0.8) + ")";
+      ctx.save();
+      ctx.translate(ax, ay);
+      ctx.beginPath();
+      ctx.moveTo(-4, -3); ctx.lineTo(4, 0); ctx.lineTo(-4, 3);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    }
+  }
+}
+
+// draw particles along path
+function drawParticles(ctx, pts, t, spd, col, n) {
+  for (var s = 0; s < pts.length - 1; s++) {
+    var x1 = pts[s][0], y1 = pts[s][1];
+    var x2 = pts[s + 1][0], y2 = pts[s + 1][1];
+    for (var i = 0; i < n; i++) {
+      var frac = ((t * spd + s * 0.25 + i / n) % 1 + 1) % 1;
+      var px = x1 + frac * (x2 - x1);
+      var py = y1 + frac * (y2 - y1);
+      if (px < Math.min(x1, x2) - 2 || px > Math.max(x1, x2) + 2) continue;
+      if (py < Math.min(y1, y2) - 2 || py > Math.max(y1, y2) + 2) continue;
+      ctx.beginPath();
+      ctx.arc(px, py, 3, 0, Math.PI * 2);
+      ctx.fillStyle = col;
+      ctx.shadowColor = col;
+      ctx.shadowBlur = 7;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+    }
+  }
+}
+
+// draw sine wave
+function drawSine(ctx, x, y, w, h, t, freq, amp, col, phase) {
+  phase = phase || 0;
+  ctx.beginPath();
+  ctx.strokeStyle = col;
+  ctx.lineWidth = 2;
+  ctx.shadowColor = col;
+  ctx.shadowBlur = 5;
+  for (var i = 0; i <= w; i++) {
+    var sy = y - Math.sin((i / w) * Math.PI * 4 * freq - t + phase) * amp;
+    if (i === 0) ctx.moveTo(x + i, sy);
+    else ctx.lineTo(x + i, sy);
+  }
+  ctx.stroke();
+  ctx.shadowBlur = 0;
+}
+
+// draw voltage label box
+function drawVBox(ctx, x, y, label, val, unit, col) {
+  col = col || "#ffbb00";
+  ctx.fillStyle = "#1a1200";
+  ctx.strokeStyle = col;
+  ctx.lineWidth = 1.5;
+  rr(ctx, x - 30, y - 16, 60, 32, 5);
+  ctx.fill();
+  ctx.stroke();
+  ctx.shadowColor = col;
+  ctx.shadowBlur = 8;
+  ctx.fillStyle = col;
+  ctx.font = "8px Share Tech Mono";
+  ctx.textAlign = "center";
+  ctx.fillText(label, x, y - 5);
+  ctx.font = "bold 11px Share Tech Mono";
+  ctx.fillText(val + unit, x, y + 9);
+  ctx.shadowBlur = 0;
+}
+
+// ══════════════════════════════════════════════════════════════
+// SCENE 1 — PRINSIP DASAR
+// ══════════════════════════════════════════════════════════════
+(function() {
+  var cvs = el("c-basic"), ctx = cvs.getContext("2d");
+  var Vin = 220, N1 = 1000, N2 = 500, FREQ = 50;
+
+  function read() {
+    Vin = parseFloat(el("bs-vin").value);
+    N1  = parseFloat(el("bs-n1").value);
+    N2  = parseFloat(el("bs-n2").value);
+    FREQ = parseFloat(el("bs-freq").value);
+    el("bs-vin-v").textContent = Vin + " V";
+    el("bs-n1-v").textContent  = N1;
+    el("bs-n2-v").textContent  = N2;
+    el("bs-freq-v").textContent = FREQ + " Hz";
+    updateMetrics();
+  }
+
+  function updateMetrics() {
+    var ratio = N1 / N2;
+    var Vout  = Vin * N2 / N1;
+    var fluxMax = Vin / (4.44 * FREQ * N1) * 1000; // mWb
+    var isStepDown = ratio >= 1;
+    var typeStr = ratio > 1 ? "STEP-DOWN" : ratio < 1 ? "STEP-UP" : "ISOLASI";
+    el("bs-ratio").textContent = ratio.toFixed(1);
+    el("bs-vout").textContent  = Vout.toFixed(1);
+    el("bs-flux").textContent  = fluxMax.toFixed(2);
+    el("bs-type").textContent  = typeStr;
+    el("bs-type").style.color  = ratio > 1 ? "var(--b)" : ratio < 1 ? "var(--g)" : "var(--a)";
+    var b = el("bs-badge");
+    if (ratio > 1) {
+      b.textContent = "⬇ STEP-DOWN " + ratio.toFixed(1) + ":1";
+      b.style.borderColor = "var(--b)"; b.style.color = "var(--b)"; b.style.background = "#001a28";
+    } else if (ratio < 1) {
+      b.textContent = "⬆ STEP-UP 1:" + (1 / ratio).toFixed(1);
+      b.style.borderColor = "var(--g)"; b.style.color = "var(--g)"; b.style.background = "#001a0f";
+    } else {
+      b.textContent = "↔ RASIO 1:1 (ISOLASI)";
+      b.style.borderColor = "var(--a)"; b.style.color = "var(--a)"; b.style.background = "#1e1200";
+    }
+  }
+
+  ["bs-vin","bs-n1","bs-n2","bs-freq"].forEach(function(id) {
+    el(id).addEventListener("input", read);
+  });
+
+  function draw(ts) {
+    if (activeScene !== "basic") { requestAnimationFrame(draw); return; }
+    var W = cvs.width, H = cvs.height;
+    var t = ts / 400;
+    ctx.clearRect(0, 0, W, H);
+
+    var ratio = N1 / N2, Vout = Vin * N2 / N1;
+    var vNorm = Math.min(Vin / 240, 1);
+    var v2Norm = Math.min(Vout / 240, 1);
+    var fluxAnim = (Math.sin(t * FREQ / 50) + 1) / 2;
+
+    // === CORE (center) ===
+    var coreX = W / 2 - 35, coreY = H / 2 - 30, coreW = 70, coreH = 60;
+    drawCore(ctx, coreX, coreY, coreW, coreH, fluxAnim);
+    ctx.fillStyle = "#8a6020"; ctx.font = "8px Share Tech Mono"; ctx.textAlign = "center";
+    ctx.fillText("INTI Fe", W / 2, coreY + coreH + 12);
+
+    // === PRIMARY COIL (left) ===
+    var p1turns = Math.min(Math.round(N1 / 100), 10);
+    var p1cx = coreX - 10, p1w = Math.min(p1turns * 12, 80);
+    drawCoil(ctx, p1cx, H / 2, p1turns, p1w, 28, "#ffbb00", vNorm * 12);
+    ctx.fillStyle = "#ffbb00"; ctx.font = "9px Share Tech Mono"; ctx.textAlign = "center";
+    ctx.fillText("N1=" + N1, p1cx, H / 2 + 28);
+    ctx.fillText(Vin + "V", p1cx, H / 2 - 22);
+
+    // === SECONDARY COIL (right) ===
+    var p2turns = Math.min(Math.round(N2 / 100), 10);
+    var p2cx = coreX + coreW + 10, p2w = Math.min(p2turns * 12, 70);
+    var s2col = ratio > 1 ? "#44ccff" : "#00ff88";
+    drawCoil(ctx, p2cx, H / 2, p2turns, p2w, 28, s2col, v2Norm * 10);
+    ctx.fillStyle = s2col; ctx.font = "9px Share Tech Mono"; ctx.textAlign = "center";
+    ctx.fillText("N2=" + N2, p2cx, H / 2 + 28);
+    ctx.fillText(Vout.toFixed(1) + "V", p2cx, H / 2 - 22);
+
+    // === INPUT SOURCE (left) ===
+    var srcX = 38, srcY = H / 2;
+    ctx.beginPath(); ctx.arc(srcX, srcY, 20, 0, Math.PI * 2);
+    ctx.fillStyle = "#0d0900"; ctx.strokeStyle = "#ffbb00"; ctx.lineWidth = 2;
+    ctx.shadowColor = "#ffbb00"; ctx.shadowBlur = vNorm * 10; ctx.fill(); ctx.stroke(); ctx.shadowBlur = 0;
+    // mini sine in circle
+    ctx.beginPath(); ctx.strokeStyle = "#ffbb00"; ctx.lineWidth = 1.5;
+    for (var i = 0; i <= 24; i++) {
+      var sx = srcX - 12 + i;
+      var sy = srcY - Math.sin((i / 24) * Math.PI * 2 - t) * 8;
+      if (i === 0) ctx.moveTo(sx, sy); else ctx.lineTo(sx, sy);
+    }
+    ctx.stroke();
+    ctx.fillStyle = "#ffbb00"; ctx.font = "8px Share Tech Mono"; ctx.textAlign = "center";
+    ctx.fillText(Vin + "V", srcX, srcY + 32);
+    ctx.fillText(FREQ + "Hz", srcX, srcY + 42);
+
+    // === OUTPUT LOAD (right) ===
+    var ldX = W - 38, ldY = H / 2;
+    ctx.beginPath(); ctx.arc(ldX, ldY, 20, 0, Math.PI * 2);
+    ctx.fillStyle = "#0d0900"; ctx.strokeStyle = s2col; ctx.lineWidth = 2;
+    ctx.shadowColor = s2col; ctx.shadowBlur = v2Norm * 10; ctx.fill(); ctx.stroke(); ctx.shadowBlur = 0;
+    ctx.fillStyle = s2col; ctx.font = "11px serif"; ctx.textAlign = "center";
+    ctx.fillText("⚡", ldX, ldY + 5);
+    ctx.font = "8px Share Tech Mono";
+    ctx.fillText(Vout.toFixed(1) + "V", ldX, ldY + 32);
+
+    // === WIRES ===
+    ctx.strokeStyle = "#3a2a00"; ctx.lineWidth = 2;
+    // primary top
+    ctx.beginPath(); ctx.moveTo(srcX + 20, srcY); ctx.lineTo(p1cx - p1w / 2 - 14, srcY); ctx.stroke();
+    // primary bottom
+    ctx.beginPath(); ctx.moveTo(srcX + 20, srcY + 0); ctx.stroke();
+    // secondary to load
+    ctx.beginPath(); ctx.moveTo(p2cx + p2w / 2 + 14, srcY); ctx.lineTo(ldX - 20, srcY); ctx.stroke();
+
+    // === MAGNETIC FLUX INDICATOR ===
+    var fluxStr = Math.abs(Math.sin(t * FREQ / 50));
+    var arrowX = W / 2;
+    ctx.fillStyle = "rgba(255,200,50," + (fluxStr * vNorm * 0.8) + ")";
+    ctx.font = "bold 14px Share Tech Mono"; ctx.textAlign = "center";
+    ctx.fillText(fluxStr > 0.5 ? "→" : "←", arrowX, coreY + coreH / 2 + 5);
+
+    // === WAVEFORMS BOTTOM ===
+    var wy = H - 35, wx = 20, ww = (W - 60) / 2;
+    // input wave
+    ctx.strokeStyle = "#3a2800"; ctx.lineWidth = 1; ctx.setLineDash([2, 4]);
+    ctx.beginPath(); ctx.moveTo(wx, wy); ctx.lineTo(wx + ww, wy); ctx.stroke(); ctx.setLineDash([]);
+    drawSine(ctx, wx, wy, ww, 20, t * FREQ / 50, 1, Math.min(vNorm * 20, 20), "#ffbb00", 0);
+    ctx.fillStyle = "#ffbb00"; ctx.font = "8px Share Tech Mono"; ctx.textAlign = "left";
+    ctx.fillText("Vp=" + Vin + "V", wx, wy + 20);
+
+    // output wave
+    var wx2 = wx + ww + 20;
+    ctx.strokeStyle = "#003a28"; ctx.lineWidth = 1; ctx.setLineDash([2, 4]);
+    ctx.beginPath(); ctx.moveTo(wx2, wy); ctx.lineTo(wx2 + ww, wy); ctx.stroke(); ctx.setLineDash([]);
+    drawSine(ctx, wx2, wy, ww, 20, t * FREQ / 50, 1, Math.min(v2Norm * 20, 20), s2col, 0);
+    ctx.fillStyle = s2col; ctx.font = "8px Share Tech Mono"; ctx.textAlign = "left";
+    ctx.fillText("Vs=" + Vout.toFixed(1) + "V", wx2, wy + 20);
+
+    // particles
+    if (vNorm > 0.01) {
+      var spd1 = 0.3 + vNorm * 0.4;
+      drawParticles(ctx, [[srcX + 20, srcY], [p1cx - p1w / 2 - 14, srcY]], t * FREQ / 50, spd1, "rgba(255,187,0,0.85)", 2);
+      drawParticles(ctx, [[p2cx + p2w / 2 + 14, srcY], [ldX - 20, srcY]], t * FREQ / 50, spd1 * v2Norm, s2col.replace(")", ",0.85)").replace("#", "rgba(").replace("rgba(44ccff,", "rgba(68,204,255,").replace("rgba(00ff88,", "rgba(0,255,136,"), 2);
+    }
+
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
+  read();
+})();
+
+// ══════════════════════════════════════════════════════════════
+// SCENE 2 — STEP-UP / STEP-DOWN
+// ══════════════════════════════════════════════════════════════
+(function() {
+  var cvs = el("c-stepud"), ctx = cvs.getContext("2d");
+  var Vin = 12, N1 = 100, N2 = 500, RL = 1000;
+
+  function read() {
+    Vin = parseFloat(el("su-vin").value);
+    N1  = parseFloat(el("su-n1").value);
+    N2  = parseFloat(el("su-n2").value);
+    RL  = parseFloat(el("su-rl").value);
+    el("su-vin-v").textContent  = Vin + " V";
+    el("su-n1-v").textContent   = N1;
+    el("su-n2-v").textContent   = N2;
+    el("su-rl-v").textContent   = fmtR(RL);
+    updateMetrics();
+  }
+
+  function updateMetrics() {
+    var Vout = Vin * N2 / N1;
+    var I2   = Vout / RL * 1000;
+    var I1   = I2 * N2 / N1;
+    var P    = Vout * (Vout / RL);
+    var ratio = N1 / N2;
+    el("su-vout").textContent = Vout.toFixed(1);
+    el("su-i2").textContent   = I2.toFixed(1);
+    el("su-i1").textContent   = I1.toFixed(1);
+    el("su-p").textContent    = P.toFixed(2);
+    var b = el("su-badge");
+    if (ratio > 1) {
+      b.textContent = "⬇ STEP-DOWN " + ratio.toFixed(1) + ":1";
+      b.style.borderColor = "var(--b)"; b.style.color = "var(--b)"; b.style.background = "#001a28";
+    } else if (ratio < 1) {
+      b.textContent = "⬆ STEP-UP 1:" + (1 / ratio).toFixed(1);
+      b.style.borderColor = "var(--g)"; b.style.color = "var(--g)"; b.style.background = "#001a0f";
+    } else {
+      b.textContent = "↔ 1:1 ISOLASI";
+      b.style.borderColor = "var(--a)"; b.style.color = "var(--a)"; b.style.background = "#1e1200";
+    }
+  }
+
+  ["su-vin","su-n1","su-n2","su-rl"].forEach(function(id) { el(id).addEventListener("input", read); });
+
+  function draw(ts) {
+    if (activeScene !== "stepud") { requestAnimationFrame(draw); return; }
+    var W = cvs.width, H = cvs.height;
+    var t = ts / 500;
+    ctx.clearRect(0, 0, W, H);
+
+    var Vout = Vin * N2 / N1;
+    var I2 = Vout / RL * 1000;
+    var I1 = I2 * N2 / N1;
+    var ratio = N1 / N2;
+    var v1n = Math.min(Vin / 240, 1);
+    var v2n = Math.min(Vout / 240, 1);
+    var i1n = Math.min(I1 / 1000, 1);
+    var i2n = Math.min(I2 / 1000, 1);
+
+    var cx = W / 2, cy = H / 2;
+    var coreX = cx - 28, coreY = cy - 28, coreW = 56, coreH = 56;
+
+    // === VISUAL COMPARISON ===
+    // Left bar = Vin
+    var barH = 120, barW = 22;
+    var v1barH = Math.max(4, v1n * barH);
+    var v2barH = Math.max(4, v2n * barH);
+
+    // Vin bar (left)
+    var bx1 = 22;
+    ctx.fillStyle = "#1a0f00"; ctx.strokeStyle = "#3a2a00"; ctx.lineWidth = 1;
+    ctx.fillRect(bx1, cy - barH / 2, barW, barH); ctx.strokeRect(bx1, cy - barH / 2, barW, barH);
+    ctx.fillStyle = "#ffbb00"; ctx.shadowColor = "#ffbb00"; ctx.shadowBlur = v1n * 12;
+    ctx.fillRect(bx1, cy + barH / 2 - v1barH, barW, v1barH); ctx.shadowBlur = 0;
+    ctx.fillStyle = "#ffbb00"; ctx.font = "9px Share Tech Mono"; ctx.textAlign = "center";
+    ctx.fillText(Vin + "V", bx1 + barW / 2, cy - barH / 2 - 8);
+    ctx.fillText("N1=" + N1, bx1 + barW / 2, cy + barH / 2 + 14);
+
+    // Vout bar (right)
+    var bx2 = W - 44;
+    var s2c = ratio > 1 ? "#44ccff" : "#00ff88";
+    ctx.fillStyle = "#001018"; ctx.strokeStyle = "#003a28"; ctx.lineWidth = 1;
+    ctx.fillRect(bx2, cy - barH / 2, barW, barH); ctx.strokeRect(bx2, cy - barH / 2, barW, barH);
+    ctx.fillStyle = s2c; ctx.shadowColor = s2c; ctx.shadowBlur = v2n * 12;
+    ctx.fillRect(bx2, cy + barH / 2 - v2barH, barW, v2barH); ctx.shadowBlur = 0;
+    ctx.fillStyle = s2c; ctx.font = "9px Share Tech Mono"; ctx.textAlign = "center";
+    ctx.fillText(Vout.toFixed(1) + "V", bx2 + barW / 2, cy - barH / 2 - 8);
+    ctx.fillText("N2=" + N2, bx2 + barW / 2, cy + barH / 2 + 14);
+
+    // Core
+    drawCore(ctx, coreX, coreY, coreW, coreH, 0.6 + Math.sin(t) * 0.4);
+
+    // Coil symbols on core
+    var p1t = Math.min(Math.round(N1 / 50), 8), p2t = Math.min(Math.round(N2 / 50), 8);
+    drawCoil(ctx, coreX - 6, cy, p1t, p1t * 8, 20, "#ffbb00", v1n * 10);
+    drawCoil(ctx, coreX + coreW + 6, cy, p2t, p2t * 8, 20, s2c, v2n * 10);
+
+    // Current arrows
+    var arrowY1 = cy - 50, arrowY2 = cy + 50;
+    // I1 arrow
+    ctx.fillStyle = "rgba(255,187,0," + Math.min(i1n + 0.2, 1) + ")";
+    ctx.font = "11px Share Tech Mono"; ctx.textAlign = "center";
+    ctx.fillText("←" + I1.toFixed(1) + "mA", cx - 60, arrowY1);
+    // I2 arrow
+    ctx.fillStyle = "rgba(68,204,255," + Math.min(i2n + 0.2, 1) + ")";
+    ctx.fillText(I2.toFixed(1) + "mA→", cx + 60, arrowY2);
+
+    // Power label
+    var Pval = (Vout * Vout / RL);
+    ctx.fillStyle = "#ffe044"; ctx.font = "bold 10px Share Tech Mono"; ctx.textAlign = "center";
+    ctx.shadowColor = "#ffe044"; ctx.shadowBlur = 8;
+    ctx.fillText("P = " + Pval.toFixed(2) + " W", cx, cy + 48);
+    ctx.shadowBlur = 0;
+
+    // Annotation: V inversely proportional to I
+    ctx.fillStyle = "#7a6020"; ctx.font = "9px Share Tech Mono"; ctx.textAlign = "center";
+    ctx.fillText("V naik → I turun (P tetap)", cx, H - 10);
+
+    // particles
+    drawParticles(ctx, [[bx1 + barW, cy], [coreX - 6, cy]], t, 0.4, "rgba(255,187,0,0.8)", 2);
+    drawParticles(ctx, [[coreX + coreW + 6, cy], [bx2, cy]], t, 0.4, "rgba(68,204,255,0.8)", 2);
+
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
+  read();
+})();
+
+// ══════════════════════════════════════════════════════════════
+// SCENE 3 — EFEK BEBAN
+// ══════════════════════════════════════════════════════════════
+(function() {
+  var cvs = el("c-load"), ctx = cvs.getContext("2d");
+  var Vin = 220, RATIO = 10, RL = 100, RW = 2;
+
+  function read() {
+    Vin   = parseFloat(el("ld-vin").value);
+    RATIO = parseFloat(el("ld-ratio").value);
+    RL    = parseFloat(el("ld-rl").value);
+    RW    = parseFloat(el("ld-rw").value);
+    el("ld-vin-v").textContent   = Vin + " V";
+    el("ld-ratio-v").textContent = RATIO.toFixed(1) + " : 1";
+    el("ld-rl-v").textContent    = fmtR(RL);
+    el("ld-rw-v").textContent    = RW.toFixed(1) + " Ω";
+    updateMetrics();
+  }
+
+  function updateMetrics() {
+    var Videal = Vin / RATIO;
+    var I2     = Videal / (RL + RW) * 1000;
+    var Vreal  = Videal - (I2 / 1000) * RW;
+    var vreg   = RW > 0 ? ((Videal - Vreal) / Vreal * 100) : 0;
+    el("ld-videal").textContent = Videal.toFixed(2);
+    el("ld-vreal").textContent  = Vreal.toFixed(2);
+    el("ld-vreg").textContent   = vreg.toFixed(1);
+    el("ld-il").textContent     = I2.toFixed(1);
+    el("ld-vreg").style.color = vreg < 2 ? "var(--g)" : vreg < 10 ? "var(--a)" : "var(--r)";
+  }
+
+  ["ld-vin","ld-ratio","ld-rl","ld-rw"].forEach(function(id) { el(id).addEventListener("input", read); });
+
+  function draw(ts) {
+    if (activeScene !== "load") { requestAnimationFrame(draw); return; }
+    var W = cvs.width, H = cvs.height;
+    var t = ts / 500;
+    ctx.clearRect(0, 0, W, H);
+
+    var Videal = Vin / RATIO;
+    var I2 = Videal / (RL + RW) * 1000;
+    var Vreal = Videal - (I2 / 1000) * RW;
+    var vreg = RW > 0 ? (Videal - Vreal) / Vreal * 100 : 0;
+    var inorm = Math.min(I2 / 500, 1);
+
+    // Layout
+    var cx = W / 2, cy = H / 2 - 10;
+    var coreX = cx - 28, coreY = cy - 24, coreW = 56, coreH = 48;
+    drawCore(ctx, coreX, coreY, coreW, coreH, 0.5 + Math.sin(t) * 0.5);
+
+    // Primary coil
+    drawCoil(ctx, coreX - 8, cy, 5, 50, 22, "#ffbb00", 8);
+    ctx.fillStyle = "#ffbb00"; ctx.font = "9px Share Tech Mono"; ctx.textAlign = "center";
+    ctx.fillText(Vin + "V", coreX - 8, cy - 20);
+    ctx.fillText("N1", coreX - 8, cy + 24);
+
+    // Secondary coil
+    drawCoil(ctx, coreX + coreW + 8, cy, 4, 40, 22, "#44ccff", 6);
+    ctx.fillStyle = "#44ccff"; ctx.font = "9px Share Tech Mono"; ctx.textAlign = "center";
+    ctx.fillText("N2", coreX + coreW + 8, cy + 24);
+
+    // Wire from secondary
+    var wStart = coreX + coreW + 8 + 28, wEnd = W - 30, wireY = cy;
+
+    // Rw (wire resistance) on top rail
+    var rwX = wStart + 10, rwW = 40, rwH = 16;
+    ctx.fillStyle = "#1a0f00"; ctx.strokeStyle = "#ff9933"; ctx.lineWidth = 1.5;
+    rr(ctx, rwX, wireY - rwH / 2, rwW, rwH, 3); ctx.fill(); ctx.stroke();
+    // zigzag
+    ctx.beginPath(); ctx.strokeStyle = "#ff9933";
+    var zx0 = rwX + 4;
+    ctx.moveTo(zx0, wireY);
+    for (var i = 0; i <= 5; i++) ctx.lineTo(zx0 + i * (rwW - 8) / 5, wireY + (i % 2 === 0 ? -5 : 5));
+    ctx.lineTo(rwX + rwW - 4, wireY); ctx.stroke();
+    ctx.fillStyle = "#ff9933"; ctx.font = "8px Share Tech Mono"; ctx.textAlign = "center";
+    ctx.fillText("Rw=" + RW + "Ω", rwX + rwW / 2, wireY + rwH / 2 + 10);
+
+    // VDrop label on Rw
+    if (RW > 0) {
+      var vdrop = (I2 / 1000) * RW;
+      ctx.fillStyle = "rgba(255,80,80,0.8)"; ctx.font = "8px Share Tech Mono"; ctx.textAlign = "center";
+      ctx.fillText("-" + vdrop.toFixed(2) + "V", rwX + rwW / 2, wireY - rwH / 2 - 5);
+    }
+
+    // wires
+    ctx.strokeStyle = "#3a2a00"; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(wStart, wireY); ctx.lineTo(rwX, wireY); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(rwX + rwW, wireY); ctx.lineTo(wEnd - 10, wireY); ctx.stroke();
+    // bottom return wire
+    ctx.beginPath(); ctx.moveTo(wStart, wireY + 40); ctx.lineTo(wEnd - 10, wireY + 40); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(wEnd - 10, wireY); ctx.lineTo(wEnd - 10, wireY + 40); ctx.stroke();
+
+    // Load resistor (vertical)
+    var ldX = wEnd - 10, ldY = wireY, ldH = 40;
+    ctx.fillStyle = "#001018"; ctx.strokeStyle = "#44ccff"; ctx.lineWidth = 1.5;
+    rr(ctx, ldX - 10, ldY, 20, ldH, 3); ctx.fill(); ctx.stroke();
+    ctx.strokeStyle = "#44ccff"; ctx.lineWidth = 1.3; ctx.beginPath();
+    ctx.moveTo(ldX, ldY + 4);
+    for (var j = 0; j <= 5; j++) ctx.lineTo(ldX + (j % 2 === 0 ? -5 : 5), ldY + 4 + j * (ldH - 8) / 5);
+    ctx.lineTo(ldX, ldY + ldH - 4); ctx.stroke();
+    ctx.fillStyle = "#44ccff"; ctx.font = "8px Share Tech Mono"; ctx.textAlign = "center";
+    ctx.fillText(fmtR(RL), ldX, ldY + ldH + 11);
+
+    // Vout boxes
+    drawVBox(ctx, cx + 110, cy + 60, "Videal", Videal.toFixed(2), "V", "#ffbb00");
+    drawVBox(ctx, cx + 170, cy + 60, "Vreal",  Vreal.toFixed(2), "V", vreg < 5 ? "#44ccff" : "#ff3355");
+
+    // Vreg bar
+    var bx3 = 30, bby3 = H - 28, bw3 = W - 60, bh3 = 12;
+    ctx.fillStyle = "#090600"; ctx.strokeStyle = "#2a1e00"; ctx.lineWidth = 1;
+    rr(ctx, bx3, bby3, bw3, bh3, 3); ctx.fill(); ctx.stroke();
+    var vregFill = Math.min(vreg / 20 * bw3, bw3);
+    var barCol = vreg < 2 ? "#00ff88" : vreg < 10 ? "#ffbb00" : "#ff3355";
+    ctx.fillStyle = barCol; ctx.shadowColor = barCol; ctx.shadowBlur = 5;
+    rr(ctx, bx3, bby3, vregFill, bh3, 3); ctx.fill(); ctx.shadowBlur = 0;
+    ctx.fillStyle = barCol; ctx.font = "8px Share Tech Mono"; ctx.textAlign = "center";
+    ctx.fillText("Regulasi tegangan: " + vreg.toFixed(1) + "%", W / 2, bby3 - 5);
+
+    // particles
+    if (inorm > 0.01) {
+      var spd4 = 0.3 + inorm * 0.5;
+      drawParticles(ctx, [[wStart, wireY], [rwX, wireY], [rwX + rwW, wireY], [wEnd - 10, wireY]], t, spd4, "rgba(68,204,255,0.85)", 2);
+      drawParticles(ctx, [[wEnd - 10, wireY + 40], [wStart, wireY + 40]], t, spd4 * 0.9, "rgba(68,204,255,0.5)", 1);
+    }
+
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
+  read();
+})();
+
+// ══════════════════════════════════════════════════════════════
+// SCENE 4 — RUGI-RUGI
+// ══════════════════════════════════════════════════════════════
+(function() {
+  var cvs = el("c-losses"), ctx = cvs.getContext("2d");
+  var PIN = 100, PCT_CU = 3, PCT_FE = 2, PCT_ST = 0.5;
+  var heatParticles = [];
+  for (var i = 0; i < 40; i++) heatParticles.push({ x:0, y:0, vx:0, vy:0, life:0, maxLife:1 });
+  var frame = 0;
+
+  function read() {
+    PIN    = parseFloat(el("ls-pin").value);
+    PCT_CU = parseFloat(el("ls-cu").value);
+    PCT_FE = parseFloat(el("ls-fe").value);
+    PCT_ST = parseFloat(el("ls-st").value);
+    el("ls-pin-v").textContent = PIN + " W";
+    el("ls-cu-v").textContent  = PCT_CU + " %";
+    el("ls-fe-v").textContent  = PCT_FE + " %";
+    el("ls-st-v").textContent  = PCT_ST + " %";
+    updateMetrics();
+  }
+
+  function updateMetrics() {
+    var lossTotal = (PCT_CU + PCT_FE + PCT_ST) / 100 * PIN;
+    var Pout = PIN - lossTotal;
+    var eff = Pout / PIN * 100;
+    el("ls-mpin").textContent  = PIN;
+    el("ls-mpout").textContent = Pout.toFixed(1);
+    el("ls-ploss").textContent = lossTotal.toFixed(1);
+    el("ls-eff").textContent   = eff.toFixed(1);
+    el("ls-eff").style.color = eff >= 95 ? "var(--g)" : eff >= 85 ? "var(--a)" : "var(--r)";
+  }
+
+  function spawnHeat(cx, cy) {
+    var p = null;
+    for (var i = 0; i < heatParticles.length; i++) {
+      if (heatParticles[i].life <= 0) { p = heatParticles[i]; break; }
+    }
+    if (!p) return;
+    p.x = cx + (-20 + Math.random() * 40);
+    p.y = cy;
+    p.vx = (-1 + Math.random() * 2) * 0.8;
+    p.vy = -(0.5 + Math.random() * 2);
+    p.life = 25 + Math.random() * 30;
+    p.maxLife = p.life;
+  }
+
+  ["ls-pin","ls-cu","ls-fe","ls-st"].forEach(function(id) { el(id).addEventListener("input", read); });
+
+  function draw(ts) {
+    if (activeScene !== "losses") { requestAnimationFrame(draw); return; }
+    var W = cvs.width, H = cvs.height;
+    ctx.clearRect(0, 0, W, H);
+    frame++;
+
+    var lossTotal = (PCT_CU + PCT_FE + PCT_ST) / 100 * PIN;
+    var Pout = PIN - lossTotal;
+    var eff = Pout / PIN * 100;
+    var lossFrac = lossTotal / PIN;
+
+    if (frame % 3 === 0) spawnHeat(W / 2, 60);
+    if (lossFrac > 0.1 && frame % 2 === 0) spawnHeat(W / 2, 60);
+
+    // === SANKEY-STYLE FLOW DIAGRAM ===
+    var cx = W / 2, arrowY = 52;
+
+    // Transformer box
+    var trafoX = cx - 45, trafoY = 30, trafoW = 90, trafoH = 44;
+    ctx.fillStyle = "#1a1000"; ctx.strokeStyle = "#6a4a10"; ctx.lineWidth = 2;
+    rr(ctx, trafoX, trafoY, trafoW, trafoH, 6); ctx.fill(); ctx.stroke();
+    drawCore(ctx, trafoX + 5, trafoY + 5, trafoW - 10, trafoH - 10, 0.6);
+    ctx.fillStyle = "#8a6020"; ctx.font = "8px Share Tech Mono"; ctx.textAlign = "center";
+    ctx.fillText("TRANSFORMATOR", cx, trafoY + trafoH + 12);
+
+    // Input arrow
+    var pinW = 50;
+    ctx.fillStyle = "#ffbb00"; ctx.strokeStyle = "#ffbb00"; ctx.lineWidth = 2;
+    ctx.shadowColor = "#ffbb00"; ctx.shadowBlur = 8;
+    ctx.beginPath();
+    ctx.moveTo(trafoX - pinW, arrowY);
+    ctx.lineTo(trafoX - 2, arrowY);
+    ctx.stroke(); ctx.shadowBlur = 0;
+    // arrowhead
+    ctx.fillStyle = "#ffbb00";
+    ctx.beginPath(); ctx.moveTo(trafoX - 2, arrowY - 5); ctx.lineTo(trafoX + 8, arrowY); ctx.lineTo(trafoX - 2, arrowY + 5); ctx.closePath(); ctx.fill();
+    ctx.font = "9px Share Tech Mono"; ctx.textAlign = "center";
+    ctx.fillText("Pin=" + PIN + "W", trafoX - pinW / 2, arrowY - 8);
+
+    // Output arrow (Pout)
+    var poutW = 50 * (Pout / PIN);
+    ctx.fillStyle = "#00ff88"; ctx.strokeStyle = "#00ff88"; ctx.lineWidth = 2;
+    ctx.shadowColor = "#00ff88"; ctx.shadowBlur = 8;
+    ctx.beginPath(); ctx.moveTo(trafoX + trafoW + 2, arrowY); ctx.lineTo(trafoX + trafoW + poutW, arrowY); ctx.stroke(); ctx.shadowBlur = 0;
+    ctx.fillStyle = "#00ff88";
+    ctx.beginPath(); ctx.moveTo(trafoX + trafoW + poutW - 8, arrowY - 5); ctx.lineTo(trafoX + trafoW + poutW + 2, arrowY); ctx.lineTo(trafoX + trafoW + poutW - 8, arrowY + 5); ctx.closePath(); ctx.fill();
+    ctx.font = "9px Share Tech Mono"; ctx.textAlign = "center";
+    ctx.fillText("Pout=" + Pout.toFixed(1) + "W", trafoX + trafoW + poutW / 2, arrowY - 8);
+
+    // Loss breakdown bars
+    var barData = [
+      { label: "Rugi Cu (I²R)", pct: PCT_CU, col: "#ff5533" },
+      { label: "Rugi Fe (Inti)", pct: PCT_FE, col: "#ff9933" },
+      { label: "Rugi Stray",    pct: PCT_ST, col: "#ffcc44" }
+    ];
+    var bStartY = 95, bH2 = 26, bW2 = W - 80, bGap = 10;
+    barData.forEach(function(bd, idx) {
+      var by2 = bStartY + idx * (bH2 + bGap);
+      var bFill = bd.pct / 30 * bW2; // 30% = max scale
+      // bg
+      ctx.fillStyle = "#0d0900"; ctx.strokeStyle = "#2a1e00"; ctx.lineWidth = 1;
+      rr(ctx, 40, by2, bW2, bH2, 3); ctx.fill(); ctx.stroke();
+      // fill
+      ctx.fillStyle = bd.col; ctx.shadowColor = bd.col; ctx.shadowBlur = lossFrac * 8;
+      rr(ctx, 40, by2, Math.max(2, bFill), bH2, 3); ctx.fill(); ctx.shadowBlur = 0;
+      // label
+      ctx.fillStyle = bd.col; ctx.font = "bold 9px Share Tech Mono"; ctx.textAlign = "left";
+      ctx.fillText(bd.label + ": " + bd.pct + "% = " + (bd.pct / 100 * PIN).toFixed(1) + "W", 44, by2 + bH2 / 2 + 4);
+    });
+
+    // Efficiency gauge
+    var effY = bStartY + 3 * (bH2 + bGap) + 10;
+    var effW = W - 80;
+    ctx.fillStyle = "#0d0900"; ctx.strokeStyle = "#2a1e00"; ctx.lineWidth = 1;
+    rr(ctx, 40, effY, effW, 22, 3); ctx.fill(); ctx.stroke();
+    var effFill = eff / 100 * effW;
+    var effCol = eff >= 95 ? "#00ff88" : eff >= 85 ? "#ffbb00" : "#ff3355";
+    ctx.fillStyle = effCol; ctx.shadowColor = effCol; ctx.shadowBlur = 8;
+    rr(ctx, 40, effY, Math.max(2, effFill), 22, 3); ctx.fill(); ctx.shadowBlur = 0;
+    ctx.fillStyle = eff > 50 ? "#000" : effCol; ctx.font = "bold 10px Share Tech Mono"; ctx.textAlign = "center";
+    ctx.fillText("EFISIENSI: " + eff.toFixed(1) + "%", 40 + effW / 2, effY + 14);
+
+    // Heat particles
+    heatParticles.forEach(function(p) {
+      if (p.life <= 0) return;
+      p.x += p.vx; p.y += p.vy;
+      p.vx *= 0.97; p.vy *= 0.98;
+      p.life--;
+      var a = p.life / p.maxLife;
+      ctx.beginPath(); ctx.arc(p.x, p.y, 2.5, 0, Math.PI * 2);
+      var hue = Math.round(50 - lossFrac * 50);
+      ctx.fillStyle = "hsla(" + hue + ",100%,60%," + (a * 0.8) + ")";
+      ctx.shadowColor = ctx.fillStyle; ctx.shadowBlur = 5; ctx.fill(); ctx.shadowBlur = 0;
+    });
+
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
+  read();
+})();
+
+// ══════════════════════════════════════════════════════════════
+// SCENE 5 — JENIS TRAFO
+// ══════════════════════════════════════════════════════════════
+(function() {
+  var cvs = el("c-types"), ctx = cvs.getContext("2d");
+  var typeMode = "pow", Vin = 220, RATIO = 10;
+
+  var TYPES = {
+    pow: {
+      label: "TRAFO DAYA",
+      col1: "#ffbb00", col2: "#44ccff",
+      iso: "YA", use: "PLN→rumah",
+      info: "Trafo daya: <span>mengubah tegangan AC</span> skala besar<br>Inti besi laminasi untuk kurangi eddy current"
+    },
+    iso: {
+      label: "TRAFO ISOLASI",
+      col1: "#44ccff", col2: "#44ccff",
+      iso: "YA", use: "Safety/medis",
+      info: "Trafo isolasi: <span>N1=N2 (1:1)</span>, tegangan sama<br>Melindungi dari kontak langsung dengan ground"
+    },
+    aut: {
+      label: "AUTO-TRAFO",
+      col1: "#00ff88", col2: "#ffbb00",
+      iso: "TIDAK", use: "Variac/starter",
+      info: "Auto-trafo: kumparan primer dan sekunder <span>berbagi</span><br>Lebih efisien namun <span class='r'>tanpa isolasi galvanic</span>"
+    },
+    ct: {
+      label: "TRAFO CT",
+      col1: "#ffbb00", col2: "#ff44aa",
+      iso: "YA", use: "Power supply CT",
+      info: "Trafo CT (Centre-Tap): sekunder punya <span>titik tengah</span><br>Output: Vout/2 dan Vout/2 → dioda penyearah full-wave"
+    }
+  };
+
+  function setType(mode) {
+    typeMode = mode;
+    ["pow","iso","aut","ct"].forEach(function(m) {
+      el("tp-" + m + "-btn").className = m === mode ? "btn on" : "btn off";
+    });
+    var tp = TYPES[mode];
+    el("tp-iso").textContent = tp.iso;
+    el("tp-iso").style.color = tp.iso === "YA" ? "var(--g)" : "var(--r)";
+    el("tp-use").textContent = tp.use;
+    el("tp-info").innerHTML = tp.info;
+    updateMetrics();
+  }
+
+  ["pow","iso","aut","ct"].forEach(function(m) {
+    el("tp-" + m + "-btn").addEventListener("click", function() { setType(m); });
+  });
+
+  function read() {
+    Vin   = parseFloat(el("tp-vin").value);
+    RATIO = parseFloat(el("tp-ratio").value);
+    el("tp-vin-v").textContent   = Vin + " V";
+    el("tp-ratio-v").textContent = RATIO.toFixed(1) + " : 1";
+    updateMetrics();
+  }
+
+  function updateMetrics() {
+    var effRatio = typeMode === "iso" ? 1 : RATIO;
+    var Vout = typeMode === "iso" ? Vin : Vin / effRatio;
+    el("tp-vout").textContent = Vout.toFixed(1);
+  }
+
+  ["tp-vin","tp-ratio"].forEach(function(id) { el(id).addEventListener("input", read); });
+
+  function draw(ts) {
+    if (activeScene !== "types") { requestAnimationFrame(draw); return; }
+    var W = cvs.width, H = cvs.height;
+    var t = ts / 500;
+    ctx.clearRect(0, 0, W, H);
+
+    var tp = TYPES[typeMode];
+    var Vout = typeMode === "iso" ? Vin : Vin / RATIO;
+    var v1n = Math.min(Vin / 240, 1);
+    var v2n = Math.min(Vout / 240, 1);
+    var cx = W / 2, cy = H / 2;
+
+    if (typeMode === "pow" || typeMode === "iso") {
+      drawStandardTrafo(ctx, W, H, t, Vin, Vout, v1n, v2n, tp, typeMode);
+    } else if (typeMode === "aut") {
+      drawAutoTrafo(ctx, W, H, t, Vin, Vout, v1n, v2n, tp);
+    } else if (typeMode === "ct") {
+      drawCTTrafo(ctx, W, H, t, Vin, Vout, v1n, v2n, tp);
+    }
+
+    requestAnimationFrame(draw);
+  }
+
+  function drawStandardTrafo(ctx, W, H, t, Vin, Vout, v1n, v2n, tp, mode) {
+    var cx = W / 2, cy = H / 2 - 10;
+    var coreX = cx - 32, coreY = cy - 30, coreW = 64, coreH = 60;
+    drawCore(ctx, coreX, coreY, coreW, coreH, 0.5 + Math.sin(t) * 0.5);
+
+    var p1turns = mode === "iso" ? 6 : 5;
+    var p2turns = mode === "iso" ? 6 : 4;
+    drawCoil(ctx, coreX - 10, cy, p1turns, p1turns * 9, 28, tp.col1, v1n * 12);
+    drawCoil(ctx, coreX + coreW + 10, cy, p2turns, p2turns * 9, 28, tp.col2, v2n * 10);
+
+    // Isolation barrier label
+    if (mode === "iso") {
+      ctx.strokeStyle = "#ff9933"; ctx.lineWidth = 2; ctx.setLineDash([4, 4]);
+      ctx.beginPath(); ctx.moveTo(cx, coreY - 8); ctx.lineTo(cx, coreY + coreH + 8); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = "#ff9933"; ctx.font = "8px Share Tech Mono"; ctx.textAlign = "center";
+      ctx.fillText("ISOLASI", cx, coreY - 14);
+    }
+
+    // V labels
+    ctx.fillStyle = tp.col1; ctx.font = "9px Share Tech Mono"; ctx.textAlign = "center";
+    ctx.fillText(Vin + "V AC", coreX - 10, cy - 28);
+    ctx.fillStyle = tp.col2;
+    ctx.fillText(Vout.toFixed(1) + "V AC", coreX + coreW + 10, cy - 28);
+
+    // AC source
+    var srcX = 40, srcY = cy;
+    ctx.beginPath(); ctx.arc(srcX, srcY, 18, 0, Math.PI * 2);
+    ctx.fillStyle = "#0d0900"; ctx.strokeStyle = tp.col1; ctx.lineWidth = 2;
+    ctx.shadowColor = tp.col1; ctx.shadowBlur = v1n * 10; ctx.fill(); ctx.stroke(); ctx.shadowBlur = 0;
+    ctx.beginPath(); ctx.strokeStyle = tp.col1; ctx.lineWidth = 1.5;
+    for (var i = 0; i <= 20; i++) {
+      var sx = srcX - 10 + i; var sy = srcY - Math.sin((i / 20) * Math.PI * 2 - t) * 7;
+      if (i === 0) ctx.moveTo(sx, sy); else ctx.lineTo(sx, sy);
+    }
+    ctx.stroke();
+    ctx.fillStyle = tp.col1; ctx.font = "8px Share Tech Mono"; ctx.textAlign = "center";
+    ctx.fillText(Vin + "V", srcX, srcY + 28);
+
+    // Load
+    var ldX = W - 40, ldY = cy;
+    ctx.beginPath(); ctx.arc(ldX, ldY, 18, 0, Math.PI * 2);
+    ctx.fillStyle = "#0d0900"; ctx.strokeStyle = tp.col2; ctx.lineWidth = 2;
+    ctx.shadowColor = tp.col2; ctx.shadowBlur = v2n * 10; ctx.fill(); ctx.stroke(); ctx.shadowBlur = 0;
+    ctx.fillStyle = tp.col2; ctx.font = "11px serif"; ctx.textAlign = "center"; ctx.fillText("⚡", ldX, ldY + 4);
+    ctx.font = "8px Share Tech Mono"; ctx.fillText(Vout.toFixed(1) + "V", ldX, ldY + 28);
+
+    // Type label
+    ctx.fillStyle = tp.col1; ctx.font = "bold 11px Share Tech Mono"; ctx.textAlign = "center";
+    ctx.shadowColor = tp.col1; ctx.shadowBlur = 10;
+    ctx.fillText(tp.label, cx, H - 12); ctx.shadowBlur = 0;
+
+    // particles
+    drawParticles(ctx, [[srcX + 18, cy], [coreX - 10, cy]], t, 0.4, "rgba(255,187,0,0.85)", 2);
+    drawParticles(ctx, [[coreX + coreW + 10, cy], [ldX - 18, cy]], t, 0.4 * v2n / Math.max(v1n, 0.01), "rgba(68,204,255,0.85)", 2);
+  }
+
+  function drawAutoTrafo(ctx, W, H, t, Vin, Vout, v1n, v2n, tp) {
+    var cx = W / 2, cy = H / 2 - 5;
+    var coreX = cx - 25, coreY = cy - 35, coreW = 50, coreH = 70;
+    drawCore(ctx, coreX, coreY, coreW, coreH, 0.5 + Math.sin(t) * 0.5);
+
+    // Single coil with tap
+    var totalTurns = 10, tapAt = Math.round(10 / RATIO);
+    tapAt = Math.max(1, Math.min(9, tapAt));
+    var coilW = totalTurns * 10, coilX = cx - coilW / 2;
+    ctx.strokeStyle = tp.col1; ctx.lineWidth = 2.5;
+    ctx.shadowColor = tp.col1; ctx.shadowBlur = v1n * 10;
+    for (var i = 0; i < totalTurns; i++) {
+      var sx2 = coilX + i * (coilW / totalTurns);
+      var tw2 = coilW / totalTurns;
+      ctx.beginPath(); ctx.arc(sx2 + tw2 / 2, cy, 12, Math.PI, 0); ctx.stroke();
+    }
+    ctx.shadowBlur = 0;
+
+    // Tap line
+    var tapX = coilX + tapAt * (coilW / totalTurns);
+    ctx.strokeStyle = tp.col2; ctx.lineWidth = 2; ctx.setLineDash([3, 3]);
+    ctx.beginPath(); ctx.moveTo(tapX, cy + 14); ctx.lineTo(tapX, cy + 45); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle = tp.col2; ctx.font = "9px Share Tech Mono"; ctx.textAlign = "center";
+    ctx.fillText("TAP → " + Vout.toFixed(1) + "V", tapX, cy + 58);
+    ctx.fillText("(N=" + tapAt + "/" + totalTurns + ")", tapX, cy + 70);
+
+    // GND line (shared)
+    ctx.strokeStyle = "#5a4010"; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(coilX - 14, cy); ctx.lineTo(coilX - 14, cy + 80); ctx.lineTo(cx, cy + 80); ctx.stroke();
+    [20, 13, 6].forEach(function(w, idx) {
+      ctx.beginPath(); ctx.moveTo(cx - w, cy + 80 + idx * 5); ctx.lineTo(cx + w, cy + 80 + idx * 5);
+      ctx.strokeStyle = "#4a3010"; ctx.stroke();
+    });
+    ctx.fillStyle = "#5a4010"; ctx.font = "8px Share Tech Mono"; ctx.textAlign = "center";
+    ctx.fillText("BERSAMA (no isolasi)", cx, cy + 80 + 22);
+
+    // Labels
+    ctx.fillStyle = tp.col1; ctx.font = "9px Share Tech Mono"; ctx.textAlign = "center";
+    ctx.fillText(Vin + "V", coilX - 14, cy - 28);
+    ctx.fillStyle = tp.col1; ctx.font = "bold 11px Share Tech Mono";
+    ctx.shadowColor = tp.col1; ctx.shadowBlur = 8;
+    ctx.fillText("AUTO-TRANSFORMATOR", cx, H - 10); ctx.shadowBlur = 0;
+  }
+
+  function drawCTTrafo(ctx, W, H, t, Vin, Vout, v1n, v2n, tp) {
+    var cx = W / 2, cy = H / 2 - 10;
+    var coreX = cx - 30, coreY = cy - 30, coreW = 60, coreH = 60;
+    drawCore(ctx, coreX, coreY, coreW, coreH, 0.5 + Math.sin(t) * 0.5);
+
+    // Primary
+    drawCoil(ctx, coreX - 8, cy, 5, 45, 26, tp.col1, v1n * 10);
+    ctx.fillStyle = tp.col1; ctx.font = "9px Share Tech Mono"; ctx.textAlign = "center";
+    ctx.fillText(Vin + "V", coreX - 8, cy - 25);
+
+    // Secondary top half
+    drawCoil(ctx, coreX + coreW + 8, cy - 18, 4, 40, 20, tp.col2, v2n * 8);
+    ctx.fillStyle = tp.col2; ctx.font = "9px Share Tech Mono"; ctx.textAlign = "center";
+    ctx.fillText("+" + (Vout / 2).toFixed(1) + "V", coreX + coreW + 28, cy - 34);
+
+    // Secondary bottom half
+    drawCoil(ctx, coreX + coreW + 8, cy + 18, 4, 40, 20, "#ff44aa", v2n * 8);
+    ctx.fillStyle = "#ff44aa"; ctx.font = "9px Share Tech Mono"; ctx.textAlign = "center";
+    ctx.fillText("-" + (Vout / 2).toFixed(1) + "V", coreX + coreW + 28, cy + 48);
+
+    // CT dot (centre tap)
+    var ctX = coreX + coreW + 8, ctY = cy;
+    ctx.beginPath(); ctx.arc(ctX + 20, ctY, 5, 0, Math.PI * 2);
+    ctx.fillStyle = "#ffe044"; ctx.shadowColor = "#ffe044"; ctx.shadowBlur = 10; ctx.fill(); ctx.shadowBlur = 0;
+    ctx.fillStyle = "#ffe044"; ctx.font = "8px Share Tech Mono"; ctx.textAlign = "left";
+    ctx.fillText("CT (0V)", ctX + 28, ctY + 4);
+
+    // Labels
+    ctx.fillStyle = tp.col1; ctx.font = "bold 11px Share Tech Mono"; ctx.textAlign = "center";
+    ctx.shadowColor = tp.col1; ctx.shadowBlur = 8;
+    ctx.fillText("TRAFO CENTRE-TAP", cx, H - 10); ctx.shadowBlur = 0;
+
+    // particles primary
+    drawParticles(ctx, [[30, cy], [coreX - 8, cy]], t, 0.4, "rgba(255,187,0,0.8)", 2);
+  }
+
+  requestAnimationFrame(draw);
+  read();
+  setType("pow");
+})();
+</script>
+</body>
+</html>

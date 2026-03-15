@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sensor &amp; Aktuator | FG Electronic Labs</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --s:#44ff88;--s2:#aaffcc;--sd:#003320;
+  --t:#00e5cc;--o:#ff9933;--r:#ff3355;--y:#ffe044;--b:#44aaff;--p:#cc44ff;
+  --bg:#030a06;--card:#060f09;--bdr:#0d3320;--dim:#2a7050;
+  --font:'Share Tech Mono',monospace;--head:'Orbitron',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:radial-gradient(ellipse 130% 55% at 50% 0%,#082a14 0%,#030a06 60%);min-height:100vh;font-family:var(--font);color:var(--s2);overflow-x:hidden;}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.07) 2px,rgba(0,0,0,.07) 4px);z-index:9999;}
+.wrap{max-width:540px;margin:0 auto;padding:18px 12px 48px;}
+header{text-align:center;margin-bottom:22px;}
+.back{display:inline-block;font-family:var(--font);font-size:10px;color:rgba(68,255,136,.4);text-decoration:none;margin-bottom:12px;letter-spacing:2px;transition:color .2s;}
+.back:hover{color:var(--s);}
+.sub{font-size:9px;letter-spacing:6px;color:#0a3320;margin-bottom:5px;}
+h1{font-family:var(--head);font-size:clamp(14px,4vw,21px);font-weight:900;color:var(--s);text-shadow:0 0 24px rgba(68,255,136,.5);letter-spacing:2px;margin-bottom:8px;}
+.divline{width:80px;height:2px;background:linear-gradient(to right,transparent,var(--s),transparent);margin:0 auto;}
+.tabs{display:flex;gap:4px;margin-bottom:14px;overflow-x:auto;padding-bottom:3px;scrollbar-width:none;}
+.tabs::-webkit-scrollbar{display:none;}
+.tab{flex:0 0 auto;padding:6px 11px;border:1px solid var(--bdr);border-radius:7px;background:var(--card);color:var(--dim);cursor:pointer;font-family:var(--font);font-size:9px;letter-spacing:.8px;transition:all .2s;white-space:nowrap;}
+.tab:hover{border-color:var(--s2);color:var(--s2);}
+.tab.on{border-color:var(--s);background:#082014;color:var(--s);box-shadow:0 0 12px rgba(68,255,136,.2);}
+.card{background:var(--card);border:1px solid var(--bdr);border-radius:14px;padding:20px 16px;box-shadow:0 0 36px rgba(68,255,136,.04),inset 0 1px 0 #0d3320;}
+.scene{display:none;flex-direction:column;align-items:center;gap:16px;}
+.scene.on{display:flex;}
+.atitle{font-family:var(--head);font-size:10px;letter-spacing:2px;color:var(--s2);text-align:center;width:100%;}
+.ctrl{width:100%;background:#040c07;border:1px solid var(--bdr);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;}
+.ctrl-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.ctrl-lbl{font-size:10px;color:var(--dim);min-width:90px;letter-spacing:.7px;}
+.sl{flex:1;min-width:90px;-webkit-appearance:none;height:4px;background:linear-gradient(to right,var(--s) var(--pct,50%),#0d3320 var(--pct,50%));border-radius:2px;outline:none;cursor:pointer;}
+.sl::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--s);box-shadow:0 0 6px rgba(68,255,136,.7);cursor:pointer;}
+.sl::-moz-range-thumb{width:14px;height:14px;border-radius:50%;border:none;background:var(--s);cursor:pointer;}
+.ctrl-val{font-size:11px;color:var(--s);min-width:68px;text-align:right;}
+.metrics{display:flex;gap:6px;width:100%;flex-wrap:wrap;}
+.metric{flex:1;min-width:70px;background:#040c07;border:1px solid var(--bdr);border-radius:7px;padding:6px 8px;text-align:center;}
+.metric-lbl{font-size:8px;color:var(--dim);letter-spacing:1.5px;margin-bottom:2px;}
+.metric-val{font-size:13px;color:var(--s);font-weight:bold;}
+.metric-unit{font-size:8px;color:var(--dim);}
+.info{color:var(--dim);font-size:11px;text-align:center;line-height:1.75;width:100%;}
+.info span{color:var(--s);}.info .o{color:var(--o);}.info .r{color:var(--r);}.info .b{color:var(--b);}
+canvas{display:block;border-radius:7px;}
+canvas.brd{border:1px solid var(--bdr);background:#040c07;}
+footer{text-align:center;margin-top:20px;font-size:9px;letter-spacing:3px;color:#0a2614;}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <a class="back" href="index.html">← FATAH GENDI ELECTRONIC LABS</a>
+  <div class="sub">◈ SENSOR &amp; AKTUATOR ◈</div>
+  <h1>SENSOR &amp; AKTUATOR</h1>
+  <div class="divline"></div>
+</header>
+<div class="tabs">
+  <button class="tab on" data-s="thermistor">🌡 Thermistor</button>
+  <button class="tab" data-s="ldr">☀ LDR</button>
+  <button class="tab" data-s="wheatstone">⚖ Wheatstone Bridge</button>
+  <button class="tab" data-s="hall">🧲 Hall Effect</button>
+  <button class="tab" data-s="motor_dc">⚙ Motor DC</button>
+  <button class="tab" data-s="servo">🤖 Servo PWM</button>
+</div>
+<div class="card">
+
+<!-- THERMISTOR -->
+<div class="scene on" id="s-thermistor">
+  <div class="atitle">THERMISTOR NTC — PENGUKUR SUHU</div>
+  <canvas id="c-thermistor" class="brd" width="460" height="210" style="width:100%"></canvas>
+  <div class="ctrl">
+    <div class="ctrl-row"><span class="ctrl-lbl">🌡 Suhu (°C)</span><input type="range" class="sl" id="th-temp" min="-20" max="150" value="25" step="1"><span class="ctrl-val" id="th-temp-v">25 °C</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">📊 Beta (K)</span><input type="range" class="sl" id="th-beta" min="2000" max="6000" value="3950" step="50"><span class="ctrl-val" id="th-beta-v">3950</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">⚙ R25 (Ω)</span><input type="range" class="sl" id="th-r25" min="1000" max="100000" value="10000" step="1000"><span class="ctrl-val" id="th-r25-v">10 kΩ</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">⚙ Rref pullup</span><input type="range" class="sl" id="th-rref" min="1000" max="100000" value="10000" step="1000"><span class="ctrl-val" id="th-rref-v">10 kΩ</span></div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-lbl">R(T)</div><div class="metric-val" id="th-rt">10.0</div><div class="metric-unit">kΩ</div></div>
+    <div class="metric"><div class="metric-lbl">Vout</div><div class="metric-val" id="th-vout">2.50</div><div class="metric-unit">V</div></div>
+    <div class="metric"><div class="metric-lbl">ADC (10bit)</div><div class="metric-val" id="th-adc">512</div><div class="metric-unit">/1023</div></div>
+    <div class="metric"><div class="metric-lbl">SENSITIVITAS</div><div class="metric-val" id="th-sens">-15</div><div class="metric-unit">mV/°C</div></div>
+  </div>
+  <div class="info">NTC: R turun saat suhu naik → R(T) = R25 × e^(β(1/T−1/T25))<br>Vout = Vcc × <span>Rref / (Rref + R(T))</span> → dibaca ADC</div>
+</div>
+
+<!-- LDR -->
+<div class="scene" id="s-ldr">
+  <div class="atitle">LDR (LIGHT DEPENDENT RESISTOR)</div>
+  <canvas id="c-ldr" class="brd" width="460" height="210" style="width:100%"></canvas>
+  <div class="ctrl">
+    <div class="ctrl-row"><span class="ctrl-lbl">☀ Intensitas cahaya</span><input type="range" class="sl" id="ld-lux" min="0" max="100" value="50" step="1"><span class="ctrl-val" id="ld-lux-v">50 %</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">⚙ R gelap (MΩ)</span><input type="range" class="sl" id="ld-rdark" min="0.1" max="10" value="1" step="0.1"><span class="ctrl-val" id="ld-rdark-v">1.0 MΩ</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">⚙ R pullup</span><input type="range" class="sl" id="ld-rpull" min="1000" max="100000" value="10000" step="1000"><span class="ctrl-val" id="ld-rpull-v">10 kΩ</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">🔒 Threshold</span><input type="range" class="sl" id="ld-thr" min="0" max="5" value="2.5" step="0.1"><span class="ctrl-val" id="ld-thr-v">2.5 V</span></div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-lbl">R(lux)</div><div class="metric-val" id="ld-rldr">10</div><div class="metric-unit">kΩ</div></div>
+    <div class="metric"><div class="metric-lbl">Vout</div><div class="metric-val" id="ld-vout">2.50</div><div class="metric-unit">V</div></div>
+    <div class="metric"><div class="metric-lbl">OUTPUT</div><div class="metric-val" id="ld-out" style="font-size:10px">MID</div><div class="metric-unit"></div></div>
+    <div class="metric"><div class="metric-lbl">BEBAN</div><div class="metric-val" id="ld-load" style="font-size:10px">LAMPU</div><div class="metric-unit"></div></div>
+  </div>
+  <div class="info">LDR: R sangat tinggi gelap, turun drastis saat terang<br>Komparator: <span>Vout &lt; Thr → nyalakan lampu otomatis</span></div>
+</div>
+
+<!-- WHEATSTONE -->
+<div class="scene" id="s-wheatstone">
+  <div class="atitle">WHEATSTONE BRIDGE — SENSOR STRAIN</div>
+  <canvas id="c-wheatstone" class="brd" width="460" height="210" style="width:100%"></canvas>
+  <div class="ctrl">
+    <div class="ctrl-row"><span class="ctrl-lbl">⚡ Vexcitasi</span><input type="range" class="sl" id="wb-vex" min="1" max="10" value="5" step="0.1"><span class="ctrl-val" id="wb-vex-v">5.0 V</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">⚙ R nominal</span><input type="range" class="sl" id="wb-r" min="100" max="10000" value="1000" step="100"><span class="ctrl-val" id="wb-r-v">1.0 kΩ</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">📊 ΔR strain (%)</span><input type="range" class="sl" id="wb-dr" min="-10" max="10" value="0" step="0.1"><span class="ctrl-val" id="wb-dr-v">0.0 %</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">📢 Gain amp</span><input type="range" class="sl" id="wb-gain" min="1" max="1000" value="100" step="1"><span class="ctrl-val" id="wb-gain-v">100 ×</span></div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-lbl">Vbridge</div><div class="metric-val" id="wb-vb">0.000</div><div class="metric-unit">mV</div></div>
+    <div class="metric"><div class="metric-lbl">Vout amp</div><div class="metric-val" id="wb-vout">0.00</div><div class="metric-unit">V</div></div>
+    <div class="metric"><div class="metric-lbl">ΔR</div><div class="metric-val" id="wb-dr2">0.0</div><div class="metric-unit">Ω</div></div>
+    <div class="metric"><div class="metric-lbl">SENSITIVITAS</div><div class="metric-val" id="wb-sens">2.5</div><div class="metric-unit">V/full</div></div>
+  </div>
+  <div class="info">Bridge seimbang saat ΔR=0 → Vbridge=0<br>Vbridge = Vex × <span>ΔR/(2R+ΔR)</span> ≈ Vex×ΔR/2R<br>Digunakan pada <span>load cell, pressure sensor</span></div>
+</div>
+
+<!-- HALL EFFECT -->
+<div class="scene" id="s-hall">
+  <div class="atitle">HALL EFFECT SENSOR — DETEKSI MAGNET</div>
+  <canvas id="c-hall" class="brd" width="460" height="210" style="width:100%"></canvas>
+  <div class="ctrl">
+    <div class="ctrl-row"><span class="ctrl-lbl">🧲 Kuat medan (mT)</span><input type="range" class="sl" id="hl-b" min="-100" max="100" value="0" step="1"><span class="ctrl-val" id="hl-b-v">0 mT</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">⚡ Vcc</span><input type="range" class="sl" id="hl-vcc" min="2.5" max="12" value="5" step="0.1"><span class="ctrl-val" id="hl-vcc-v">5.0 V</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">📊 Sensitivitas</span><input type="range" class="sl" id="hl-sens" min="1" max="50" value="10" step="0.5"><span class="ctrl-val" id="hl-sens-v">10 mV/mT</span></div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-lbl">Vhall</div><div class="metric-val" id="hl-vh">2500</div><div class="metric-unit">mV</div></div>
+    <div class="metric"><div class="metric-lbl">ΔV</div><div class="metric-val" id="hl-dv">0</div><div class="metric-unit">mV</div></div>
+    <div class="metric"><div class="metric-lbl">POLARITAS</div><div class="metric-val" id="hl-pol" style="font-size:10px">NONE</div><div class="metric-unit"></div></div>
+    <div class="metric"><div class="metric-lbl">OUTPUT</div><div class="metric-val" id="hl-out" style="font-size:10px">MID</div><div class="metric-unit"></div></div>
+  </div>
+  <div class="info">Hall: arus + medan magnet → tegangan Hall muncul<br>Vhall = Vcc/2 + B × <span>Sens</span><br>Digunakan: <span>encoder rotary, current sensor, proximity</span></div>
+</div>
+
+<!-- MOTOR DC -->
+<div class="scene" id="s-motor_dc">
+  <div class="atitle">MOTOR DC — H-BRIDGE DRIVER</div>
+  <canvas id="c-motor_dc" class="brd" width="460" height="210" style="width:100%"></canvas>
+  <div class="ctrl">
+    <div class="ctrl-row"><span class="ctrl-lbl">⚡ Vmotör</span><input type="range" class="sl" id="md-v" min="3" max="24" value="12" step="0.5"><span class="ctrl-val" id="md-v-v">12 V</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">📶 PWM duty</span><input type="range" class="sl" id="md-duty" min="0" max="100" value="70" step="1"><span class="ctrl-val" id="md-duty-v">70 %</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">🔘 Arah</span><input type="range" class="sl" id="md-dir" min="0" max="1" value="0" step="1"><span class="ctrl-val" id="md-dir-v">CW ↻</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">⚙ R armature</span><input type="range" class="sl" id="md-ra" min="0.1" max="20" value="2" step="0.1"><span class="ctrl-val" id="md-ra-v">2.0 Ω</span></div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-lbl">Veff motor</div><div class="metric-val" id="md-veff">8.40</div><div class="metric-unit">V</div></div>
+    <div class="metric"><div class="metric-lbl">I rata</div><div class="metric-val" id="md-iavg">4.20</div><div class="metric-unit">A</div></div>
+    <div class="metric"><div class="metric-lbl">Daya</div><div class="metric-val" id="md-pwr">35.3</div><div class="metric-unit">W</div></div>
+    <div class="metric"><div class="metric-lbl">RPM est.</div><div class="metric-val" id="md-rpm">2520</div><div class="metric-unit">rpm</div></div>
+  </div>
+  <div class="info">H-Bridge: 4 MOSFET → kontrol arah &amp; kecepatan motor<br>Veff = Vmotor × Duty% | <span>PWM = kontrol kecepatan</span><br>Brake: IN1=IN2=1 | Coast: IN1=IN2=0</div>
+</div>
+
+<!-- SERVO -->
+<div class="scene" id="s-servo">
+  <div class="atitle">SERVO MOTOR — KONTROL POSISI PWM</div>
+  <canvas id="c-servo" class="brd" width="460" height="210" style="width:100%"></canvas>
+  <div class="ctrl">
+    <div class="ctrl-row"><span class="ctrl-lbl">📐 Sudut (°)</span><input type="range" class="sl" id="sv-angle" min="0" max="180" value="90" step="1"><span class="ctrl-val" id="sv-angle-v">90 °</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">📶 T min (µs)</span><input type="range" class="sl" id="sv-tmin" min="500" max="1000" value="544" step="10"><span class="ctrl-val" id="sv-tmin-v">544 µs</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">📶 T max (µs)</span><input type="range" class="sl" id="sv-tmax" min="1800" max="2500" value="2400" step="10"><span class="ctrl-val" id="sv-tmax-v">2400 µs</span></div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-lbl">SUDUT</div><div class="metric-val" id="sv-mangle">90</div><div class="metric-unit">°</div></div>
+    <div class="metric"><div class="metric-lbl">PULSA</div><div class="metric-val" id="sv-pulse">1472</div><div class="metric-unit">µs</div></div>
+    <div class="metric"><div class="metric-lbl">DUTY</div><div class="metric-val" id="sv-duty">7.36</div><div class="metric-unit">%</div></div>
+    <div class="metric"><div class="metric-lbl">PERIODE</div><div class="metric-val">20</div><div class="metric-unit">ms</div></div>
+  </div>
+  <div class="info">Servo: periode 20ms (50Hz) | <span>1–2ms pulsa = 0–180°</span><br>T(angle) = Tmin + (Tmax−Tmin) × angle/180<br>Digunakan: robot, gimbal kamera, <span>RC kendaraan</span></div>
+</div>
+
+</div>
+<footer>◈ FATAH GENDI ELECTRONIC LABS — SENSOR &amp; AKTUATOR ◈</footer>
+</div>
+
+<script>
+"use strict";
+var activeS="thermistor";
+function el(id){return document.getElementById(id);}
+function fmtR(v){if(v>=1e6)return(v/1e6).toFixed(2)+" MΩ";if(v>=1e3)return(v/1e3).toFixed(1)+" kΩ";return v.toFixed(0)+" Ω";}
+
+document.querySelectorAll(".sl").forEach(function(s){function u(){s.style.setProperty("--pct",((s.value-s.min)/(s.max-s.min)*100).toFixed(1)+"%");}u();s.addEventListener("input",u);});
+document.querySelectorAll(".tab").forEach(function(t){t.addEventListener("click",function(){document.querySelectorAll(".tab").forEach(function(x){x.classList.remove("on");});document.querySelectorAll(".scene").forEach(function(x){x.classList.remove("on");});t.classList.add("on");activeS=t.dataset.s;el("s-"+activeS).classList.add("on");});});
+
+function rr(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.arcTo(x+w,y,x+w,y+r,r);ctx.lineTo(x+w,y+h-r);ctx.arcTo(x+w,y+h,x+w-r,y+h,r);ctx.lineTo(x+r,y+h);ctx.arcTo(x,y+h,x,y+h-r,r);ctx.lineTo(x,y+r);ctx.arcTo(x,y,x+r,y,r);ctx.closePath();}
+function wl(ctx,x1,y1,x2,y2,col,w){ctx.strokeStyle=col||"#0d3320";ctx.lineWidth=w||2;ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();}
+function dot(ctx,x,y,r,col,glow){ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fillStyle=col;if(glow){ctx.shadowColor=col;ctx.shadowBlur=glow;}ctx.fill();ctx.shadowBlur=0;}
+
+// ═══ THERMISTOR ═══
+(function(){
+  var cvs=el("c-thermistor"),ctx=cvs.getContext("2d");
+  var TEMP=25,BETA=3950,R25=10000,RREF=10000;
+  function RT(T){return R25*Math.exp(BETA*(1/(T+273.15)-1/298.15));}
+  function read(){TEMP=parseFloat(el("th-temp").value);BETA=parseFloat(el("th-beta").value);R25=parseFloat(el("th-r25").value);RREF=parseFloat(el("th-rref").value);el("th-temp-v").textContent=TEMP+" °C";el("th-beta-v").textContent=BETA;el("th-r25-v").textContent=fmtR(R25);el("th-rref-v").textContent=fmtR(RREF);upd();}
+  function upd(){var r=RT(TEMP);var Vout=5*RREF/(RREF+r);var adc=Math.round(Vout/5*1023);var sens=(5*RREF/(Math.pow(RREF+r,2)))*(-BETA/(TEMP+273.15)/(TEMP+273.15))*r*1000;el("th-rt").textContent=r>=1000?(r/1000).toFixed(2):r.toFixed(0);el("th-rt").nextElementSibling.textContent=r>=1000?"kΩ":"Ω";el("th-vout").textContent=Vout.toFixed(2);el("th-adc").textContent=adc;el("th-sens").textContent=sens.toFixed(0);}
+  ["th-temp","th-beta","th-r25","th-rref"].forEach(function(id){el(id).addEventListener("input",read);});
+  function draw(ts){if(activeS!=="thermistor"){requestAnimationFrame(draw);return;}var W=cvs.width,H=cvs.height;ctx.clearRect(0,0,W,H);
+    var r=RT(TEMP);var Vout=5*RREF/(RREF+r);var tempNorm=(TEMP+20)/170;var tCol=tempNorm>0.7?"#ff3355":tempNorm>0.4?"#ff9933":"#44aaff";
+    var cy=H/2;
+    // Circuit: Vcc → Rref → NTC → GND, Vout tap
+    wl(ctx,30,20,30,cy-40,"#44ff88");ctx.fillStyle="#44ff88";ctx.font="9px Share Tech Mono";ctx.textAlign="center";ctx.fillText("5V",30,14);
+    // Rref
+    rr(ctx,18,cy-40,24,40,3);ctx.fillStyle="#060f09";ctx.strokeStyle="#ff9933";ctx.lineWidth=2;ctx.fill();ctx.stroke();ctx.strokeStyle="#ff9933";ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(30,cy-36);for(var j=0;j<=5;j++)ctx.lineTo(30+(j%2===0?-7:7),cy-36+j*28/5);ctx.lineTo(30,cy-8);ctx.stroke();ctx.fillStyle="#ff9933";ctx.font="7px Share Tech Mono";ctx.textAlign="center";ctx.fillText(fmtR(RREF).replace(" ",""),30,cy-44);
+    wl(ctx,30,cy,30,cy+30,"#44ff88");
+    // NTC (thermistor)
+    ctx.beginPath();ctx.arc(30,cy+50,20,0,Math.PI*2);ctx.fillStyle="#060f09";ctx.strokeStyle=tCol;ctx.lineWidth=2;ctx.shadowColor=tCol;ctx.shadowBlur=tempNorm*16;ctx.fill();ctx.stroke();ctx.shadowBlur=0;
+    ctx.fillStyle=tCol;ctx.font="bold 8px Share Tech Mono";ctx.textAlign="center";ctx.fillText("NTC",30,cy+48);ctx.fillText(TEMP+"°",30,cy+59);
+    wl(ctx,30,cy+70,30,cy+90,"#44ff88");
+    [14,9,5].forEach(function(w,i){ctx.beginPath();ctx.moveTo(30-w,cy+90+i*5);ctx.lineTo(30+w,cy+90+i*5);ctx.strokeStyle="#224a3a";ctx.lineWidth=1;ctx.stroke();});
+    // Vout tap
+    dot(ctx,30,cy,5,"#ffe044",12);wl(ctx,30,cy,100,cy,"#ffe044");
+    // Op-amp buffer
+    rr(ctx,100,cy-18,40,36,4);ctx.fillStyle="#060f09";ctx.strokeStyle="#44ff88";ctx.lineWidth=2;ctx.fill();ctx.stroke();ctx.fillStyle="#44ff88";ctx.font="7px Share Tech Mono";ctx.textAlign="center";ctx.fillText("BUF",120,cy+4);
+    wl(ctx,140,cy,200,cy,"#44ff88");
+    // ADC block
+    rr(ctx,200,cy-24,70,48,5);ctx.fillStyle="#060f09";ctx.strokeStyle="#44aaff";ctx.lineWidth=2;ctx.fill();ctx.stroke();ctx.fillStyle="#44aaff";ctx.font="bold 8px Share Tech Mono";ctx.textAlign="center";ctx.fillText("ADC",235,cy-6);ctx.font="7px Share Tech Mono";ctx.fillText("10-bit",235,cy+7);ctx.fillText(Math.round(Vout/5*1023)+"/1023",235,cy+18);
+    wl(ctx,270,cy,310,cy,"#44aaff");
+    // MCU
+    rr(ctx,310,cy-28,80,56,5);ctx.fillStyle="#060f09";ctx.strokeStyle="#00e5cc";ctx.lineWidth=2;ctx.fill();ctx.stroke();ctx.fillStyle="#00e5cc";ctx.font="bold 8px Share Tech Mono";ctx.textAlign="center";ctx.fillText("MCU",350,cy-8);ctx.fillText(TEMP+"°C",350,cy+8);ctx.fillStyle=tCol;ctx.font="7px Share Tech Mono";ctx.shadowColor=tCol;ctx.shadowBlur=8;ctx.fillText("DISPLAY",350,cy+20);ctx.shadowBlur=0;
+
+    // R vs T curve (right side)
+    var gx=200,gy=H-50,gw=W-210;ctx.fillStyle="#060f09";rr(ctx,gx,gy-20,gw,40,3);ctx.fill();ctx.beginPath();ctx.strokeStyle="#44ff88";ctx.lineWidth=2;
+    for(var px=0;px<=gw;px++){var T2=-20+px/gw*170;var r2=RT(T2);var v2=5*RREF/(RREF+r2);var y2=gy-(v2/5)*30;if(px===0)ctx.moveTo(gx+px,y2);else ctx.lineTo(gx+px,y2);}ctx.stroke();
+    var txDot=gx+(TEMP+20)/170*gw;var vyDot=gy-(Vout/5)*30;dot(ctx,txDot,vyDot,5,"#ffe044",12);
+    ctx.fillStyle="var(--dim)";ctx.font="7px Share Tech Mono";ctx.textAlign="center";ctx.fillText("Vout vs T curve",gx+gw/2,gy+24);
+    requestAnimationFrame(draw);}
+  requestAnimationFrame(draw);read();
+})();
+
+// ═══ LDR ═══
+(function(){
+  var cvs=el("c-ldr"),ctx=cvs.getContext("2d");
+  var LUX=50,RDARK=1e6,RPULL=10000,THR=2.5;
+  function RLDR(l){return RDARK*Math.pow(1-l/100,3)+100;}
+  function read(){LUX=parseFloat(el("ld-lux").value);RDARK=parseFloat(el("ld-rdark").value)*1e6;RPULL=parseFloat(el("ld-rpull").value);THR=parseFloat(el("ld-thr").value);el("ld-lux-v").textContent=LUX+" %";el("ld-rdark-v").textContent=(RDARK/1e6).toFixed(1)+" MΩ";el("ld-rpull-v").textContent=fmtR(RPULL);el("ld-thr-v").textContent=THR.toFixed(1)+" V";upd();}
+  function upd(){var r=RLDR(LUX);var Vout=5*r/(RPULL+r);el("ld-rldr").textContent=r>=1000?(r/1000).toFixed(1):r.toFixed(0);el("ld-rldr").nextElementSibling.textContent=r>=1000?"kΩ":"Ω";el("ld-vout").textContent=Vout.toFixed(2);var lamp=Vout<THR;el("ld-out").textContent=lamp?"NYALA":"MATI";el("ld-out").style.color=lamp?"var(--s)":"var(--r)";el("ld-load").textContent=lamp?"LAMPU ON":"LAMPU OFF";el("ld-load").style.color=lamp?"var(--s)":"var(--r)";}
+  ["ld-lux","ld-rdark","ld-rpull","ld-thr"].forEach(function(id){el(id).addEventListener("input",read);});
+  function draw(ts){if(activeS!=="ldr"){requestAnimationFrame(draw);return;}var W=cvs.width,H=cvs.height,t=ts/400;ctx.clearRect(0,0,W,H);
+    var r=RLDR(LUX);var Vout=5*r/(RPULL+r);var lamp=Vout<THR;var luxNorm=LUX/100;
+    // Sun/Moon
+    var sunX=60,sunY=H/2-20;
+    for(var i=0;i<8;i++){var ang=i*Math.PI/4+t*0.5;ctx.strokeStyle="rgba(255,220,50,"+luxNorm*0.8+")";ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(sunX+Math.cos(ang)*20,sunY+Math.sin(ang)*20);ctx.lineTo(sunX+Math.cos(ang)*30,sunY+Math.sin(ang)*30);ctx.stroke();}
+    ctx.beginPath();ctx.arc(sunX,sunY,16,0,Math.PI*2);ctx.fillStyle="rgba(255,220,50,"+luxNorm*0.95+")";ctx.shadowColor="#ffe044";ctx.shadowBlur=luxNorm*20;ctx.fill();ctx.shadowBlur=0;
+    ctx.fillStyle="#ffe044";ctx.font="8px Share Tech Mono";ctx.textAlign="center";ctx.fillText(LUX+"%",sunX,sunY+30);
+    // Circuit
+    var cy=H/2+20;
+    wl(ctx,110,20,110,cy-26,"#44ff88");ctx.fillStyle="#44ff88";ctx.font="8px Share Tech Mono";ctx.textAlign="center";ctx.fillText("5V",110,14);
+    // Pullup R
+    rr(ctx,98,cy-26,24,26,3);ctx.fillStyle="#060f09";ctx.strokeStyle="#ff9933";ctx.lineWidth=2;ctx.fill();ctx.stroke();ctx.strokeStyle="#ff9933";ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(110,cy-22);for(var j=0;j<=4;j++)ctx.lineTo(110+(j%2===0?-6:6),cy-22+j*18/4);ctx.lineTo(110,cy);ctx.stroke();
+    // LDR symbol
+    wl(ctx,110,cy,110,cy+20,"#44ff88");ctx.beginPath();ctx.arc(110,cy+35,14,0,Math.PI*2);ctx.fillStyle="#060f09";ctx.strokeStyle=luxNorm>0.5?"#ffe044":"#0d3320";ctx.lineWidth=2;ctx.shadowColor=luxNorm>0.5?"#ffe044":"transparent";ctx.shadowBlur=luxNorm*14;ctx.fill();ctx.stroke();ctx.shadowBlur=0;ctx.fillStyle=luxNorm>0.5?"#ffe044":"var(--dim)";ctx.font="7px Share Tech Mono";ctx.textAlign="center";ctx.fillText("LDR",110,cy+38);
+    wl(ctx,110,cy+49,110,cy+70,"#44ff88");[10,7,4].forEach(function(w,i){ctx.beginPath();ctx.moveTo(110-w,cy+70+i*4);ctx.lineTo(110+w,cy+70+i*4);ctx.strokeStyle="#224a3a";ctx.lineWidth=1;ctx.stroke();});
+    dot(ctx,110,cy,5,"#ffe044",10);wl(ctx,110,cy,170,cy,"#ffe044");
+    // Comparator
+    ctx.fillStyle="#060f09";ctx.strokeStyle="#44ff88";ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(170,cy-20);ctx.lineTo(170,cy+20);ctx.lineTo(200,cy);ctx.closePath();ctx.fill();ctx.stroke();ctx.fillStyle="#44ff88";ctx.font="7px Share Tech Mono";ctx.textAlign="center";ctx.fillText("COMP",185,cy+2);
+    wl(ctx,160,cy-10,170,cy-10,"#ffe044");wl(ctx,155,cy+10,170,cy+10,"#44aaff");ctx.fillStyle="#44aaff";ctx.fillText("Thr="+THR.toFixed(1)+"V",145,cy+24);
+    wl(ctx,200,cy,240,cy,lamp?"#44ff88":"#224a3a");
+    // Lamp
+    ctx.beginPath();ctx.arc(255,cy,18,0,Math.PI*2);ctx.fillStyle=lamp?"rgba(255,250,200,0.9)":"#060f09";ctx.strokeStyle=lamp?"#ffe044":"#224a3a";ctx.lineWidth=2;ctx.shadowColor=lamp?"#ffe044":"transparent";ctx.shadowBlur=lamp?20:0;ctx.fill();ctx.stroke();ctx.shadowBlur=0;
+    ctx.fillStyle=lamp?"#333":"#224a3a";ctx.font="10px serif";ctx.textAlign="center";ctx.fillText("💡",255,cy+4);
+    ctx.fillStyle=lamp?"#44ff88":"#224a3a";ctx.font="bold 8px Share Tech Mono";ctx.textAlign="center";ctx.shadowColor=lamp?"#44ff88":"transparent";ctx.shadowBlur=lamp?8:0;ctx.fillText(lamp?"NYALA":"MATI",255,cy+26);ctx.shadowBlur=0;
+    ctx.fillStyle="var(--dim)";ctx.font="8px Share Tech Mono";ctx.textAlign="center";ctx.fillText("Vout="+Vout.toFixed(2)+"V  R_LDR="+fmtR(r),W/2,H-10);
+    requestAnimationFrame(draw);}
+  requestAnimationFrame(draw);read();
+})();
+
+// ═══ WHEATSTONE ═══
+(function(){
+  var cvs=el("c-wheatstone"),ctx=cvs.getContext("2d");
+  var VEX=5,RNOM=1000,DRP=0,GAIN=100;
+  function read(){VEX=parseFloat(el("wb-vex").value);RNOM=parseFloat(el("wb-r").value);DRP=parseFloat(el("wb-dr").value);GAIN=parseFloat(el("wb-gain").value);el("wb-vex-v").textContent=VEX.toFixed(1)+" V";el("wb-r-v").textContent=fmtR(RNOM);el("wb-dr-v").textContent=DRP.toFixed(1)+" %";el("wb-gain-v").textContent=GAIN+" ×";upd();}
+  function upd(){var dR=RNOM*DRP/100;var Vb=VEX*dR/(2*RNOM+dR);var Vout=Math.max(-12,Math.min(12,Vb*GAIN));el("wb-vb").textContent=(Vb*1000).toFixed(2);el("wb-vout").textContent=Vout.toFixed(3);el("wb-dr2").textContent=dR.toFixed(1);el("wb-sens").textContent=(VEX/2*1000).toFixed(1);}
+  ["wb-vex","wb-r","wb-dr","wb-gain"].forEach(function(id){el(id).addEventListener("input",read);});
+  function draw(){if(activeS!=="wheatstone"){requestAnimationFrame(draw);return;}var W=cvs.width,H=cvs.height;ctx.clearRect(0,0,W,H);
+    var dR=RNOM*DRP/100;var Vb=VEX*dR/(2*RNOM+dR);var Vout=Math.max(-12,Math.min(12,Vb*GAIN));
+    var cx=W/2-60,cy=H/2,bsz=55;
+    // Diamond bridge
+    var top=[cx,cy-bsz],bot=[cx,cy+bsz],lft=[cx-bsz,cy],rgt=[cx+bsz,cy];
+    // 4 resistors on sides
+    function drawBridgeR(ax,ay,bx,by,label,col,strained){col=col||"#ff9933";var mx=(ax+bx)/2,my=(ay+by)/2;var ang=Math.atan2(by-ay,bx-ax);ctx.save();ctx.translate(mx,my);ctx.rotate(ang);ctx.fillStyle="#060f09";ctx.strokeStyle=col;ctx.lineWidth=1.5;rr(ctx,-16,-6,32,12,3);ctx.fill();ctx.stroke();if(strained){ctx.strokeStyle=col;ctx.lineWidth=1.5;ctx.beginPath();for(var i=0;i<=4;i++)ctx.lineTo(-10+i*6,(i%2===0?-4:4));ctx.stroke();}ctx.fillStyle=col;ctx.font="6px Share Tech Mono";ctx.textAlign="center";ctx.fillText(label,0,4);ctx.restore();wl(ctx,ax,ay,mx-(Math.cos(ang)*18),my-(Math.sin(ang)*18),col,1.5);wl(ctx,mx+(Math.cos(ang)*18),my+(Math.sin(ang)*18),bx,by,col,1.5);}
+    drawBridgeR(top[0],top[1],rgt[0],rgt[1],"R",undefined,false);
+    drawBridgeR(rgt[0],rgt[1],bot[0],bot[1],"R+ΔR",DRP!==0?"#00ff88":undefined,true);
+    drawBridgeR(top[0],top[1],lft[0],lft[1],"R",undefined,false);
+    drawBridgeR(lft[0],lft[1],bot[0],bot[1],"R-ΔR",DRP!==0?"#44aaff":undefined,DRP!==0);
+    // Excitation
+    wl(ctx,cx,cy-bsz-16,cx,cy-bsz,"#44ff88"); dot(ctx,cx,cy-bsz-14,3,"#44ff88");ctx.fillStyle="#44ff88";ctx.font="8px Share Tech Mono";ctx.textAlign="center";ctx.fillText(VEX+"V",cx,cy-bsz-22);
+    wl(ctx,cx,cy+bsz,cx,cy+bsz+16,"#44ff88"); [10,7,4].forEach(function(w,i){ctx.beginPath();ctx.moveTo(cx-w,cy+bsz+16+i*4);ctx.lineTo(cx+w,cy+bsz+16+i*4);ctx.strokeStyle="#224a3a";ctx.lineWidth=1;ctx.stroke();});
+    // Vout taps
+    dot(ctx,cx-bsz,cy,5,"#ffe044",8);dot(ctx,cx+bsz,cy,5,"#ffe044",8);
+    wl(ctx,cx+bsz,cy,cx+bsz+30,cy,"#ffe044");wl(ctx,cx-bsz,cy,cx-bsz-10,cy,"#ffe044");
+    ctx.fillStyle="#ffe044";ctx.font="8px Share Tech Mono";ctx.textAlign="left";ctx.fillText("Vb="+( Vb*1000).toFixed(2)+"mV",cx+bsz+32,cy-4);
+    // Amp
+    var ax2=W-130,ay2=cy;ctx.fillStyle="#060f09";ctx.strokeStyle="#44ff88";ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(ax2-20,ay2-18);ctx.lineTo(ax2-20,ay2+18);ctx.lineTo(ax2+20,ay2);ctx.closePath();ctx.fill();ctx.stroke();ctx.fillStyle="#44ff88";ctx.font="7px Share Tech Mono";ctx.textAlign="center";ctx.fillText("×"+GAIN,ax2,ay2+3);wl(ctx,cx+bsz+70,cy,ax2-20,cy,"#ffe044");
+    wl(ctx,ax2+20,cy,W-10,cy,"#44ff88");var oc=Vout>0?"#00ff88":Vout<0?"#ff3355":"#44ff88";ctx.fillStyle=oc;ctx.font="bold 9px Share Tech Mono";ctx.textAlign="right";ctx.shadowColor=oc;ctx.shadowBlur=8;ctx.fillText("Vout="+Vout.toFixed(3)+"V",W-5,cy+4);ctx.shadowBlur=0;
+    requestAnimationFrame(draw);}
+  requestAnimationFrame(draw);read();
+})();
+
+// ═══ HALL ═══
+(function(){
+  var cvs=el("c-hall"),ctx=cvs.getContext("2d");
+  var B=0,VCC=5,SENS=10;
+  function read(){B=parseFloat(el("hl-b").value);VCC=parseFloat(el("hl-vcc").value);SENS=parseFloat(el("hl-sens").value);el("hl-b-v").textContent=B+" mT";el("hl-vcc-v").textContent=VCC.toFixed(1)+" V";el("hl-sens-v").textContent=SENS+" mV/mT";upd();}
+  function upd(){var Vh=VCC/2+B*SENS/1000;el("hl-vh").textContent=(Vh*1000).toFixed(0);el("hl-dv").textContent=(B*SENS).toFixed(0);var pol=B>5?"NORTH":B<-5?"SOUTH":"NONE";el("hl-pol").textContent=pol;el("hl-pol").style.color=B>5?"#ff3355":B<-5?"#44aaff":"var(--dim)";el("hl-out").textContent=Vh>VCC*0.6?"HIGH":Vh<VCC*0.4?"LOW":"MID";}
+  ["hl-b","hl-vcc","hl-sens"].forEach(function(id){el(id).addEventListener("input",read);});
+  function draw(ts){if(activeS!=="hall"){requestAnimationFrame(draw);return;}var W=cvs.width,H=cvs.height,t=ts/700;ctx.clearRect(0,0,W,H);
+    var Vh=VCC/2+B*SENS/1000;var bNorm=B/100;var cy=H/2;
+    // Magnet
+    if(Math.abs(B)>5){var mCol=B>0?"#ff3355":"#44aaff";ctx.beginPath();ctx.arc(60,cy,30,0,Math.PI*2);ctx.fillStyle="#060f09";ctx.strokeStyle=mCol;ctx.lineWidth=3;ctx.shadowColor=mCol;ctx.shadowBlur=Math.abs(bNorm)*20;ctx.fill();ctx.stroke();ctx.shadowBlur=0;ctx.fillStyle=mCol;ctx.font="bold 11px Share Tech Mono";ctx.textAlign="center";ctx.fillText(B>0?"N":"S",60,cy+5);
+      // Field lines
+      for(var i=0;i<6;i++){var ang=i*Math.PI/3;ctx.strokeStyle="rgba("+(B>0?"255,51,85":"68,170,255")+","+(Math.abs(bNorm)*0.6)+")";ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(60+Math.cos(ang)*32,cy+Math.sin(ang)*32);ctx.lineTo(60+Math.cos(ang)*52,cy+Math.sin(ang)*52);ctx.stroke();}
+    } else {ctx.fillStyle="var(--dim)";ctx.font="9px Share Tech Mono";ctx.textAlign="center";ctx.fillText("NO FIELD",60,cy+3);}
+    // Hall chip
+    rr(ctx,110,cy-20,44,40,4);ctx.fillStyle="#060f09";ctx.strokeStyle="#44ff88";ctx.lineWidth=2;ctx.fill();ctx.stroke();ctx.fillStyle="#44ff88";ctx.font="bold 8px Share Tech Mono";ctx.textAlign="center";ctx.fillText("HALL",132,cy-4);ctx.fillText("IC",132,cy+7);
+    // Pins
+    wl(ctx,90,cy-10,110,cy-10,"#44ff88");wl(ctx,90,cy+10,110,cy+10,"#44ff88");ctx.fillStyle="#44ff88";ctx.font="7px Share Tech Mono";ctx.textAlign="right";ctx.fillText("Vcc",88,cy-6);ctx.fillText("GND",88,cy+14);
+    wl(ctx,154,cy,200,cy,"#ffe044");dot(ctx,198,cy,4,"#ffe044",10);
+    ctx.fillStyle="#ffe044";ctx.font="8px Share Tech Mono";ctx.textAlign="left";ctx.fillText("Vh="+( Vh*1000).toFixed(0)+"mV",202,cy+4);
+    // Voltage bar
+    var gx=20,bby=H-30,gw=W-40;ctx.fillStyle="#060f09";rr(ctx,gx,bby,gw,14,3);ctx.fill();
+    var mid=gx+gw/2;ctx.strokeStyle="rgba(255,224,68,0.4)";ctx.lineWidth=1;ctx.setLineDash([3,4]);ctx.beginPath();ctx.moveTo(mid,bby-3);ctx.lineTo(mid,bby+17);ctx.stroke();ctx.setLineDash([]);
+    var vhX=gx+(Vh/VCC)*gw;var vc=Vh>VCC*0.6?"#ff3355":Vh<VCC*0.4?"#44aaff":"#44ff88";ctx.fillStyle=vc;ctx.shadowColor=vc;ctx.shadowBlur=8;rr(ctx,mid<vhX?mid:vhX,bby,Math.abs(vhX-mid),14,3);ctx.fill();ctx.shadowBlur=0;
+    ctx.strokeStyle=vc;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(vhX,bby-4);ctx.lineTo(vhX,bby+18);ctx.stroke();
+    ctx.fillStyle="var(--dim)";ctx.font="7px Share Tech Mono";ctx.textAlign="center";ctx.fillText("Vcc/2",mid,bby-6);ctx.fillText(B+" mT → Vh="+( Vh*1000).toFixed(0)+"mV",W/2,bby+26);
+    requestAnimationFrame(draw);}
+  requestAnimationFrame(draw);read();
+})();
+
+// ═══ MOTOR DC ═══
+(function(){
+  var cvs=el("c-motor_dc"),ctx=cvs.getContext("2d");
+  var VM=12,DUTY=70,DIR=0,RA=2;
+  function read(){VM=parseFloat(el("md-v").value);DUTY=parseFloat(el("md-duty").value);DIR=parseInt(el("md-dir").value);RA=parseFloat(el("md-ra").value);el("md-v-v").textContent=VM+" V";el("md-duty-v").textContent=DUTY+" %";el("md-dir-v").textContent=DIR===0?"CW ↻":"CCW ↺";el("md-ra-v").textContent=RA.toFixed(1)+" Ω";upd();}
+  function upd(){var Veff=VM*DUTY/100;var Iavg=Veff/RA;var Pwr=Veff*Iavg;var RPM=Veff*300;el("md-veff").textContent=Veff.toFixed(2);el("md-iavg").textContent=Iavg.toFixed(2);el("md-pwr").textContent=Pwr.toFixed(1);el("md-rpm").textContent=RPM.toFixed(0);}
+  ["md-v","md-duty","md-dir","md-ra"].forEach(function(id){el(id).addEventListener("input",read);});
+  function draw(ts){if(activeS!=="motor_dc"){requestAnimationFrame(draw);return;}var W=cvs.width,H=cvs.height,t=ts/700;ctx.clearRect(0,0,W,H);
+    var Veff=VM*DUTY/100;var spd=Veff*DUTY/1000;var cx=W/2,cy=H/2;
+    // H-bridge
+    var bx=60,bw=120,bh=120,by=cy-60;
+    // 4 MOSFET positions
+    var gates=[[bx,by],[bx+bw,by],[bx,by+bh],[bx+bw,by+bh]];
+    var states=DIR===0?[1,0,0,1]:[0,1,1,0];// Q1,Q2,Q3,Q4
+    gates.forEach(function(g,i){ctx.beginPath();ctx.arc(g[0],g[1],12,0,Math.PI*2);ctx.fillStyle=states[i]?"#001a0a":"#060f09";ctx.strokeStyle=states[i]?"#00ff88":"#0d3320";ctx.lineWidth=2;ctx.shadowColor=states[i]?"#00ff88":"transparent";ctx.shadowBlur=states[i]?10:0;ctx.fill();ctx.stroke();ctx.shadowBlur=0;ctx.fillStyle=states[i]?"#00ff88":"#224a3a";ctx.font="7px Share Tech Mono";ctx.textAlign="center";ctx.fillText("Q"+(i+1),g[0],g[1]+3);});
+    // Wires
+    wl(ctx,bx,by,bx+bw,by,"#3a3200");wl(ctx,bx,by+bh,bx+bw,by+bh,"#3a3200");
+    wl(ctx,bx,by,bx,by+bh,"#3a3200");wl(ctx,bx+bw,by,bx+bw,by+bh,"#3a3200");
+    // Motor in center
+    var motX=bx+bw/2,motY=cy;ctx.beginPath();ctx.arc(motX,motY,24,0,Math.PI*2);ctx.fillStyle="#060f09";ctx.strokeStyle="#ff9933";ctx.lineWidth=2;ctx.shadowColor="#ff9933";ctx.shadowBlur=DUTY/10;ctx.fill();ctx.stroke();ctx.shadowBlur=0;
+    // Spinning indicator
+    var spinAngle=t*(DIR===0?1:-1)*spd;ctx.strokeStyle="#ff9933";ctx.lineWidth=2.5;ctx.beginPath();ctx.arc(motX,motY,16,spinAngle,spinAngle+1.5);ctx.stroke();ctx.fillStyle="#ff9933";ctx.font="bold 8px Share Tech Mono";ctx.textAlign="center";ctx.fillText("M",motX,motY-2);ctx.fillText(DIR===0?"↻":"↺",motX,motY+9);
+    wl(ctx,bx+bw/2-16,cy,bx,cy,"#ff9933",2);wl(ctx,bx+bw/2+16,cy,bx+bw,cy,"#ff9933",2);
+    // Vcc/GND
+    ctx.fillStyle="#44ff88";ctx.font="8px Share Tech Mono";ctx.textAlign="center";ctx.fillText(VM+"V",bx+bw/2,by-16);wl(ctx,bx+20,by-12,bx+bw-20,by-12,"#44ff88");
+    [14,9,5].forEach(function(w,i){ctx.beginPath();ctx.moveTo(bx+bw/2-w,by+bh+12+i*4);ctx.lineTo(bx+bw/2+w,by+bh+12+i*4);ctx.strokeStyle="#224a3a";ctx.lineWidth=1;ctx.stroke();});
+    // Speed bar
+    var sbx=W-130,sby=cy-50,sbh=100;ctx.fillStyle="#060f09";rr(ctx,sbx,sby,22,sbh,3);ctx.fill();ctx.strokeStyle="#0d3320";rr(ctx,sbx,sby,22,sbh,3);ctx.stroke();
+    var fillH=DUTY/100*sbh;var sc="#44ff88";ctx.fillStyle=sc;ctx.shadowColor=sc;ctx.shadowBlur=8;ctx.fillRect(sbx+2,sby+sbh-fillH,18,fillH);ctx.shadowBlur=0;
+    ctx.fillStyle="#44ff88";ctx.font="7px Share Tech Mono";ctx.textAlign="center";ctx.fillText(DUTY+"%",sbx+11,sby+sbh+14);ctx.fillText(Veff.toFixed(1)+"V",sbx+11,sby-8);
+    ctx.fillStyle="var(--dim)";ctx.font="8px Share Tech Mono";ctx.textAlign="center";ctx.fillText("Veff="+Veff.toFixed(1)+"V  I="+( Veff/RA).toFixed(1)+"A  RPM≈"+( Veff*300).toFixed(0),W/2,H-8);
+    requestAnimationFrame(draw);}
+  requestAnimationFrame(draw);read();
+})();
+
+// ═══ SERVO ═══
+(function(){
+  var cvs=el("c-servo"),ctx=cvs.getContext("2d");
+  var ANGLE=90,TMIN=544,TMAX=2400;
+  var targetAngle=90,currentAngle=90;
+  function read(){ANGLE=parseFloat(el("sv-angle").value);TMIN=parseFloat(el("sv-tmin").value);TMAX=parseFloat(el("sv-tmax").value);el("sv-angle-v").textContent=ANGLE+" °";el("sv-tmin-v").textContent=TMIN+" µs";el("sv-tmax-v").textContent=TMAX+" µs";targetAngle=ANGLE;upd();}
+  function upd(){var pulse=TMIN+(TMAX-TMIN)*ANGLE/180;var duty=pulse/20000*100;el("sv-mangle").textContent=ANGLE;el("sv-pulse").textContent=pulse.toFixed(0);el("sv-duty").textContent=duty.toFixed(2);}
+  ["sv-angle","sv-tmin","sv-tmax"].forEach(function(id){el(id).addEventListener("input",read);});
+  function draw(ts){if(activeS!=="servo"){requestAnimationFrame(draw);return;}var W=cvs.width,H=cvs.height,t=ts/700;ctx.clearRect(0,0,W,H);
+    currentAngle+=(targetAngle-currentAngle)*0.08;
+    var pulse=TMIN+(TMAX-TMIN)*currentAngle/180;var cx=W/2-50,cy=H/2+10;
+    // Servo body
+    rr(ctx,cx-36,cy-24,72,48,6);ctx.fillStyle="#0a1208";ctx.strokeStyle="#44ff88";ctx.lineWidth=2;ctx.fill();ctx.stroke();ctx.fillStyle="#44ff88";ctx.font="bold 8px Share Tech Mono";ctx.textAlign="center";ctx.fillText("SERVO",cx,cy+4);
+    // Output shaft
+    ctx.beginPath();ctx.arc(cx,cy-24,8,0,Math.PI*2);ctx.fillStyle="#44ff88";ctx.strokeStyle="#44ff88";ctx.lineWidth=2;ctx.fill();
+    // Arm
+    var armLen=55;var armAngle=(currentAngle-90)*Math.PI/180;
+    ctx.strokeStyle="#ff9933";ctx.lineWidth=4;ctx.lineCap="round";ctx.shadowColor="#ff9933";ctx.shadowBlur=8;
+    ctx.beginPath();ctx.moveTo(cx,cy-24);ctx.lineTo(cx+Math.cos(armAngle)*armLen,cy-24+Math.sin(armAngle)*armLen);ctx.stroke();ctx.shadowBlur=0;ctx.lineCap="butt";
+    // Endpoint
+    dot(ctx,cx+Math.cos(armAngle)*armLen,cy-24+Math.sin(armAngle)*armLen,6,"#ffe044",12);
+    // Arc range
+    ctx.strokeStyle="rgba(68,255,136,0.2)";ctx.lineWidth=2;ctx.beginPath();ctx.arc(cx,cy-24,armLen,-Math.PI/2-Math.PI/2,-Math.PI/2+Math.PI/2);ctx.stroke();
+    // Angle labels
+    ctx.fillStyle="var(--dim)";ctx.font="7px Share Tech Mono";ctx.textAlign="center";
+    ctx.fillText("0°",cx-armLen-8,cy-24);ctx.fillText("90°",cx,cy-24-armLen-8);ctx.fillText("180°",cx+armLen+10,cy-24);
+    // PWM waveform
+    var wy=H-44,wh=14,wx=20,ww=W-40;ctx.fillStyle="#060f09";rr(ctx,wx,wy-wh,ww,wh*2,3);ctx.fill();
+    var spd2=50/20000;// 50Hz
+    var dc=pulse/20000;
+    ctx.beginPath();ctx.strokeStyle="#44aaff";ctx.lineWidth=2;
+    for(var px=0;px<=ww;px++){var ph=((px/ww*2)%1);var y=wy-(ph<dc?1:-1)*wh*0.8;if(px===0)ctx.moveTo(wx+px,y);else{var pp=((( px-1)/ww*2)%1);if((ph<dc)!=(pp<dc)){ctx.lineTo(wx+px,pp<dc?wy-wh*0.8:wy+wh*0.8);}ctx.lineTo(wx+px,y);}}ctx.stroke();
+    // pulse width marker
+    var pxEnd=wx+(dc*2)*ww;ctx.strokeStyle="#ffe044";ctx.lineWidth=1.5;ctx.setLineDash([2,3]);ctx.beginPath();ctx.moveTo(wx,wy-wh*0.9);ctx.lineTo(pxEnd,wy-wh*0.9);ctx.stroke();ctx.setLineDash([]);
+    ctx.fillStyle="#ffe044";ctx.font="7px Share Tech Mono";ctx.textAlign="center";ctx.fillText(pulse.toFixed(0)+"µs",wx+pxEnd/2,wy-wh-3);
+    ctx.fillStyle="var(--dim)";ctx.fillText("20ms (50Hz) | "+currentAngle.toFixed(0)+"° → "+pulse.toFixed(0)+"µs",W/2,H-8);
+    requestAnimationFrame(draw);}
+  requestAnimationFrame(draw);read();
+})();
+</script>
+</body>
+</html>

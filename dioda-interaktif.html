@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Animasi Dioda Interaktif</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --c: #00ccff; --c2: #88eeff; --cd: #003344; --cg: rgba(0,204,255,.12);
+  --rd: #ff3366; --yl: #ffe044; --g: #00ff88; --or: #ff9933;
+  --bg: #00080f; --card: #000d14; --bdr: #00334a; --dim: #2a7090;
+  --font: 'Share Tech Mono', monospace; --head: 'Orbitron', monospace;
+}
+* { box-sizing:border-box; margin:0; padding:0; }
+body {
+  background: radial-gradient(ellipse 120% 60% at 50% 0%, #001a2a 0%, #00080f 60%);
+  min-height:100vh; font-family:var(--font); color:var(--c2);
+  overflow-x:hidden;
+}
+body::after {
+  content:''; position:fixed; inset:0; pointer-events:none;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.07) 2px,rgba(0,0,0,.07) 4px);
+  z-index:9999;
+}
+.wrap { max-width:540px; margin:0 auto; padding:20px 14px 48px; }
+
+header { text-align:center; margin-bottom:26px; }
+.sub { font-size:10px; letter-spacing:6px; color:#004466; margin-bottom:6px; }
+h1 { font-family:var(--head); font-size:clamp(16px,5vw,24px); font-weight:900;
+     color:var(--c); text-shadow:0 0 28px rgba(0,204,255,.55); letter-spacing:3px; margin-bottom:10px; }
+.div { width:90px; height:2px; background:linear-gradient(to right,transparent,var(--c),transparent); margin:0 auto; }
+
+.tabs { display:flex; gap:5px; margin-bottom:18px; overflow-x:auto; padding-bottom:4px; scrollbar-width:none; }
+.tabs::-webkit-scrollbar { display:none; }
+.tab { flex:0 0 auto; padding:7px 12px; border:1px solid var(--bdr); border-radius:8px;
+       background:var(--card); color:var(--dim); cursor:pointer; font-family:var(--font);
+       font-size:10px; letter-spacing:1px; transition:all .2s; white-space:nowrap; }
+.tab:hover { border-color:var(--c2); color:var(--c2); }
+.tab.on { border-color:var(--c); background:#001a28; color:var(--c); box-shadow:0 0 14px rgba(0,204,255,.2); }
+
+.card { background:var(--card); border:1px solid var(--bdr); border-radius:16px;
+        padding:24px 18px; box-shadow:0 0 40px rgba(0,204,255,.04),inset 0 1px 0 #003344; }
+
+.scene { display:none; flex-direction:column; align-items:center; gap:18px; }
+.scene.on { display:flex; }
+
+.ctrl { width:100%; background:#00090f; border:1px solid var(--bdr); border-radius:12px; padding:14px 16px; display:flex; flex-direction:column; gap:10px; }
+.ctrl-row { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+.ctrl-lbl { font-size:11px; color:var(--dim); min-width:94px; letter-spacing:1px; }
+.sl {
+  flex:1; min-width:100px; -webkit-appearance:none; height:4px;
+  background:linear-gradient(to right,var(--c) var(--pct,50%),#003344 var(--pct,50%));
+  border-radius:2px; outline:none; cursor:pointer;
+}
+.sl::-webkit-slider-thumb { -webkit-appearance:none; width:16px; height:16px; border-radius:50%; background:var(--c); box-shadow:0 0 8px rgba(0,204,255,.7); cursor:pointer; }
+.sl::-moz-range-thumb { width:16px; height:16px; border-radius:50%; border:none; background:var(--c); box-shadow:0 0 8px rgba(0,204,255,.7); cursor:pointer; }
+.ctrl-val { font-size:12px; color:var(--c); min-width:72px; text-align:right; }
+
+.metrics { display:flex; gap:8px; width:100%; flex-wrap:wrap; }
+.metric { flex:1; min-width:80px; background:#00090f; border:1px solid var(--bdr); border-radius:8px; padding:8px 10px; text-align:center; }
+.metric-lbl { font-size:9px; color:var(--dim); letter-spacing:2px; margin-bottom:3px; }
+.metric-val { font-size:14px; color:var(--c); font-weight:bold; }
+.metric-unit { font-size:9px; color:var(--dim); }
+
+.btns { display:flex; gap:10px; }
+.btn { padding:9px 22px; border:2px solid var(--c); border-radius:8px; background:#001a28;
+       color:var(--c); cursor:pointer; font-family:var(--font); font-size:12px; letter-spacing:1px;
+       box-shadow:0 0 10px rgba(0,204,255,.15); transition:all .15s; }
+.btn:hover { background:#002a3a; box-shadow:0 0 18px rgba(0,204,255,.3); }
+.btn.on { background:#002a3a; box-shadow:0 0 20px rgba(0,204,255,.35); border-color:var(--c2); }
+.btn.off { border-color:#002a3a; background:var(--bg); color:#224455; box-shadow:none; }
+.btn.off:hover { border-color:#334455; color:#446677; }
+
+.badge { padding:7px 22px; border-radius:30px; font-size:12px; letter-spacing:2px; transition:all .3s; text-align:center; border:1px solid; }
+.info { color:var(--dim); font-size:12px; text-align:center; line-height:1.8; }
+.info span { color:var(--c); } .info .yl { color:var(--yl); } .info .rd { color:var(--rd); } .info .g { color:var(--g); }
+
+canvas { display:block; border-radius:8px; }
+canvas.brd { border:1px solid var(--bdr); background:#00090f; }
+
+footer { text-align:center; margin-top:22px; font-size:10px; letter-spacing:4px; color:#003344; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="sub">◈ SIMULASI INTERAKTIF ◈</div>
+    <h1>DIODA INTERAKTIF</h1>
+    <div class="div"></div>
+  </header>
+
+  <div class="tabs">
+    <button class="tab on" data-s="basic">⚡ Prinsip Dasar</button>
+    <button class="tab" data-s="iv">📈 Kurva I-V</button>
+    <button class="tab" data-s="rectifier">〰 Penyearah</button>
+    <button class="tab" data-s="zener">🔒 Zener</button>
+    <button class="tab" data-s="led">💡 LED</button>
+  </div>
+
+  <div class="card">
+
+    <!-- SCENE 1: PRINSIP DASAR -->
+    <div class="scene on" id="s-basic">
+      <canvas id="c-basic" class="brd" width="460" height="190" style="width:100%"></canvas>
+      <div class="ctrl">
+        <div class="ctrl-row">
+          <span class="ctrl-lbl">⚡ Tegangan (V)</span>
+          <input type="range" class="sl" id="bs-v" min="-12" max="12" value="5" step="0.1">
+          <span class="ctrl-val" id="bs-v-lbl">5.0 V</span>
+        </div>
+        <div class="ctrl-row">
+          <span class="ctrl-lbl">⚙ Resistansi</span>
+          <input type="range" class="sl" id="bs-r" min="100" max="10000" value="1000" step="100">
+          <span class="ctrl-val" id="bs-r-lbl">1.0 kΩ</span>
+        </div>
+        <div class="ctrl-row">
+          <span class="ctrl-lbl">🔘 Jenis Dioda</span>
+          <input type="range" class="sl" id="bs-type" min="0" max="2" value="0" step="1">
+          <span class="ctrl-val" id="bs-type-lbl">Silicon</span>
+        </div>
+      </div>
+      <div class="metrics">
+        <div class="metric"><div class="metric-lbl">STATUS</div><div class="metric-val" id="bs-status" style="font-size:11px">MAJU</div><div class="metric-unit"></div></div>
+        <div class="metric"><div class="metric-lbl">Vd (drop)</div><div class="metric-val" id="bs-vd">0.70</div><div class="metric-unit">V</div></div>
+        <div class="metric"><div class="metric-lbl">ARUS</div><div class="metric-val" id="bs-i">4.30</div><div class="metric-unit">mA</div></div>
+        <div class="metric"><div class="metric-lbl">DAYA</div><div class="metric-val" id="bs-p">3.01</div><div class="metric-unit">mW</div></div>
+      </div>
+      <div class="badge" id="bs-badge" style="background:#001a28;border-color:var(--c);color:var(--c)">▶ KONDUKSI</div>
+      <div class="info">Dioda hanya konduksi saat <span>bias maju</span><br>V &gt; Vf (threshold) → arus mengalir</div>
+    </div>
+
+    <!-- SCENE 2: KURVA I-V -->
+    <div class="scene" id="s-iv">
+      <canvas id="c-iv" class="brd" width="460" height="240" style="width:100%"></canvas>
+      <div class="ctrl">
+        <div class="ctrl-row">
+          <span class="ctrl-lbl">🔘 Jenis Dioda</span>
+          <input type="range" class="sl" id="iv-type" min="0" max="2" value="0" step="1">
+          <span class="ctrl-val" id="iv-type-lbl">Silicon</span>
+        </div>
+        <div class="ctrl-row">
+          <span class="ctrl-lbl">⚡ Tegangan uji</span>
+          <input type="range" class="sl" id="iv-v" min="-5" max="2" value="0.7" step="0.05">
+          <span class="ctrl-val" id="iv-v-lbl">0.70 V</span>
+        </div>
+      </div>
+      <div class="metrics">
+        <div class="metric"><div class="metric-lbl">Vf (threshold)</div><div class="metric-val" id="iv-vf">0.70</div><div class="metric-unit">V</div></div>
+        <div class="metric"><div class="metric-lbl">ARUS</div><div class="metric-val" id="iv-i">0.00</div><div class="metric-unit">mA</div></div>
+        <div class="metric"><div class="metric-lbl">REGION</div><div class="metric-val" id="iv-reg" style="font-size:10px">AKTIF</div><div class="metric-unit"></div></div>
+      </div>
+      <div class="info">Kurva I-V: <span>exponential</span> saat bias maju<br>I = Is × (e<sup>V/Vt</sup> − 1)</div>
+    </div>
+
+    <!-- SCENE 3: PENYEARAH -->
+    <div class="scene" id="s-rectifier">
+      <div class="btns">
+        <button class="btn on" id="rc-half-btn">〰 Half-Wave</button>
+        <button class="btn off" id="rc-full-btn">≋ Full-Wave</button>
+      </div>
+      <canvas id="c-rectifier" class="brd" width="460" height="200" style="width:100%"></canvas>
+      <div class="ctrl">
+        <div class="ctrl-row">
+          <span class="ctrl-lbl">📶 Frekuensi</span>
+          <input type="range" class="sl" id="rc-freq" min="10" max="500" value="50" step="5">
+          <span class="ctrl-val" id="rc-freq-lbl">50 Hz</span>
+        </div>
+        <div class="ctrl-row">
+          <span class="ctrl-lbl">⚡ Amplitudo</span>
+          <input type="range" class="sl" id="rc-amp" min="1" max="24" value="12" step="0.5">
+          <span class="ctrl-val" id="rc-amp-lbl">12 V</span>
+        </div>
+        <div class="ctrl-row">
+          <span class="ctrl-lbl">🔌 Filter Cap</span>
+          <input type="range" class="sl" id="rc-cap" min="0" max="2000" value="0" step="10">
+          <span class="ctrl-val" id="rc-cap-lbl">OFF</span>
+        </div>
+      </div>
+      <div class="metrics">
+        <div class="metric"><div class="metric-lbl">Vpeak</div><div class="metric-val" id="rc-vpeak">12.0</div><div class="metric-unit">V</div></div>
+        <div class="metric"><div class="metric-lbl">Vavg</div><div class="metric-val" id="rc-vavg">7.64</div><div class="metric-unit">V</div></div>
+        <div class="metric"><div class="metric-lbl">Vrms</div><div class="metric-val" id="rc-vrms">8.49</div><div class="metric-unit">V</div></div>
+        <div class="metric"><div class="metric-lbl">RIPPLE</div><div class="metric-val" id="rc-ripple">100</div><div class="metric-unit">%</div></div>
+      </div>
+      <div class="info" id="rc-info">Half-wave: hanya setengah siklus AC yang lolos<br><span>Vavg = Vpeak / π</span></div>
+    </div>
+
+    <!-- SCENE 4: ZENER -->
+    <div class="scene" id="s-zener">
+      <canvas id="c-zener" class="brd" width="460" height="200" style="width:100%"></canvas>
+      <div class="ctrl">
+        <div class="ctrl-row">
+          <span class="ctrl-lbl">⚡ Tegangan In</span>
+          <input type="range" class="sl" id="zn-vin" min="1" max="30" value="15" step="0.5">
+          <span class="ctrl-val" id="zn-vin-lbl">15 V</span>
+        </div>
+        <div class="ctrl-row">
+          <span class="ctrl-lbl">🔒 Vz (Zener)</span>
+          <input type="range" class="sl" id="zn-vz" min="2" max="18" value="5" step="0.5">
+          <span class="ctrl-val" id="zn-vz-lbl">5.0 V</span>
+        </div>
+        <div class="ctrl-row">
+          <span class="ctrl-lbl">⚙ R seri</span>
+          <input type="range" class="sl" id="zn-r" min="100" max="10000" value="1000" step="100">
+          <span class="ctrl-val" id="zn-r-lbl">1.0 kΩ</span>
+        </div>
+        <div class="ctrl-row">
+          <span class="ctrl-lbl">👤 R beban</span>
+          <input type="range" class="sl" id="zn-rl" min="100" max="20000" value="5000" step="100">
+          <span class="ctrl-val" id="zn-rl-lbl">5.0 kΩ</span>
+        </div>
+      </div>
+      <div class="metrics">
+        <div class="metric"><div class="metric-lbl">Vout</div><div class="metric-val" id="zn-vout">5.00</div><div class="metric-unit">V</div></div>
+        <div class="metric"><div class="metric-lbl">Iz</div><div class="metric-val" id="zn-iz">9.00</div><div class="metric-unit">mA</div></div>
+        <div class="metric"><div class="metric-lbl">Pdis</div><div class="metric-val" id="zn-p">45.0</div><div class="metric-unit">mW</div></div>
+        <div class="metric"><div class="metric-lbl">STATUS</div><div class="metric-val" id="zn-status" style="font-size:11px">REGULASI</div><div class="metric-unit"></div></div>
+      </div>
+      <div class="info">Zener breakdown: <span>Vout terkunci = Vz</span><br>Digunakan sebagai <span>voltage regulator</span></div>
+    </div>
+
+    <!-- SCENE 5: LED -->
+    <div class="scene" id="s-led">
+      <canvas id="c-led" class="brd" width="460" height="200" style="width:100%"></canvas>
+      <div class="ctrl">
+        <div class="ctrl-row">
+          <span class="ctrl-lbl">⚡ Tegangan</span>
+          <input type="range" class="sl" id="ld-v" min="1" max="12" value="5" step="0.1">
+          <span class="ctrl-val" id="ld-v-lbl">5.0 V</span>
+        </div>
+        <div class="ctrl-row">
+          <span class="ctrl-lbl">⚙ Resistansi</span>
+          <input type="range" class="sl" id="ld-r" min="47" max="2200" value="220" step="10">
+          <span class="ctrl-val" id="ld-r-lbl">220 Ω</span>
+        </div>
+        <div class="ctrl-row">
+          <span class="ctrl-lbl">🎨 Warna LED</span>
+          <input type="range" class="sl" id="ld-color" min="0" max="4" value="0" step="1">
+          <span class="ctrl-val" id="ld-color-lbl">MERAH</span>
+        </div>
+      </div>
+      <div class="metrics">
+        <div class="metric"><div class="metric-lbl">ARUS</div><div class="metric-val" id="ld-i">18.6</div><div class="metric-unit">mA</div></div>
+        <div class="metric"><div class="metric-lbl">Vf LED</div><div class="metric-val" id="ld-vf">1.8</div><div class="metric-unit">V</div></div>
+        <div class="metric"><div class="metric-lbl">DAYA</div><div class="metric-val" id="ld-p">33.5</div><div class="metric-unit">mW</div></div>
+        <div class="metric"><div class="metric-lbl">KECERAHAN</div><div class="metric-val" id="ld-bright">93</div><div class="metric-unit">%</div></div>
+      </div>
+      <div class="info">LED = <span>Light Emitting Diode</span><br>Warna berbeda → Vf berbeda → panjang gelombang λ berbeda</div>
+    </div>
+
+  </div>
+  <footer>◈ SIMULASI DIODA INTERAKTIF ◈</footer>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+let activeScene = 'basic';
+
+// Slider pct update
+document.querySelectorAll('.sl').forEach(s => {
+  const upd = () => {
+    const p = ((s.value - s.min) / (s.max - s.min) * 100).toFixed(1) + '%';
+    s.style.setProperty('--pct', p);
+  };
+  upd(); s.addEventListener('input', upd);
+});
+
+// Tabs
+document.querySelectorAll('.tab').forEach(t => {
+  t.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(x => x.classList.remove('on'));
+    document.querySelectorAll('.scene').forEach(x => x.classList.remove('on'));
+    t.classList.add('on');
+    activeScene = t.dataset.s;
+    $('s-' + activeScene).classList.add('on');
+  });
+});
+
+// Diode types
+const DIODE_TYPES = [
+  { name: 'Silicon', vf: 0.7, Is: 1e-12 },
+  { name: 'Germanium', vf: 0.3, Is: 1e-6 },
+  { name: 'Schottky', vf: 0.2, Is: 1e-8 },
+];
+
+// Helpers
+function fmtR(v) {
+  if (v >= 1e6) return (v / 1e6).toFixed(2) + ' MΩ';
+  if (v >= 1e3) return (v / 1e3).toFixed(2) + ' kΩ';
+  return v.toFixed(0) + ' Ω';
+}
+function rr(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y); ctx.lineTo(x + w - r, y); ctx.arcTo(x + w, y, x + w, y + r, r);
+  ctx.lineTo(x + w, y + h - r); ctx.arcTo(x + w, y + h, x + w - r, y + h, r);
+  ctx.lineTo(x + r, y + h); ctx.arcTo(x, y + h, x, y + h - r, r);
+  ctx.lineTo(x, y + r); ctx.arcTo(x, y, x + r, y, r); ctx.closePath();
+}
+
+// Draw diode symbol on canvas
+function drawDiodeSymbol(ctx, x, y, size, color, glow, conducting) {
+  const s = size || 20;
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.strokeStyle = color; ctx.fillStyle = conducting ? color : 'transparent';
+  ctx.lineWidth = 2;
+  if (glow && conducting) { ctx.shadowColor = color; ctx.shadowBlur = 14; }
+  // Triangle (anode side)
+  ctx.beginPath();
+  ctx.moveTo(-s, -s); ctx.lineTo(s, 0); ctx.lineTo(-s, s); ctx.closePath();
+  ctx.fill(); ctx.stroke();
+  // Bar (cathode)
+  ctx.beginPath(); ctx.moveTo(s, -s); ctx.lineTo(s, s); ctx.stroke();
+  ctx.shadowBlur = 0;
+  ctx.restore();
+}
+
+// Draw zener diode symbol
+function drawZenerSymbol(ctx, x, y, size, color, glow, conducting) {
+  const s = size || 20;
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.strokeStyle = color; ctx.fillStyle = conducting ? color : 'transparent';
+  ctx.lineWidth = 2;
+  if (glow) { ctx.shadowColor = color; ctx.shadowBlur = 14; }
+  ctx.beginPath();
+  ctx.moveTo(-s, -s); ctx.lineTo(s, 0); ctx.lineTo(-s, s); ctx.closePath();
+  ctx.fill(); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(s, -s - 6); ctx.lineTo(s, -s);
+  ctx.lineTo(s, s); ctx.lineTo(s, s + 6); ctx.stroke();
+  ctx.shadowBlur = 0;
+  ctx.restore();
+}
+
+// Draw LED symbol
+function drawLEDSymbol(ctx, x, y, size, color, glow, brightness) {
+  const s = size || 20;
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.strokeStyle = color; ctx.fillStyle = brightness > 0.1 ? color : 'transparent';
+  ctx.lineWidth = 2;
+  if (brightness > 0.05) { ctx.shadowColor = color; ctx.shadowBlur = 6 + brightness * 20; }
+  ctx.beginPath();
+  ctx.moveTo(-s, -s); ctx.lineTo(s, 0); ctx.lineTo(-s, s); ctx.closePath();
+  ctx.fill(); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(s, -s); ctx.lineTo(s, s); ctx.stroke();
+  // Light rays
+  if (brightness > 0.1) {
+    ctx.globalAlpha = brightness;
+    ctx.strokeStyle = color; ctx.lineWidth = 1.5;
+    [[-15, -30], [0, -35], [15, -30]].forEach(([dx, dy]) => {
+      ctx.beginPath(); ctx.moveTo(s + 6, -8);
+      ctx.lineTo(s + 6 + dx, -8 + dy); ctx.stroke();
+      ctx.beginPath(); ctx.arc(s + 6 + dx, -8 + dy, 2, 0, Math.PI * 2);
+      ctx.fillStyle = color; ctx.fill();
+    });
+    ctx.globalAlpha = 1;
+  }
+  ctx.shadowBlur = 0;
+  ctx.restore();
+}
+
+// Electron particles helper
+function drawParticles(ctx, pts, t, spd, col, n) {
+  for (let s = 0; s < pts.length - 1; s++) {
+    const [x1, y1] = pts[s], [x2, y2] = pts[s + 1];
+    const len = Math.hypot(x2 - x1, y2 - y1);
+    for (let i = 0; i < n; i++) {
+      const frac = ((t * spd + (s * 0.37) + i / n) % 1);
+      const px = x1 + frac * (x2 - x1), py = y1 + frac * (y2 - y1);
+      if (px < Math.min(x1, x2) - 2 || px > Math.max(x1, x2) + 2) continue;
+      if (py < Math.min(y1, y2) - 2 || py > Math.max(y1, y2) + 2) continue;
+      ctx.beginPath(); ctx.arc(px, py, 3, 0, Math.PI * 2);
+      ctx.fillStyle = col; ctx.shadowColor = col; ctx.shadowBlur = 8; ctx.fill(); ctx.shadowBlur = 0;
+    }
+  }
+}
+
+// ============================================================
+// SCENE 1 — PRINSIP DASAR
+// ============================================================
+(function () {
+  const cvs = $('c-basic'), ctx = cvs.getContext('2d');
+  let V = 5, R = 1000, typeIdx = 0;
+
+  function read() {
+    V = +$('bs-v').value; R = +$('bs-r').value; typeIdx = +$('bs-type').value | 0;
+    $('bs-v-lbl').textContent = V.toFixed(1) + ' V';
+    $('bs-r-lbl').textContent = fmtR(R);
+    $('bs-type-lbl').textContent = DIODE_TYPES[typeIdx].name;
+    updateMetrics();
+  }
+  ['bs-v', 'bs-r', 'bs-type'].forEach(id => $(id).addEventListener('input', read));
+
+  function updateMetrics() {
+    const d = DIODE_TYPES[typeIdx];
+    const conducting = V > d.vf;
+    const reverse = V < 0;
+    const vd = conducting ? d.vf : (reverse ? 0 : V);
+    const I = conducting ? (V - d.vf) / R * 1000 : 0;
+    const P = conducting ? (d.vf * I) : 0;
+    $('bs-vd').textContent = vd.toFixed(2);
+    $('bs-i').textContent = I < 1 ? (I * 1000).toFixed(1) : I.toFixed(2);
+    $('bs-i').nextElementSibling.textContent = I < 1 ? 'µA' : 'mA';
+    $('bs-p').textContent = P.toFixed(2);
+    const st = $('bs-status'), badge = $('bs-badge');
+    if (conducting) {
+      st.textContent = 'MAJU'; st.style.color = 'var(--c)';
+      badge.textContent = '▶ KONDUKSI'; badge.style.borderColor = 'var(--c)'; badge.style.color = 'var(--c)'; badge.style.background = '#001a28';
+    } else if (reverse) {
+      st.textContent = 'BALIK'; st.style.color = 'var(--rd)';
+      badge.textContent = '✕ BLOKIR'; badge.style.borderColor = 'var(--rd)'; badge.style.color = 'var(--rd)'; badge.style.background = '#1a0008';
+    } else {
+      st.textContent = 'BAWAH Vf'; st.style.color = 'var(--yl)';
+      badge.textContent = '◎ TIDAK KONDUKSI'; badge.style.borderColor = 'var(--yl)'; badge.style.color = 'var(--yl)'; badge.style.background = '#1a1400';
+    }
+  }
+
+  function draw(ts) {
+    if (activeScene !== 'basic') { requestAnimationFrame(draw); return; }
+    const W = cvs.width, H = cvs.height, t = ts / 700;
+    ctx.clearRect(0, 0, W, H);
+    const d = DIODE_TYPES[typeIdx];
+    const conducting = V > d.vf;
+    const reverse = V < 0;
+    const I = conducting ? (V - d.vf) / R : 0;
+    const inorm = Math.min(I / 0.01, 1);
+    const ec = conducting ? `rgba(0,${Math.round(180 + inorm * 75)},255,0.9)` : (reverse ? 'rgba(255,50,100,0.8)' : 'rgba(255,220,50,0.6)');
+
+    // Layout
+    const lx = 30, rx = W - 30, ty = 50, by = H - 30, cx = W / 2;
+
+    // Circuit wires
+    ctx.strokeStyle = '#003344'; ctx.lineWidth = 2;
+    [[lx, ty, rx, ty], [rx, ty, rx, by], [lx, by, rx, by], [lx, ty, lx, by]].forEach(([x1, y1, x2, y2]) => {
+      ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+    });
+
+    // Battery (left)
+    const bcy = (ty + by) / 2, bh = 72;
+    ctx.fillStyle = '#00090f'; ctx.strokeStyle = '#00ccff'; ctx.lineWidth = 2;
+    rr(ctx, lx - 20, bcy - bh / 2, 36, bh, 4); ctx.fill(); ctx.stroke();
+    const bg = ctx.createLinearGradient(0, bcy + bh / 2 - 60, 0, bcy + bh / 2);
+    bg.addColorStop(0, 'rgba(0,204,255,0)'); bg.addColorStop(1, '#00ccff');
+    ctx.fillStyle = bg; ctx.globalAlpha = 0.6; rr(ctx, lx - 18, bcy + bh / 2 - 62, 32, 62, 2); ctx.fill(); ctx.globalAlpha = 1;
+    ctx.fillStyle = V > 0 ? '#ff3366' : '#00ccff'; ctx.font = '13px Share Tech Mono'; ctx.textAlign = 'center';
+    ctx.fillText('+', lx - 2, bcy - bh / 2 + 16);
+    ctx.fillStyle = V > 0 ? '#00ccff' : '#ff3366';
+    ctx.fillText('−', lx - 2, bcy + bh / 2 - 6);
+    ctx.fillStyle = '#00ccff'; ctx.font = '10px Share Tech Mono';
+    ctx.fillText(Math.abs(V).toFixed(1) + 'V', lx - 2, bcy + bh / 2 + 14);
+    if (V < 0) { ctx.fillStyle = '#ff3366'; ctx.font = '9px Share Tech Mono'; ctx.fillText('BALIK', lx - 2, bcy + bh / 2 + 26); }
+
+    // Resistor (top)
+    const rw = 80, rh = 24, rmx = cx + 60;
+    ctx.fillStyle = '#00090f'; ctx.strokeStyle = '#ff9933'; ctx.lineWidth = 2;
+    rr(ctx, rmx - rw / 2, ty - rh / 2, rw, rh, 4); ctx.fill(); ctx.stroke();
+    ctx.strokeStyle = '#ff9933'; ctx.lineWidth = 1.5; ctx.beginPath();
+    const rzx = rmx - rw / 2 + 8;
+    ctx.moveTo(rzx, ty);
+    for (let i = 0; i <= 6; i++) ctx.lineTo(rzx + i * (rw - 16) / 6, ty + (i % 2 === 0 ? -7 : 7));
+    ctx.lineTo(rmx + rw / 2 - 8, ty); ctx.stroke();
+    ctx.fillStyle = '#ff9933'; ctx.font = '9px Share Tech Mono'; ctx.textAlign = 'center';
+    ctx.fillText(fmtR(R), rmx, ty + rh / 2 + 12);
+
+    // Diode (top, left of resistor)
+    const dmx = cx - 30;
+    ctx.strokeStyle = '#00090f'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(lx, ty); ctx.lineTo(dmx - 28, ty); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(dmx + 28, ty); ctx.lineTo(rmx - rw / 2, ty); ctx.stroke();
+    drawDiodeSymbol(ctx, dmx, ty, 22, conducting ? '#00ccff' : (reverse ? '#ff3366' : '#886600'), true, conducting);
+    ctx.fillStyle = conducting ? '#00ccff' : (reverse ? '#ff3366' : '#ffe044');
+    ctx.font = '9px Share Tech Mono'; ctx.textAlign = 'center';
+    ctx.fillText(d.name + ' (Vf=' + d.vf + 'V)', dmx, ty + 30);
+
+    // Polarity labels
+    ctx.fillStyle = '#ff3366'; ctx.font = 'bold 12px Share Tech Mono'; ctx.textAlign = 'center';
+    ctx.fillText('A', dmx - 28, ty - 10);
+    ctx.fillStyle = '#00aaff';
+    ctx.fillText('K', dmx + 28, ty - 10);
+
+    // Vd drop display
+    if (conducting) {
+      ctx.fillStyle = '#00ccff'; ctx.font = '10px Share Tech Mono'; ctx.textAlign = 'center';
+      ctx.fillText('Vd=' + d.vf + 'V', dmx, ty - 24);
+    }
+
+    // Ammeter (right side)
+    const ay = (ty + by) / 2;
+    ctx.beginPath(); ctx.arc(rx + 16, ay, 18, 0, Math.PI * 2);
+    ctx.fillStyle = '#00090f'; ctx.strokeStyle = conducting ? '#00ccff' : '#003344'; ctx.lineWidth = 2;
+    if (conducting) { ctx.shadowColor = '#00ccff'; ctx.shadowBlur = 10; }
+    ctx.fill(); ctx.stroke(); ctx.shadowBlur = 0;
+    const Ishow = conducting ? ((V - d.vf) / R * 1000) : 0;
+    ctx.fillStyle = conducting ? '#00ccff' : '#334455';
+    ctx.font = '8px Share Tech Mono'; ctx.textAlign = 'center';
+    ctx.fillText('A', rx + 16, ay - 2);
+    ctx.fillText(Ishow.toFixed(1), rx + 16, ay + 8);
+
+    // Particles
+    if (conducting) {
+      const spd = 0.3 + inorm * 0.7;
+      drawParticles(ctx, [[lx, ty], [dmx - 28, ty], [dmx + 28, ty], [rmx - rw / 2, ty], [rmx + rw / 2, ty], [rx, ty], [rx, by], [lx, by]], t, spd, ec, 2);
+    }
+
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
+  read();
+})();
+
+// ============================================================
+// SCENE 2 — KURVA I-V
+// ============================================================
+(function () {
+  const cvs = $('c-iv'), ctx = cvs.getContext('2d');
+  let typeIdx = 0, Vtest = 0.7;
+
+  function read() {
+    typeIdx = +$('iv-type').value | 0; Vtest = +$('iv-v').value;
+    $('iv-type-lbl').textContent = DIODE_TYPES[typeIdx].name;
+    $('iv-v-lbl').textContent = Vtest.toFixed(2) + ' V';
+    updateMetrics();
+  }
+  ['iv-type', 'iv-v'].forEach(id => $(id).addEventListener('input', read));
+
+  function diodeCurrent(V, type) {
+    const d = DIODE_TYPES[type];
+    if (V >= 0) return d.Is * (Math.exp(V / 0.026) - 1);
+    return -d.Is * 1e3; // tiny reverse leakage
+  }
+
+  function updateMetrics() {
+    const d = DIODE_TYPES[typeIdx];
+    const I = diodeCurrent(Vtest, typeIdx);
+    $('iv-vf').textContent = d.vf.toFixed(2);
+    $('iv-i').textContent = I > 1 ? I.toFixed(1) : I > 0.001 ? (I * 1000).toFixed(2) : (I * 1e6).toFixed(1);
+    $('iv-i').nextElementSibling.textContent = I > 1 ? 'A' : I > 0.001 ? 'mA' : 'µA';
+    let reg;
+    if (Vtest < -0.1) reg = 'BALIK';
+    else if (Vtest < DIODE_TYPES[typeIdx].vf) reg = 'CUT-OFF';
+    else reg = 'AKTIF';
+    $('iv-reg').textContent = reg;
+    $('iv-reg').style.color = Vtest < 0 ? 'var(--rd)' : Vtest < d.vf ? 'var(--yl)' : 'var(--c)';
+  }
+
+  function draw(ts) {
+    if (activeScene !== 'iv') { requestAnimationFrame(draw); return; }
+    const W = cvs.width, H = cvs.height;
+    ctx.clearRect(0, 0, W, H);
+
+    const gx = 60, gy = 30, gw = W - 80, gh = H - 60;
+    const ox = gx + gw * 0.65, oy = gy + gh * 0.5; // origin point
+
+    // Grid background
+    ctx.fillStyle = '#00090f'; rr(ctx, gx, gy, gw, gh, 6); ctx.fill();
+    ctx.strokeStyle = '#001a22'; ctx.lineWidth = 1;
+    for (let i = 1; i < 8; i++) {
+      ctx.beginPath(); ctx.moveTo(gx + i * gw / 8, gy); ctx.lineTo(gx + i * gw / 8, gy + gh); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(gx, gy + i * gh / 8); ctx.lineTo(gx + gw, gy + i * gh / 8); ctx.stroke();
+    }
+
+    // Axes
+    ctx.strokeStyle = '#336688'; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(gx, oy); ctx.lineTo(gx + gw, oy); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(ox, gy); ctx.lineTo(ox, gy + gh); ctx.stroke();
+
+    // Axis labels
+    ctx.fillStyle = '#336688'; ctx.font = '9px Share Tech Mono'; ctx.textAlign = 'center';
+    ctx.fillText('V (Volt)', gx + gw / 2, gy + gh + 14);
+    ctx.save(); ctx.translate(gx - 16, gy + gh / 2); ctx.rotate(-Math.PI / 2);
+    ctx.fillText('I (mA)', 0, 0); ctx.restore();
+
+    // Voltage ticks
+    const vMin = -3, vMax = 1.5;
+    for (let v = Math.ceil(vMin); v <= Math.floor(vMax); v++) {
+      const xv = ox + (v / (vMax - vMin)) * gw * 0.85;
+      ctx.strokeStyle = '#224433'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(xv, oy - 4); ctx.lineTo(xv, oy + 4); ctx.stroke();
+      ctx.fillStyle = '#336688'; ctx.font = '8px Share Tech Mono'; ctx.textAlign = 'center';
+      ctx.fillText(v + 'V', xv, oy + 14);
+    }
+
+    // Draw I-V curves for all diode types
+    const colors = ['#00ccff', '#ff9933', '#ff3366'];
+    DIODE_TYPES.forEach((d, ti) => {
+      ctx.beginPath();
+      let first = true;
+      for (let px = gx; px <= gx + gw; px++) {
+        const v = vMin + ((px - (gx)) / gw) * (vMax - vMin);
+        const ImA = diodeCurrent(v, ti) * 1000;
+        const clampedI = Math.max(-5, Math.min(200, ImA));
+        const py = oy - (clampedI / 200) * gh * 0.45;
+        if (first) { ctx.moveTo(px, py); first = false; } else ctx.lineTo(px, py);
+      }
+      ctx.strokeStyle = ti === typeIdx ? colors[ti] : colors[ti] + '44';
+      ctx.lineWidth = ti === typeIdx ? 2.5 : 1.2;
+      if (ti === typeIdx) { ctx.shadowColor = colors[ti]; ctx.shadowBlur = 6; }
+      ctx.stroke(); ctx.shadowBlur = 0;
+
+      // Vf marker
+      const vfX = ox + (d.vf / (vMax - vMin)) * gw * 0.85;
+      ctx.setLineDash([4, 4]);
+      ctx.strokeStyle = colors[ti] + (ti === typeIdx ? 'aa' : '44');
+      ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(vfX, gy); ctx.lineTo(vfX, gy + gh); ctx.stroke();
+      ctx.setLineDash([]);
+      if (ti === typeIdx) {
+        ctx.fillStyle = colors[ti]; ctx.font = '9px Share Tech Mono'; ctx.textAlign = 'center';
+        ctx.fillText('Vf=' + d.vf + 'V', vfX, gy + 10);
+      }
+    });
+
+    // Test point
+    const d = DIODE_TYPES[typeIdx];
+    const I = diodeCurrent(Vtest, typeIdx) * 1000;
+    const clampedI = Math.max(-5, Math.min(200, I));
+    const ptX = ox + (Vtest / (vMax - vMin)) * gw * 0.85;
+    const ptY = oy - (clampedI / 200) * gh * 0.45;
+    ctx.beginPath(); ctx.arc(ptX, ptY, 6, 0, Math.PI * 2);
+    ctx.fillStyle = colors[typeIdx]; ctx.shadowColor = colors[typeIdx]; ctx.shadowBlur = 16; ctx.fill(); ctx.shadowBlur = 0;
+    ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5; ctx.stroke();
+
+    // Crosshairs
+    ctx.strokeStyle = colors[typeIdx] + '66'; ctx.lineWidth = 1; ctx.setLineDash([3, 4]);
+    ctx.beginPath(); ctx.moveTo(ptX, oy); ctx.lineTo(ptX, ptY); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(ox, ptY); ctx.lineTo(ptX, ptY); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = colors[typeIdx]; ctx.font = '9px Share Tech Mono'; ctx.textAlign = 'left';
+    ctx.fillText(Vtest.toFixed(2) + 'V / ' + (I > 1 ? I.toFixed(1) + 'mA' : (I * 1000).toFixed(1) + 'µA'), ptX + 8, ptY - 6);
+
+    // Legend
+    DIODE_TYPES.forEach((d, ti) => {
+      const lx = gx + 8, ly = gy + 12 + ti * 14;
+      ctx.strokeStyle = colors[ti]; ctx.lineWidth = ti === typeIdx ? 2 : 1;
+      ctx.beginPath(); ctx.moveTo(lx, ly); ctx.lineTo(lx + 20, ly); ctx.stroke();
+      ctx.fillStyle = colors[ti]; ctx.font = '9px Share Tech Mono'; ctx.textAlign = 'left';
+      ctx.fillText(d.name + ' Vf=' + d.vf + 'V', lx + 24, ly + 4);
+    });
+
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
+  read();
+})();
+
+// ============================================================
+// SCENE 3 — PENYEARAH
+// ============================================================
+(function () {
+  const cvs = $('c-rectifier'), ctx = cvs.getContext('2d');
+  let mode = 'half', FREQ = 50, AMP = 12, CAP = 0;
+
+  $('rc-half-btn').addEventListener('click', () => {
+    mode = 'half'; $('rc-half-btn').className = 'btn on'; $('rc-full-btn').className = 'btn off';
+    $('rc-info').innerHTML = 'Half-wave: hanya setengah siklus AC yang lolos<br><span>Vavg = Vpeak / π</span>';
+    updateMetrics();
+  });
+  $('rc-full-btn').addEventListener('click', () => {
+    mode = 'full'; $('rc-full-btn').className = 'btn on'; $('rc-half-btn').className = 'btn off';
+    $('rc-info').innerHTML = 'Full-wave: kedua siklus AC dimanfaatkan<br><span>Vavg = 2×Vpeak / π</span>';
+    updateMetrics();
+  });
+  function read() {
+    FREQ = +$('rc-freq').value; AMP = +$('rc-amp').value; CAP = +$('rc-cap').value;
+    $('rc-freq-lbl').textContent = FREQ + ' Hz';
+    $('rc-amp-lbl').textContent = AMP.toFixed(1) + ' V';
+    $('rc-cap-lbl').textContent = CAP > 0 ? CAP + ' µF' : 'OFF';
+    updateMetrics();
+  }
+  ['rc-freq', 'rc-amp', 'rc-cap'].forEach(id => $(id).addEventListener('input', read));
+
+  function updateMetrics() {
+    const Vp = AMP - 0.7 * (mode === 'full' ? 2 : 1);
+    const Vavg = mode === 'full' ? 2 * Vp / Math.PI : Vp / Math.PI;
+    const Vrms = mode === 'full' ? Vp / Math.SQRT2 : Vp / 2;
+    const ripple = CAP > 0 ? Math.max(0, 100 - CAP / 20) : 100;
+    $('rc-vpeak').textContent = AMP.toFixed(1);
+    $('rc-vavg').textContent = Vavg.toFixed(2);
+    $('rc-vrms').textContent = Vrms.toFixed(2);
+    $('rc-ripple').textContent = ripple.toFixed(0);
+    $('rc-ripple').style.color = ripple < 10 ? 'var(--g)' : ripple < 40 ? 'var(--yl)' : 'var(--rd)';
+  }
+
+  function draw(ts) {
+    if (activeScene !== 'rectifier') { requestAnimationFrame(draw); return; }
+    const W = cvs.width, H = cvs.height, t = ts / 400;
+    ctx.clearRect(0, 0, W, H);
+
+    // Split canvas: input top, output bottom
+    const topY = 20, midY = H / 2, botY = H - 10;
+    const gw = W - 20;
+
+    // Input AC
+    ctx.strokeStyle = '#224433'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(10, topY + (midY - topY) / 2); ctx.lineTo(W - 10, topY + (midY - topY) / 2); ctx.stroke();
+    ctx.strokeStyle = '#00ccff'; ctx.lineWidth = 2;
+    ctx.shadowColor = '#00ccff'; ctx.shadowBlur = 4;
+    ctx.beginPath();
+    for (let px = 10; px <= W - 10; px++) {
+      const nx = (px - 10) / gw;
+      const y = (topY + (midY - topY) / 2) - Math.sin(nx * Math.PI * 4 - t) * (midY - topY) * 0.42;
+      if (px === 10) ctx.moveTo(px, y); else ctx.lineTo(px, y);
+    }
+    ctx.stroke(); ctx.shadowBlur = 0;
+    ctx.fillStyle = '#336688'; ctx.font = '9px Share Tech Mono'; ctx.textAlign = 'left';
+    ctx.fillText('INPUT AC (' + AMP + 'V)', 14, topY + 10);
+
+    // Output rectified
+    ctx.strokeStyle = '#224433'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(10, midY + (botY - midY) / 2); ctx.lineTo(W - 10, midY + (botY - midY) / 2); ctx.stroke();
+
+    // Rectified signal
+    const oy = midY + (botY - midY) / 2;
+    const Vp = AMP - 0.7;
+    let capV = 0;
+
+    const rectPoints = [];
+    for (let px = 10; px <= W - 10; px++) {
+      const nx = (px - 10) / gw;
+      const rawSin = Math.sin(nx * Math.PI * 4 - t);
+      let v;
+      if (mode === 'half') v = rawSin > 0 ? rawSin * Vp : 0;
+      else v = Math.abs(rawSin) * (Vp - (mode === 'full' ? 0.7 : 0));
+      rectPoints.push({ px, v });
+    }
+
+    // Apply capacitor smoothing
+    let smoothed = rectPoints.map(p => p.v);
+    if (CAP > 0) {
+      const decay = Math.exp(-1 / (CAP * 0.02));
+      for (let i = 1; i < smoothed.length; i++) {
+        smoothed[i] = Math.max(smoothed[i], smoothed[i - 1] * decay);
+      }
+    }
+
+    // Draw output
+    ctx.strokeStyle = '#00ff88'; ctx.lineWidth = 2.5;
+    ctx.shadowColor = '#00ff88'; ctx.shadowBlur = 6;
+    ctx.beginPath();
+    smoothed.forEach((v, i) => {
+      const px = rectPoints[i].px;
+      const y = oy - (v / AMP) * (botY - midY) * 0.42;
+      if (i === 0) ctx.moveTo(px, y); else ctx.lineTo(px, y);
+    });
+    ctx.stroke(); ctx.shadowBlur = 0;
+
+    // Fill area
+    ctx.fillStyle = 'rgba(0,255,136,0.05)';
+    ctx.beginPath();
+    smoothed.forEach((v, i) => {
+      const px = rectPoints[i].px;
+      const y = oy - (v / AMP) * (botY - midY) * 0.42;
+      if (i === 0) ctx.moveTo(px, oy); else if (i === 1) ctx.lineTo(px, y); else ctx.lineTo(px, y);
+    });
+    ctx.lineTo(W - 10, oy); ctx.closePath(); ctx.fill();
+
+    ctx.fillStyle = '#00aa44'; ctx.font = '9px Share Tech Mono'; ctx.textAlign = 'left';
+    ctx.fillText('OUTPUT ' + (mode === 'full' ? 'FULL-WAVE' : 'HALF-WAVE') + (CAP > 0 ? ' + FILTER' : ''), 14, midY + 10);
+
+    // Diode symbols on circuit hint
+    const dColors = ['#00ccff', '#ff9933'];
+    if (mode === 'half') {
+      drawDiodeSymbol(ctx, W / 2, midY - 8, 10, '#00ccff', false, true);
+    } else {
+      [W / 2 - 30, W / 2 + 30].forEach((dx, i) => drawDiodeSymbol(ctx, dx, midY - 8, 8, dColors[i % 2], false, true));
+      [W / 2 - 10, W / 2 + 10].forEach((dx, i) => drawDiodeSymbol(ctx, dx, midY + 8, 8, dColors[(i + 1) % 2], false, true));
+    }
+
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
+  read();
+})();
+
+// ============================================================
+// SCENE 4 — ZENER
+// ============================================================
+(function () {
+  const cvs = $('c-zener'), ctx = cvs.getContext('2d');
+  let VIN = 15, VZ = 5, R = 1000, RL = 5000;
+
+  function read() {
+    VIN = +$('zn-vin').value; VZ = +$('zn-vz').value; R = +$('zn-r').value; RL = +$('zn-rl').value;
+    $('zn-vin-lbl').textContent = VIN.toFixed(1) + ' V';
+    $('zn-vz-lbl').textContent = VZ.toFixed(1) + ' V';
+    $('zn-r-lbl').textContent = fmtR(R);
+    $('zn-rl-lbl').textContent = fmtR(RL);
+    updateMetrics();
+  }
+  ['zn-vin', 'zn-vz', 'zn-r', 'zn-rl'].forEach(id => $(id).addEventListener('input', read));
+
+  function updateMetrics() {
+    const regulating = VIN > VZ;
+    const Vout = regulating ? VZ : VIN;
+    const Ir = (VIN - Vout) / R * 1000;
+    const Il = Vout / RL * 1000;
+    const Iz = regulating ? Math.max(0, Ir - Il) : 0;
+    const P = Iz * Vout / 1000;
+    $('zn-vout').textContent = Vout.toFixed(2);
+    $('zn-iz').textContent = Iz.toFixed(2);
+    $('zn-p').textContent = (P * 1000).toFixed(1);
+    const st = $('zn-status');
+    if (regulating && Iz > 0) { st.textContent = 'REGULASI'; st.style.color = 'var(--c)'; }
+    else if (!regulating) { st.textContent = 'TIDAK AKTIF'; st.style.color = 'var(--dim)'; }
+    else { st.textContent = 'OVER BEBAN'; st.style.color = 'var(--rd)'; }
+  }
+
+  function draw(ts) {
+    if (activeScene !== 'zener') { requestAnimationFrame(draw); return; }
+    const W = cvs.width, H = cvs.height, t = ts / 700;
+    ctx.clearRect(0, 0, W, H);
+
+    const regulating = VIN > VZ;
+    const Vout = regulating ? VZ : VIN;
+    const Ir = (VIN - Vout) / R;
+    const Il = Vout / RL;
+    const Iz = regulating ? Math.max(0, Ir - Il) : 0;
+    const inorm = Math.min(Ir / 0.02, 1);
+
+    const lx = 30, rx = W - 30, ty = 30, by = H - 20, mx = W / 2 + 30;
+
+    // Main wires
+    ctx.strokeStyle = '#003344'; ctx.lineWidth = 2;
+    [[lx, ty, rx, ty], [rx, ty, rx, by], [lx, by, rx, by], [lx, ty, lx, by]].forEach(([x1, y1, x2, y2]) => {
+      ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+    });
+    // Zener branch
+    ctx.beginPath(); ctx.moveTo(mx, ty); ctx.lineTo(mx, by); ctx.stroke();
+
+    // Battery
+    const bcy = (ty + by) / 2;
+    ctx.fillStyle = '#00090f'; ctx.strokeStyle = '#00ccff'; ctx.lineWidth = 2;
+    rr(ctx, lx - 20, bcy - 32, 36, 64, 4); ctx.fill(); ctx.stroke();
+    const bg = ctx.createLinearGradient(0, bcy + 28, 0, bcy - 28);
+    bg.addColorStop(0, 'rgba(0,204,255,0)'); bg.addColorStop(1, '#00ccff');
+    ctx.fillStyle = bg; ctx.globalAlpha = 0.6; rr(ctx, lx - 18, bcy + 28 - 54, 32, 54, 2); ctx.fill(); ctx.globalAlpha = 1;
+    ctx.fillStyle = '#00ccff'; ctx.font = '10px Share Tech Mono'; ctx.textAlign = 'center';
+    ctx.fillText(VIN + 'V', lx - 2, bcy + 44);
+
+    // Series Resistor (top)
+    const rmx = (lx + mx) / 2, rw = 70, rh = 20;
+    ctx.fillStyle = '#00090f'; ctx.strokeStyle = '#ff9933'; ctx.lineWidth = 2;
+    rr(ctx, rmx - rw / 2, ty - rh / 2, rw, rh, 3); ctx.fill(); ctx.stroke();
+    ctx.strokeStyle = '#ff9933'; ctx.lineWidth = 1.3; ctx.beginPath();
+    const rzx = rmx - rw / 2 + 6;
+    ctx.moveTo(rzx, ty);
+    for (let i = 0; i <= 6; i++) ctx.lineTo(rzx + i * (rw - 12) / 6, ty + (i % 2 === 0 ? -6 : 6));
+    ctx.lineTo(rmx + rw / 2 - 6, ty); ctx.stroke();
+    ctx.fillStyle = '#ff9933'; ctx.font = '9px Share Tech Mono'; ctx.textAlign = 'center';
+    ctx.fillText(fmtR(R), rmx, ty + rh / 2 + 11);
+    ctx.fillStyle = '#5a4010'; ctx.fillText('R seri', rmx, ty - rh / 2 - 4);
+
+    // Zener diode (vertical branch)
+    const zmx = mx, zmy = (ty + by) / 2;
+    ctx.strokeStyle = '#003344'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(mx, ty + 10); ctx.lineTo(mx, zmy - 22); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(mx, zmy + 22); ctx.lineTo(mx, by - 10); ctx.stroke();
+    ctx.save(); ctx.translate(zmx, zmy); ctx.rotate(Math.PI / 2);
+    drawZenerSymbol(ctx, 0, 0, 20, regulating ? '#00ccff' : '#224455', true, regulating);
+    ctx.restore();
+    ctx.fillStyle = regulating ? '#00ccff' : '#336688'; ctx.font = '9px Share Tech Mono'; ctx.textAlign = 'left';
+    ctx.fillText('Vz=' + VZ + 'V', zmx + 10, zmy + 4);
+
+    // Load resistor (right branch)
+    const rlmy = (ty + by) / 2, rlh = 60, rlw = 20;
+    ctx.fillStyle = '#00090f'; ctx.strokeStyle = '#00ff88'; ctx.lineWidth = 2;
+    rr(ctx, rx - rlw / 2, rlmy - rlh / 2, rlw, rlh, 3); ctx.fill(); ctx.stroke();
+    ctx.strokeStyle = '#00ff88'; ctx.lineWidth = 1.3;
+    const rlsteps = 6;
+    ctx.beginPath(); ctx.moveTo(rx, rlmy - rlh / 2 + 6);
+    for (let i = 0; i <= rlsteps; i++) ctx.lineTo(rx + (i % 2 === 0 ? -6 : 6), rlmy - rlh / 2 + 6 + i * (rlh - 12) / rlsteps);
+    ctx.lineTo(rx, rlmy + rlh / 2 - 6); ctx.stroke();
+    ctx.fillStyle = '#00ff88'; ctx.font = '9px Share Tech Mono'; ctx.textAlign = 'center';
+    ctx.fillText(fmtR(RL), rx, rlmy + rlh / 2 + 12); ctx.fillText('RL', rx, rlmy - rlh / 2 - 5);
+
+    // Vout label
+    const voX = (mx + rx) / 2;
+    ctx.fillStyle = '#ffe044'; ctx.font = 'bold 12px Share Tech Mono'; ctx.textAlign = 'center';
+    ctx.shadowColor = '#ffe044'; ctx.shadowBlur = 8;
+    ctx.fillText('Vout=' + Vout.toFixed(2) + 'V', voX, ty - 8);
+    ctx.shadowBlur = 0;
+
+    // Electron flow
+    if (inorm > 0.01) {
+      const spd = 0.3 + inorm * 0.5;
+      const ec = 'rgba(0,220,255,0.9)';
+      drawParticles(ctx, [[lx, ty], [rmx - rw / 2, ty], [rmx + rw / 2, ty], [mx, ty]], t, spd, ec, 2);
+      if (Iz > 0.001) drawParticles(ctx, [[mx, ty], [mx, zmy - 22], [mx, zmy + 22], [mx, by]], t, spd * 0.7, ec, 2);
+      drawParticles(ctx, [[mx, ty], [rx, ty], [rx, by], [mx, by]], t, spd * 0.5, 'rgba(0,255,136,0.8)', 2);
+    }
+
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
+  read();
+})();
+
+// ============================================================
+// SCENE 5 — LED
+// ============================================================
+(function () {
+  const cvs = $('c-led'), ctx = cvs.getContext('2d');
+  const LED_COLORS = [
+    { name: 'MERAH',  hex: '#ff2244', vf: 1.8,  wl: 625 },
+    { name: 'ORANYE', hex: '#ff7700', vf: 2.0,  wl: 610 },
+    { name: 'KUNING', hex: '#ffee00', vf: 2.1,  wl: 590 },
+    { name: 'HIJAU',  hex: '#00ff44', vf: 2.2,  wl: 530 },
+    { name: 'BIRU',   hex: '#2244ff', vf: 3.2,  wl: 470 },
+  ];
+  let V = 5, R = 220, colorIdx = 0;
+
+  function read() {
+    V = +$('ld-v').value; R = +$('ld-r').value; colorIdx = +$('ld-color').value | 0;
+    $('ld-v-lbl').textContent = V.toFixed(1) + ' V';
+    $('ld-r-lbl').textContent = R + ' Ω';
+    $('ld-color-lbl').textContent = LED_COLORS[colorIdx].name;
+    updateMetrics();
+  }
+  ['ld-v', 'ld-r', 'ld-color'].forEach(id => $(id).addEventListener('input', read));
+
+  function updateMetrics() {
+    const lc = LED_COLORS[colorIdx];
+    const I = V > lc.vf ? (V - lc.vf) / R * 1000 : 0;
+    const P = I * lc.vf;
+    const bright = Math.min(I / 20, 1);
+    $('ld-i').textContent = I.toFixed(1);
+    $('ld-vf').textContent = lc.vf.toFixed(1);
+    $('ld-p').textContent = P.toFixed(1);
+    $('ld-bright').textContent = (bright * 100).toFixed(0);
+    $('ld-bright').style.color = bright > 0.7 ? 'var(--yl)' : bright > 0.3 ? 'var(--c)' : 'var(--dim)';
+  }
+
+  const photons = [];
+  for (let i = 0; i < 30; i++) photons.push({ x: 0, y: 0, vx: 0, vy: 0, life: 0 });
+  let frame = 0;
+
+  function spawnPhoton(cx, cy, color, bright) {
+    const p = photons.find(x => x.life <= 0);
+    if (!p) return;
+    const angle = -Math.PI / 2 + (-0.8 + Math.random() * 1.6);
+    const speed = 1 + Math.random() * 2;
+    p.x = cx; p.y = cy;
+    p.vx = Math.cos(angle) * speed; p.vy = Math.sin(angle) * speed;
+    p.life = 30 + Math.random() * 30; p.maxLife = p.life;
+    p.color = color;
+  }
+
+  function draw(ts) {
+    if (activeScene !== 'led') { requestAnimationFrame(draw); return; }
+    const W = cvs.width, H = cvs.height, t = ts / 700;
+    ctx.clearRect(0, 0, W, H);
+    frame++;
+
+    const lc = LED_COLORS[colorIdx];
+    const I = V > lc.vf ? (V - lc.vf) / R * 1000 : 0;
+    const bright = Math.min(I / 20, 1);
+    const inorm = bright;
+
+    if (bright > 0.05 && frame % 2 === 0) spawnPhoton(W / 2, H / 2 - 20, lc.hex, bright);
+
+    // Photon particles
+    photons.forEach(p => {
+      if (p.life <= 0) return;
+      p.x += p.vx; p.y += p.vy; p.life--;
+      const a = (p.life / p.maxLife) * bright;
+      ctx.beginPath(); ctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
+      ctx.fillStyle = p.color; ctx.globalAlpha = a;
+      ctx.shadowColor = p.color; ctx.shadowBlur = 8; ctx.fill(); ctx.shadowBlur = 0;
+    });
+    ctx.globalAlpha = 1;
+
+    const lx = 30, rx = W - 30, ty = 30, by = H - 20;
+    const cx = W / 2, cy = H / 2 - 10;
+
+    // Circuit wires
+    ctx.strokeStyle = '#003344'; ctx.lineWidth = 2;
+    [[lx, ty, rx, ty], [rx, ty, rx, by], [lx, by, rx, by], [lx, ty, lx, by]].forEach(([x1, y1, x2, y2]) => {
+      ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+    });
+
+    // Battery
+    const bcy = (ty + by) / 2;
+    ctx.fillStyle = '#00090f'; ctx.strokeStyle = '#00ccff'; ctx.lineWidth = 2;
+    rr(ctx, lx - 20, bcy - 32, 36, 64, 4); ctx.fill(); ctx.stroke();
+    const bbg = ctx.createLinearGradient(0, bcy + 28, 0, bcy - 28);
+    bbg.addColorStop(0, 'rgba(0,204,255,0)'); bbg.addColorStop(1, '#00ccff');
+    ctx.fillStyle = bbg; ctx.globalAlpha = 0.6; rr(ctx, lx - 18, bcy - 26, 32, 54, 2); ctx.fill(); ctx.globalAlpha = 1;
+    ctx.fillStyle = '#00ccff'; ctx.font = '10px Share Tech Mono'; ctx.textAlign = 'center';
+    ctx.fillText(V + 'V', lx - 2, bcy + 44);
+
+    // Resistor
+    const rmx = cx - 80, rw = 60, rh = 20;
+    ctx.fillStyle = '#00090f'; ctx.strokeStyle = '#ff9933'; ctx.lineWidth = 2;
+    rr(ctx, rmx - rw / 2, ty - rh / 2, rw, rh, 3); ctx.fill(); ctx.stroke();
+    ctx.strokeStyle = '#ff9933'; ctx.lineWidth = 1.3; ctx.beginPath();
+    ctx.moveTo(rmx - rw / 2 + 5, ty);
+    for (let i = 0; i <= 6; i++) ctx.lineTo(rmx - rw / 2 + 5 + i * (rw - 10) / 6, ty + (i % 2 === 0 ? -6 : 6));
+    ctx.lineTo(rmx + rw / 2 - 5, ty); ctx.stroke();
+    ctx.fillStyle = '#ff9933'; ctx.font = '9px Share Tech Mono'; ctx.textAlign = 'center';
+    ctx.fillText(R + 'Ω', rmx, ty + rh / 2 + 12);
+
+    // LED glow effect
+    if (bright > 0.05) {
+      const grd = ctx.createRadialGradient(cx, cy, 0, cx, cy, 80 * bright);
+      grd.addColorStop(0, lc.hex + Math.round(bright * 88).toString(16).padStart(2, '0'));
+      grd.addColorStop(1, 'transparent');
+      ctx.fillStyle = grd; ctx.fillRect(cx - 100, cy - 100, 200, 200);
+    }
+
+    // LED symbol
+    ctx.strokeStyle = '#00ccff'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(rmx + rw / 2, ty); ctx.lineTo(cx - 26, ty); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx + 26, ty); ctx.lineTo(rx, ty); ctx.stroke();
+    drawLEDSymbol(ctx, cx, ty, 22, lc.hex, true, bright);
+
+    // Polarity
+    ctx.fillStyle = '#ff3366'; ctx.font = 'bold 11px Share Tech Mono'; ctx.textAlign = 'center';
+    ctx.fillText('A', cx - 28, ty - 10);
+    ctx.fillStyle = '#00aaff'; ctx.fillText('K', cx + 30, ty - 10);
+
+    // Info labels
+    ctx.fillStyle = lc.hex; ctx.font = '10px Share Tech Mono'; ctx.textAlign = 'center';
+    ctx.shadowColor = lc.hex; ctx.shadowBlur = bright * 14;
+    ctx.fillText('λ=' + lc.wl + 'nm  Vf=' + lc.vf + 'V', cx, ty + 36);
+    ctx.shadowBlur = 0;
+
+    // Brightness bar
+    const bx = 60, bw2 = W - 120, bby = H - 45;
+    ctx.fillStyle = '#00090f'; ctx.strokeStyle = '#002233'; ctx.lineWidth = 1;
+    rr(ctx, bx, bby, bw2, 14, 3); ctx.fill(); ctx.stroke();
+    if (bright > 0) {
+      ctx.fillStyle = lc.hex; ctx.shadowColor = lc.hex; ctx.shadowBlur = bright * 10;
+      rr(ctx, bx, bby, bw2 * bright, 14, 3); ctx.fill(); ctx.shadowBlur = 0;
+    }
+    ctx.fillStyle = '#336688'; ctx.font = '9px Share Tech Mono'; ctx.textAlign = 'center';
+    ctx.fillText('Kecerahan: ' + (bright * 100).toFixed(0) + '% (I=' + I.toFixed(1) + 'mA)', W / 2, bby + 24);
+
+    // Electron flow
+    if (inorm > 0.01) {
+      const spd = 0.25 + inorm * 0.6;
+      const ec = `rgba(0,${Math.round(180 + inorm * 75)},255,0.9)`;
+      drawParticles(ctx, [[lx, ty], [rmx - rw / 2, ty], [rmx + rw / 2, ty], [cx - 26, ty], [cx + 26, ty], [rx, ty], [rx, by], [lx, by]], t, spd, ec, 2);
+    }
+
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
+  read();
+})();
+</script>
+</body>
+</html>

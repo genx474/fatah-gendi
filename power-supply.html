@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rangkaian Power Supply | FG Electronic Labs</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --e:#ffe044;--e2:#fff099;--ed:#332a00;
+  --g:#00ff88;--r:#ff3355;--b:#44aaff;--o:#ff9933;--t:#00e5cc;--p:#cc44ff;
+  --bg:#080700;--card:#0f0d00;--bdr:#3a3200;--dim:#7a7000;
+  --font:'Share Tech Mono',monospace;--head:'Orbitron',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  background:radial-gradient(ellipse 130% 55% at 50% 0%,#221e00 0%,#080700 60%);
+  min-height:100vh;font-family:var(--font);color:var(--e2);overflow-x:hidden;
+}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.07) 2px,rgba(0,0,0,.07) 4px);z-index:9999;}
+.wrap{max-width:540px;margin:0 auto;padding:18px 12px 48px;}
+header{text-align:center;margin-bottom:22px;}
+.back{display:inline-block;font-family:var(--font);font-size:10px;color:rgba(255,224,68,.4);text-decoration:none;margin-bottom:12px;letter-spacing:2px;transition:color .2s;}
+.back:hover{color:var(--e);}
+.sub{font-size:9px;letter-spacing:6px;color:#444000;margin-bottom:5px;}
+h1{font-family:var(--head);font-size:clamp(14px,4vw,21px);font-weight:900;color:var(--e);text-shadow:0 0 24px rgba(255,224,68,.5);letter-spacing:2px;margin-bottom:8px;}
+.divline{width:80px;height:2px;background:linear-gradient(to right,transparent,var(--e),transparent);margin:0 auto;}
+
+.tabs{display:flex;gap:4px;margin-bottom:14px;overflow-x:auto;padding-bottom:3px;scrollbar-width:none;}
+.tabs::-webkit-scrollbar{display:none;}
+.tab{flex:0 0 auto;padding:6px 11px;border:1px solid var(--bdr);border-radius:7px;background:var(--card);color:var(--dim);cursor:pointer;font-family:var(--font);font-size:9px;letter-spacing:.8px;transition:all .2s;white-space:nowrap;}
+.tab:hover{border-color:var(--e2);color:var(--e2);}
+.tab.on{border-color:var(--e);background:#1a1500;color:var(--e);box-shadow:0 0 12px rgba(255,224,68,.2);}
+
+.card{background:var(--card);border:1px solid var(--bdr);border-radius:14px;padding:20px 16px;box-shadow:0 0 36px rgba(255,224,68,.04),inset 0 1px 0 #3a3200;}
+.scene{display:none;flex-direction:column;align-items:center;gap:16px;}
+.scene.on{display:flex;}
+.atitle{font-family:var(--head);font-size:10px;letter-spacing:2px;color:var(--e2);text-align:center;width:100%;}
+
+.ctrl{width:100%;background:#09080 0;border:1px solid var(--bdr);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;}
+.ctrl{background:#090800;}
+.ctrl-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.ctrl-lbl{font-size:10px;color:var(--dim);min-width:90px;letter-spacing:.7px;}
+.sl{flex:1;min-width:90px;-webkit-appearance:none;height:4px;background:linear-gradient(to right,var(--e) var(--pct,50%),#3a3200 var(--pct,50%));border-radius:2px;outline:none;cursor:pointer;}
+.sl::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--e);box-shadow:0 0 6px rgba(255,224,68,.7);cursor:pointer;}
+.sl::-moz-range-thumb{width:14px;height:14px;border-radius:50%;border:none;background:var(--e);cursor:pointer;}
+.ctrl-val{font-size:11px;color:var(--e);min-width:68px;text-align:right;}
+
+.metrics{display:flex;gap:6px;width:100%;flex-wrap:wrap;}
+.metric{flex:1;min-width:70px;background:#090800;border:1px solid var(--bdr);border-radius:7px;padding:6px 8px;text-align:center;}
+.metric-lbl{font-size:8px;color:var(--dim);letter-spacing:1.5px;margin-bottom:2px;}
+.metric-val{font-size:13px;color:var(--e);font-weight:bold;}
+.metric-unit{font-size:8px;color:var(--dim);}
+
+.btns{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;}
+.btn{padding:7px 16px;border:2px solid var(--e);border-radius:7px;background:#1a1500;color:var(--e);cursor:pointer;font-family:var(--font);font-size:11px;transition:all .15s;}
+.btn:hover{background:#2a2000;box-shadow:0 0 12px rgba(255,224,68,.25);}
+.btn.off{border-color:#2a2500;background:#090800;color:#4a4500;}
+
+.badge{padding:6px 18px;border-radius:28px;font-size:11px;letter-spacing:2px;transition:all .3s;text-align:center;border:1px solid;}
+.info{color:var(--dim);font-size:11px;text-align:center;line-height:1.75;width:100%;}
+.info span{color:var(--e);}.info .g{color:var(--g);}.info .r{color:var(--r);}.info .b{color:var(--b);}
+
+canvas{display:block;border-radius:7px;}
+canvas.brd{border:1px solid var(--bdr);background:#090800;}
+footer{text-align:center;margin-top:20px;font-size:9px;letter-spacing:3px;color:#2a2500;}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <a class="back" href="index.html">← FATAH GENDI ELECTRONIC LABS</a>
+  <div class="sub">◈ POWER SUPPLY ◈</div>
+  <h1>RANGKAIAN POWER SUPPLY</h1>
+  <div class="divline"></div>
+</header>
+
+<div class="tabs">
+  <button class="tab on" data-s="linear">📦 Linear (LM7805)</button>
+  <button class="tab" data-s="ldo">🔋 LDO Regulator</button>
+  <button class="tab" data-s="buck">⬇ Buck Converter</button>
+  <button class="tab" data-s="boost">⬆ Boost Converter</button>
+  <button class="tab" data-s="buckboost">↕ Buck-Boost</button>
+  <button class="tab" data-s="charge">⚡ Charge Pump</button>
+</div>
+
+<div class="card">
+
+<!-- LINEAR REGULATOR -->
+<div class="scene on" id="s-linear">
+  <div class="atitle">LINEAR REGULATOR — LM7805 / LM317</div>
+  <canvas id="c-linear" class="brd" width="460" height="210" style="width:100%"></canvas>
+  <div class="ctrl">
+    <div class="ctrl-row"><span class="ctrl-lbl">⚡ Vin</span><input type="range" class="sl" id="ln-vin" min="7" max="35" value="12" step="0.5"><span class="ctrl-val" id="ln-vin-v">12 V</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">🔒 Vout target</span><input type="range" class="sl" id="ln-vout" min="1.2" max="30" value="5" step="0.1"><span class="ctrl-val" id="ln-vout-v">5.0 V</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">⚙ R beban</span><input type="range" class="sl" id="ln-rl" min="10" max="1000" value="100" step="5"><span class="ctrl-val" id="ln-rl-v">100 Ω</span></div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-lbl">Vout</div><div class="metric-val" id="ln-mvout">5.00</div><div class="metric-unit">V</div></div>
+    <div class="metric"><div class="metric-lbl">Iout</div><div class="metric-val" id="ln-mi">50.0</div><div class="metric-unit">mA</div></div>
+    <div class="metric"><div class="metric-lbl">Pdis IC</div><div class="metric-val" id="ln-pd">0.35</div><div class="metric-unit">W</div></div>
+    <div class="metric"><div class="metric-lbl">EFISIENSI</div><div class="metric-val" id="ln-eff">41.7</div><div class="metric-unit">%</div></div>
+    <div class="metric"><div class="metric-lbl">Vdrop</div><div class="metric-val" id="ln-vdrop">7.00</div><div class="metric-unit">V</div></div>
+    <div class="metric"><div class="metric-lbl">STATUS</div><div class="metric-val" id="ln-status" style="font-size:10px">OK</div><div class="metric-unit"></div></div>
+  </div>
+  <div class="info">Linear reg: sisa tegangan dibuang sebagai panas<br>Pdis = (Vin−Vout)×Iout → <span class="r">efisiensi rendah saat Vdrop besar</span><br>Butuh headroom min 2V: Vin ≥ Vout + <span>2V</span></div>
+</div>
+
+<!-- LDO -->
+<div class="scene" id="s-ldo">
+  <div class="atitle">LDO (Low Dropout) REGULATOR</div>
+  <canvas id="c-ldo" class="brd" width="460" height="210" style="width:100%"></canvas>
+  <div class="ctrl">
+    <div class="ctrl-row"><span class="ctrl-lbl">⚡ Vin</span><input type="range" class="sl" id="ld-vin" min="1.5" max="15" value="5" step="0.1"><span class="ctrl-val" id="ld-vin-v">5.0 V</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">🔒 Vout</span><input type="range" class="sl" id="ld-vout" min="0.8" max="12" value="3.3" step="0.1"><span class="ctrl-val" id="ld-vout-v">3.3 V</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">⚙ Iout (mA)</span><input type="range" class="sl" id="ld-il" min="1" max="1000" value="200" step="5"><span class="ctrl-val" id="ld-il-v">200 mA</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">🌡 Rth (°C/W)</span><input type="range" class="sl" id="ld-rth" min="10" max="200" value="50" step="5"><span class="ctrl-val" id="ld-rth-v">50 °C/W</span></div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-lbl">Vdropout</div><div class="metric-val" id="ld-vdo">1.70</div><div class="metric-unit">V</div></div>
+    <div class="metric"><div class="metric-lbl">Pdis</div><div class="metric-val" id="ld-pd">340</div><div class="metric-unit">mW</div></div>
+    <div class="metric"><div class="metric-lbl">Tj</div><div class="metric-val" id="ld-tj">42</div><div class="metric-unit">°C</div></div>
+    <div class="metric"><div class="metric-lbl">EFISIENSI</div><div class="metric-val" id="ld-eff">66</div><div class="metric-unit">%</div></div>
+  </div>
+  <div class="badge" id="ld-badge" style="background:#1a1500;border-color:var(--e);color:var(--e)">✓ LDO NORMAL</div>
+  <div class="info">LDO: dropout bisa &lt;100mV → cocok untuk <span>baterai</span><br>PSRR tinggi → noise supply sangat kecil di output<br>Tj = Tamb + Pdis × Rth</div>
+</div>
+
+<!-- BUCK -->
+<div class="scene" id="s-buck">
+  <div class="atitle">BUCK CONVERTER (STEP-DOWN SWITCHING)</div>
+  <canvas id="c-buck" class="brd" width="460" height="210" style="width:100%"></canvas>
+  <div class="ctrl">
+    <div class="ctrl-row"><span class="ctrl-lbl">⚡ Vin</span><input type="range" class="sl" id="bk-vin" min="5" max="40" value="12" step="0.5"><span class="ctrl-val" id="bk-vin-v">12 V</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">🔒 Vout target</span><input type="range" class="sl" id="bk-vout" min="1" max="35" value="5" step="0.1"><span class="ctrl-val" id="bk-vout-v">5.0 V</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">📶 Frekuensi SW</span><input type="range" class="sl" id="bk-f" min="10" max="2000" value="200" step="10"><span class="ctrl-val" id="bk-f-v">200 kHz</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">⚙ Iout</span><input type="range" class="sl" id="bk-il" min="100" max="5000" value="1000" step="100"><span class="ctrl-val" id="bk-il-v">1.0 A</span></div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-lbl">DUTY</div><div class="metric-val" id="bk-duty">41.7</div><div class="metric-unit">%</div></div>
+    <div class="metric"><div class="metric-lbl">L min</div><div class="metric-val" id="bk-lmin">17.5</div><div class="metric-unit">µH</div></div>
+    <div class="metric"><div class="metric-lbl">ΔIL</div><div class="metric-val" id="bk-dil">350</div><div class="metric-unit">mA</div></div>
+    <div class="metric"><div class="metric-lbl">EFISIENSI</div><div class="metric-val" id="bk-eff">90+</div><div class="metric-unit">%</div></div>
+  </div>
+  <div class="info">Buck: D = Vout/Vin | Frekuensi tinggi → L &amp; C lebih kecil<br>Efisiensi 85–95% → <span class="g">jauh lebih baik dari linear</span><br>L_min = (Vin−Vout)×D / (2×f×ΔIL)</div>
+</div>
+
+<!-- BOOST -->
+<div class="scene" id="s-boost">
+  <div class="atitle">BOOST CONVERTER (STEP-UP SWITCHING)</div>
+  <canvas id="c-boost" class="brd" width="460" height="210" style="width:100%"></canvas>
+  <div class="ctrl">
+    <div class="ctrl-row"><span class="ctrl-lbl">⚡ Vin</span><input type="range" class="sl" id="bs-vin" min="1" max="24" value="5" step="0.1"><span class="ctrl-val" id="bs-vin-v">5.0 V</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">🔒 Vout target</span><input type="range" class="sl" id="bs-vout" min="2" max="60" value="12" step="0.5"><span class="ctrl-val" id="bs-vout-v">12.0 V</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">📶 Frekuensi SW</span><input type="range" class="sl" id="bs-f" min="10" max="2000" value="200" step="10"><span class="ctrl-val" id="bs-f-v">200 kHz</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">⚙ Iout</span><input type="range" class="sl" id="bs-il" min="100" max="3000" value="500" step="100"><span class="ctrl-val" id="bs-il-v">500 mA</span></div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-lbl">DUTY</div><div class="metric-val" id="bs-duty">58.3</div><div class="metric-unit">%</div></div>
+    <div class="metric"><div class="metric-lbl">Iin</div><div class="metric-val" id="bs-iin">1200</div><div class="metric-unit">mA</div></div>
+    <div class="metric"><div class="metric-lbl">L min</div><div class="metric-val" id="bs-lmin">12.5</div><div class="metric-unit">µH</div></div>
+    <div class="metric"><div class="metric-lbl">EFISIENSI</div><div class="metric-val" id="bs-eff">88+</div><div class="metric-unit">%</div></div>
+  </div>
+  <div class="info">Boost: D = 1 − Vin/Vout → Vin &lt; Vout<br>Iin = Iout / (1−D) → arus input lebih besar<br>Aplikasi: <span>baterai 3.7V → 5V USB</span></div>
+</div>
+
+<!-- BUCK-BOOST -->
+<div class="scene" id="s-buckboost">
+  <div class="atitle">BUCK-BOOST (INVERTING / SEPIC)</div>
+  <canvas id="c-buckboost" class="brd" width="460" height="210" style="width:100%"></canvas>
+  <div class="ctrl">
+    <div class="ctrl-row"><span class="ctrl-lbl">⚡ Vin</span><input type="range" class="sl" id="bb-vin" min="1" max="30" value="9" step="0.5"><span class="ctrl-val" id="bb-vin-v">9.0 V</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">🔒 |Vout|</span><input type="range" class="sl" id="bb-vout" min="1" max="30" value="9" step="0.5"><span class="ctrl-val" id="bb-vout-v">9.0 V</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">⚙ Iout</span><input type="range" class="sl" id="bb-il" min="100" max="2000" value="500" step="100"><span class="ctrl-val" id="bb-il-v">500 mA</span></div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-lbl">MODE</div><div class="metric-val" id="bb-mode" style="font-size:10px">PASS</div><div class="metric-unit"></div></div>
+    <div class="metric"><div class="metric-lbl">DUTY</div><div class="metric-val" id="bb-duty">50.0</div><div class="metric-unit">%</div></div>
+    <div class="metric"><div class="metric-lbl">EFISIENSI</div><div class="metric-val" id="bb-eff">87</div><div class="metric-unit">%</div></div>
+    <div class="metric"><div class="metric-lbl">TIPE</div><div class="metric-val" id="bb-type" style="font-size:10px">SEPIC</div><div class="metric-unit"></div></div>
+  </div>
+  <div class="info">Buck-Boost: Vout bisa &lt; atau &gt; Vin → <span>paling fleksibel</span><br>SEPIC: output non-inverting | Inverting: Vout = −Vin×D/(1−D)<br>Digunakan pada sistem baterai yang tegangannya berubah</div>
+</div>
+
+<!-- CHARGE PUMP -->
+<div class="scene" id="s-charge">
+  <div class="atitle">CHARGE PUMP — VOLTAGE DOUBLER/INVERTER</div>
+  <canvas id="c-charge" class="brd" width="460" height="210" style="width:100%"></canvas>
+  <div class="ctrl">
+    <div class="ctrl-row"><span class="ctrl-lbl">⚡ Vin</span><input type="range" class="sl" id="cp-vin" min="1.5" max="12" value="5" step="0.1"><span class="ctrl-val" id="cp-vin-v">5.0 V</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">🔘 Mode</span><input type="range" class="sl" id="cp-mode" min="0" max="2" value="0" step="1"><span class="ctrl-val" id="cp-mode-v">×2 Doubler</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">🔌 C pump</span><input type="range" class="sl" id="cp-c" min="1" max="100" value="10" step="1"><span class="ctrl-val" id="cp-c-v">10 µF</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">📶 Frekuensi</span><input type="range" class="sl" id="cp-f" min="1" max="1000" value="100" step="5"><span class="ctrl-val" id="cp-f-v">100 kHz</span></div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-lbl">Vin</div><div class="metric-val" id="cp-mvin">5.00</div><div class="metric-unit">V</div></div>
+    <div class="metric"><div class="metric-lbl">Vout ideal</div><div class="metric-val" id="cp-mvout">10.0</div><div class="metric-unit">V</div></div>
+    <div class="metric"><div class="metric-lbl">IMPEDANSI</div><div class="metric-val" id="cp-rout">250</div><div class="metric-unit">mΩ/µF</div></div>
+    <div class="metric"><div class="metric-lbl">MODE</div><div class="metric-val" id="cp-mmode" style="font-size:10px">DOUBLER</div><div class="metric-unit"></div></div>
+  </div>
+  <div class="info">Charge pump: hanya kapasitor, tanpa induktor<br>×2: Vout = 2×Vin | Inverter: Vout = −Vin | ×3: 3×Vin<br>Iout terbatas → <span>untuk IC bias, op-amp, LCD</span></div>
+</div>
+
+</div>
+<footer>◈ FATAH GENDI ELECTRONIC LABS — POWER SUPPLY ◈</footer>
+</div>
+
+<script>
+"use strict";
+var activeS="linear";
+function el(id){return document.getElementById(id);}
+function fmtR(v){if(v>=1e6)return(v/1e6).toFixed(2)+" MΩ";if(v>=1e3)return(v/1e3).toFixed(1)+" kΩ";return v.toFixed(0)+" Ω";}
+
+document.querySelectorAll(".sl").forEach(function(s){
+  function u(){s.style.setProperty("--pct",((s.value-s.min)/(s.max-s.min)*100).toFixed(1)+"%");}
+  u();s.addEventListener("input",u);
+});
+document.querySelectorAll(".tab").forEach(function(t){
+  t.addEventListener("click",function(){
+    document.querySelectorAll(".tab").forEach(function(x){x.classList.remove("on");});
+    document.querySelectorAll(".scene").forEach(function(x){x.classList.remove("on");});
+    t.classList.add("on");activeS=t.dataset.s;el("s-"+activeS).classList.add("on");
+  });
+});
+
+function rr(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.arcTo(x+w,y,x+w,y+r,r);ctx.lineTo(x+w,y+h-r);ctx.arcTo(x+w,y+h,x+w-r,y+h,r);ctx.lineTo(x+r,y+h);ctx.arcTo(x,y+h,x,y+h-r,r);ctx.lineTo(x,y+r);ctx.arcTo(x,y,x+r,y,r);ctx.closePath();}
+function wl(ctx,x1,y1,x2,y2,col,w){ctx.strokeStyle=col||"#3a3200";ctx.lineWidth=w||2;ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();}
+function dot(ctx,x,y,r,col,glow){ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fillStyle=col;if(glow){ctx.shadowColor=col;ctx.shadowBlur=glow;}ctx.fill();ctx.shadowBlur=0;}
+function pars(ctx,pts,t,spd,col,n){
+  for(var s=0;s<pts.length-1;s++){var x1=pts[s][0],y1=pts[s][1],x2=pts[s+1][0],y2=pts[s+1][1];
+    for(var i=0;i<n;i++){var f=((t*spd+s*0.25+i/n)%1+1)%1;var px=x1+f*(x2-x1),py=y1+f*(y2-y1);
+      if(px<Math.min(x1,x2)-2||px>Math.max(x1,x2)+2)continue;if(py<Math.min(y1,y2)-2||py>Math.max(y1,y2)+2)continue;
+      dot(ctx,px,py,3,col,7);}}
+}
+function drawIC(ctx,cx,cy,label,col){col=col||"#ffe044";rr(ctx,cx-28,cy-22,56,44,4);ctx.fillStyle="#0f0d00";ctx.strokeStyle=col;ctx.lineWidth=2;ctx.fill();ctx.stroke();ctx.fillStyle=col;ctx.font="bold 9px Share Tech Mono";ctx.textAlign="center";ctx.fillText(label,cx,cy+4);}
+function drawCoil(ctx,cx,cy,turns,tw,h,col,glow){col=col||"#ffe044";ctx.strokeStyle=col;ctx.lineWidth=2.5;if(glow>0){ctx.shadowColor=col;ctx.shadowBlur=glow;}for(var i=0;i<turns;i++){ctx.beginPath();ctx.arc(cx-turns*tw/2+i*tw+tw/2,cy,h/2,Math.PI,0);ctx.stroke();}ctx.shadowBlur=0;wl(ctx,cx-turns*tw/2-10,cy,cx-turns*tw/2,cy,col);wl(ctx,cx+turns*tw/2,cy,cx+turns*tw/2+10,cy,col);}
+function drawCap(ctx,cx,cy,h,col){col=col||"#44aaff";ctx.strokeStyle=col;ctx.lineWidth=2.5;wl(ctx,cx,cy-h/2-8,cx,cy-3,col);wl(ctx,cx,cy+3,cx,cy+h/2+8,col);wl(ctx,cx-h/2,cy-3,cx+h/2,cy-3,col);wl(ctx,cx-h/2,cy+3,cx+h/2,cy+3,col);}
+function drawDiode(ctx,cx,cy,col,filled){col=col||"#ffe044";ctx.strokeStyle=col;ctx.fillStyle=filled?col:"transparent";ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(cx-12,cy-12);ctx.lineTo(cx+12,cy);ctx.lineTo(cx-12,cy+12);ctx.closePath();ctx.fill();ctx.stroke();ctx.beginPath();ctx.moveTo(cx+12,cy-14);ctx.lineTo(cx+12,cy+14);ctx.stroke();}
+function drawSwitch(ctx,cx,cy,on,col){col=col||"#ffe044";ctx.strokeStyle=col;ctx.lineWidth=2;wl(ctx,cx-16,cy,cx-8,cy,col);if(on){wl(ctx,cx-8,cy,cx+8,cy,col);}else{ctx.beginPath();ctx.moveTo(cx-8,cy);ctx.lineTo(cx+8,cy-16);ctx.stroke();}wl(ctx,cx+8,cy,cx+16,cy,col);dot(ctx,cx-8,cy,3,col);dot(ctx,cx+8,cy,3,col);}
+function drawGND(ctx,cx,cy){[14,9,5].forEach(function(w,i){ctx.beginPath();ctx.moveTo(cx-w,cy+i*5);ctx.lineTo(cx+w,cy+i*5);ctx.strokeStyle="#4a4000";ctx.lineWidth=1;ctx.stroke();});}
+
+// ═══ LINEAR ═══
+(function(){
+  var cvs=el("c-linear"),ctx=cvs.getContext("2d");
+  var VIN=12,VOUT=5,RL=100;
+  function read(){VIN=parseFloat(el("ln-vin").value);VOUT=parseFloat(el("ln-vout").value);RL=parseFloat(el("ln-rl").value);el("ln-vin-v").textContent=VIN+" V";el("ln-vout-v").textContent=VOUT.toFixed(1)+" V";el("ln-rl-v").textContent=RL+" Ω";upd();}
+  function upd(){var ok=VIN>=VOUT+2;var Vout=ok?VOUT:0;var I=Vout/RL*1000;var Pdis=(VIN-Vout)*I/1000;var eff=ok?Vout/VIN*100:0;el("ln-mvout").textContent=Vout.toFixed(2);el("ln-mi").textContent=I.toFixed(1);el("ln-pd").textContent=Pdis.toFixed(2);el("ln-eff").textContent=eff.toFixed(1);el("ln-vdrop").textContent=(VIN-Vout).toFixed(2);el("ln-status").textContent=ok?"OK":"ERR:Vdrop<2V";el("ln-status").style.color=ok?"var(--g)":"var(--r)";}
+  ["ln-vin","ln-vout","ln-rl"].forEach(function(id){el(id).addEventListener("input",read);});
+  function draw(ts){if(activeS!=="linear"){requestAnimationFrame(draw);return;}var W=cvs.width,H=cvs.height,t=ts/700;ctx.clearRect(0,0,W,H);
+    var ok=VIN>=VOUT+2;var Vout=ok?VOUT:0;var I=Vout/RL*1000;var Pdis=(VIN-Vout)*I/1000;var heat=Math.min(Pdis/5,1);
+    var cy=H/2;
+    // Battery
+    rr(ctx,14,cy-32,28,64,3);ctx.fillStyle="#0f0d00";ctx.strokeStyle="#ffe044";ctx.lineWidth=2;ctx.fill();ctx.stroke();
+    var bg=ctx.createLinearGradient(0,cy+28,0,cy-28);bg.addColorStop(0,"rgba(255,224,68,0)");bg.addColorStop(1,"#ffe044");ctx.fillStyle=bg;ctx.globalAlpha=0.7;ctx.fillRect(16,cy-26,24,52);ctx.globalAlpha=1;
+    ctx.fillStyle="#ffe044";ctx.font="9px Share Tech Mono";ctx.textAlign="center";ctx.fillText(VIN+"V",28,cy+44);
+    wl(ctx,42,cy,80,cy,"#ffe044");
+    // Capacitor input
+    drawCap(ctx,80,cy,20,"#44aaff");wl(ctx,80,cy+28,80,cy+44,"#44aaff",1);drawGND(ctx,80,cy+44);
+    ctx.fillStyle="#44aaff";ctx.font="7px Share Tech Mono";ctx.textAlign="center";ctx.fillText("Cin",80,cy-30);
+    wl(ctx,80,cy,120,cy,"#ffe044");
+    // IC (7805)
+    var icCol=heat>0.5?"#ff3355":heat>0.2?"#ff9933":"#ffe044";
+    drawIC(ctx,160,cy,"LM78xx",icCol);
+    if(heat>0.1){var heatParticles=5;for(var i=0;i<heatParticles;i++){var px=140+i*10+Math.sin(t*2+i)*5;var py=cy-22-((t*0.4+i*0.25)%1)*30;ctx.beginPath();ctx.arc(px,py,2,0,Math.PI*2);ctx.fillStyle="rgba(255,"+(100+Math.round(heat*155))+",50,"+(1-((t*0.4+i*0.25)%1))*heat*0.8+")";ctx.fill();}}
+    // output
+    wl(ctx,188,cy,220,cy,ok?"#ffe044":"#3a3200");
+    drawCap(ctx,220,cy,20,"#44aaff");wl(ctx,220,cy+28,220,cy+44,"#44aaff",1);drawGND(ctx,220,cy+44);
+    ctx.fillStyle="#44aaff";ctx.font="7px Share Tech Mono";ctx.textAlign="center";ctx.fillText("Cout",220,cy-30);
+    wl(ctx,220,cy,260,cy,ok?"#ffe044":"#3a3200");
+    // Load resistor (vertical)
+    ctx.fillStyle="#0f0d00";ctx.strokeStyle="#ff9933";ctx.lineWidth=2;rr(ctx,254,cy-22,12,44,3);ctx.fill();ctx.stroke();ctx.strokeStyle="#ff9933";ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(260,cy-18);for(var j=0;j<=5;j++)ctx.lineTo(260+(j%2===0?-5:5),cy-18+j*32/5);ctx.lineTo(260,cy+18);ctx.stroke();
+    ctx.fillStyle="#ff9933";ctx.font="7px Share Tech Mono";ctx.textAlign="center";ctx.fillText(RL+"Ω",260,cy+32);
+    wl(ctx,260,cy+22,260,cy+44,"#ff9933",1);drawGND(ctx,260,cy+44);
+    wl(ctx,42,cy+44,260,cy+44,"#3a3200",1);
+    // Vout label
+    ctx.fillStyle=ok?"#00ff88":"#ff3355";ctx.font="bold 10px Share Tech Mono";ctx.textAlign="center";ctx.shadowColor=ctx.fillStyle;ctx.shadowBlur=ok?8:0;ctx.fillText("Vout="+Vout.toFixed(1)+"V  I="+I.toFixed(0)+"mA  Pdis="+Pdis.toFixed(2)+"W  η="+( ok?Vout/VIN*100:0).toFixed(1)+"%",W/2,H-10);ctx.shadowBlur=0;
+    // efficiency comparison bar
+    var bx=14,bby=H-32,bw=W-28,bh=10;ctx.fillStyle="#0f0d00";rr(ctx,bx,bby,bw,bh,3);ctx.fill();
+    ctx.fillStyle="rgba(255,51,85,0.6)";rr(ctx,bx,bby,bw,bh,3);ctx.fill();
+    var effW=(ok?Vout/VIN:0)*bw;ctx.fillStyle="rgba(0,255,136,0.8)";ctx.shadowColor="#00ff88";ctx.shadowBlur=4;rr(ctx,bx,bby,effW,bh,3);ctx.fill();ctx.shadowBlur=0;
+    ctx.fillStyle="#fff";ctx.font="7px Share Tech Mono";ctx.textAlign="center";ctx.fillText("Useful: "+(ok?Vout/VIN*100:0).toFixed(0)+"% | Lost as heat: "+( ok?(VIN-Vout)/VIN*100:100).toFixed(0)+"%",W/2,bby-5);
+    if(ok)pars(ctx,[[42,cy],[80,cy],[120,cy],[188,cy],[220,cy],[260,cy]],t,0.4+I/1000*0.4,"rgba(255,224,68,0.85)",2);
+    requestAnimationFrame(draw);}
+  requestAnimationFrame(draw);read();
+})();
+
+// ═══ LDO ═══
+(function(){
+  var cvs=el("c-ldo"),ctx=cvs.getContext("2d");
+  var VIN=5,VOUT=3.3,IL=200,RTH=50;
+  function read(){VIN=parseFloat(el("ld-vin").value);VOUT=parseFloat(el("ld-vout").value);IL=parseFloat(el("ld-il").value);RTH=parseFloat(el("ld-rth").value);el("ld-vin-v").textContent=VIN.toFixed(1)+" V";el("ld-vout-v").textContent=VOUT.toFixed(1)+" V";el("ld-il-v").textContent=IL+" mA";el("ld-rth-v").textContent=RTH+" °C/W";upd();}
+  function upd(){var ok=VIN>=VOUT+0.1;var Vout=ok?VOUT:0;var Pdis=(VIN-Vout)*IL/1000;var Tj=25+Pdis*RTH;var eff=ok?Vout/VIN*100:0;var Vdo=VIN-Vout;el("ld-vdo").textContent=Vdo.toFixed(2);el("ld-pd").textContent=(Pdis*1000).toFixed(0);el("ld-tj").textContent=Tj.toFixed(0);el("ld-eff").textContent=eff.toFixed(0);var b=el("ld-badge");var shutdown=Tj>150;if(shutdown){b.textContent="⚠ THERMAL SHUTDOWN";b.style.borderColor="var(--r)";b.style.color="var(--r)";b.style.background="#1a0008";}else if(!ok){b.textContent="⚠ DROPOUT";b.style.borderColor="#ff9933";b.style.color="#ff9933";b.style.background="#1a0800";}else{b.textContent="✓ LDO NORMAL";b.style.borderColor="var(--e)";b.style.color="var(--e)";b.style.background="#1a1500";}}
+  ["ld-vin","ld-vout","ld-il","ld-rth"].forEach(function(id){el(id).addEventListener("input",read);});
+  function draw(ts){if(activeS!=="ldo"){requestAnimationFrame(draw);return;}var W=cvs.width,H=cvs.height,t=ts/700;ctx.clearRect(0,0,W,H);
+    var ok=VIN>=VOUT+0.1;var Pdis=(VIN-VOUT)*IL/1000;var Tj=25+Pdis*RTH;var heat=Math.min(Pdis/3,1);var tc="#00ff88";if(Tj>125)tc="#ff3355";else if(Tj>80)tc="#ff9933";
+    var cy=H/2;
+    rr(ctx,14,cy-30,28,60,3);ctx.fillStyle="#0f0d00";ctx.strokeStyle="#ffe044";ctx.lineWidth=2;ctx.fill();ctx.stroke();
+    var bg=ctx.createLinearGradient(0,cy+26,0,cy-26);bg.addColorStop(0,"rgba(255,224,68,0)");bg.addColorStop(1,"#ffe044");ctx.fillStyle=bg;ctx.globalAlpha=0.7;ctx.fillRect(16,cy-24,24,48);ctx.globalAlpha=1;
+    ctx.fillStyle="#ffe044";ctx.font="9px Share Tech Mono";ctx.textAlign="center";ctx.fillText(VIN.toFixed(1)+"V",28,cy+42);
+    wl(ctx,42,cy,120,cy,"#ffe044");
+    drawIC(ctx,160,cy,"LDO",tc);
+    if(heat>0.05){for(var i=0;i<5;i++){var px2=140+i*10+Math.sin(t*2+i)*4;var py2=cy-22-((t*0.5+i*0.22)%1)*28;ctx.beginPath();ctx.arc(px2,py2,2,0,Math.PI*2);ctx.fillStyle="hsla("+(50-heat*50)+",100%,60%,"+(1-((t*0.5+i*0.22)%1))*heat*0.8+")";ctx.fill();}}
+    wl(ctx,188,cy,240,cy,ok?"#ffe044":"#3a3200");
+    ctx.fillStyle=ok?"#00ff88":"#ff3355";ctx.font="bold 9px Share Tech Mono";ctx.textAlign="center";ctx.shadowColor=ctx.fillStyle;ctx.shadowBlur=ok?6:0;ctx.fillText("Vout="+VOUT.toFixed(1)+"V  Vdrop="+( VIN-VOUT).toFixed(2)+"V",W/2,cy-40);ctx.shadowBlur=0;
+    // Temperature gauge
+    var gx=260,gy=20,gh=H-50;ctx.fillStyle="#0f0d00";rr(ctx,gx,gy,18,gh,3);ctx.fill();ctx.strokeStyle="#3a3200";ctx.lineWidth=1;rr(ctx,gx,gy,18,gh,3);ctx.stroke();
+    var fillH=Math.min(Tj/175,1)*gh;ctx.fillStyle=tc;ctx.shadowColor=tc;ctx.shadowBlur=6;ctx.fillRect(gx+2,gy+gh-fillH,14,fillH);ctx.shadowBlur=0;
+    ctx.fillStyle=tc;ctx.font="8px Share Tech Mono";ctx.textAlign="center";ctx.fillText(Tj.toFixed(0)+"°C",gx+9,gy+gh+12);ctx.fillText("Tj",gx+9,gy-5);
+    // Comparisons
+    var cx2=W-160,comY=40;["Linear Reg","LDO Reg","Buck SW"].forEach(function(name,i){
+      var effs=[42,66,92];var col2=i===1?"#ffe044":i===2?"#00ff88":"rgba(255,224,68,0.4)";
+      var bw2=80;ctx.fillStyle="#0f0d00";rr(ctx,cx2,comY+i*28,bw2,16,3);ctx.fill();
+      ctx.fillStyle=col2;ctx.shadowColor=col2;ctx.shadowBlur=i===1?4:0;rr(ctx,cx2,comY+i*28,effs[i]/100*bw2,16,3);ctx.fill();ctx.shadowBlur=0;
+      ctx.fillStyle=i===1?"#ffe044":"rgba(255,224,68,0.4)";ctx.font="7px Share Tech Mono";ctx.textAlign="left";ctx.fillText(name+": "+effs[i]+"%",cx2+bw2+4,comY+i*28+11);
+    });
+    if(ok)pars(ctx,[[42,cy],[120,cy],[188,cy],[240,cy]],t,0.4,"rgba(255,224,68,0.85)",2);
+    requestAnimationFrame(draw);}
+  requestAnimationFrame(draw);read();
+})();
+
+// ═══ BUCK ═══
+(function(){
+  var cvs=el("c-buck"),ctx=cvs.getContext("2d");
+  var VIN=12,VOUT=5,FSW=200,IL=1000;
+  function read(){VIN=parseFloat(el("bk-vin").value);VOUT=parseFloat(el("bk-vout").value);FSW=parseFloat(el("bk-f").value);IL=parseFloat(el("bk-il").value);el("bk-vin-v").textContent=VIN+" V";el("bk-vout-v").textContent=VOUT.toFixed(1)+" V";el("bk-f-v").textContent=FSW+" kHz";el("bk-il-v").textContent=(IL>=1000?(IL/1000).toFixed(1)+" A":IL+" mA");upd();}
+  function upd(){var ok=VOUT<VIN;var D=ok?VOUT/VIN:1;var Lmin=(VIN-VOUT)*D/(2*FSW*1000*IL*0.3/1000)*1e6;var dIL=(VIN-VOUT)*D/(FSW*1000*Math.max(Lmin*1e-6,1e-9))*1000;el("bk-duty").textContent=(D*100).toFixed(1);el("bk-lmin").textContent=Lmin.toFixed(1);el("bk-dil").textContent=(IL*0.3).toFixed(0);el("bk-eff").textContent=ok?"90+":"N/A";}
+  ["bk-vin","bk-vout","bk-f","bk-il"].forEach(function(id){el(id).addEventListener("input",read);});
+  function draw(ts){if(activeS!=="buck"){requestAnimationFrame(draw);return;}var W=cvs.width,H=cvs.height,t=ts/300;ctx.clearRect(0,0,W,H);
+    var ok=VOUT<VIN;var D=ok?VOUT/VIN:1;var spd=FSW/100;var cy=H/2;
+    // Battery
+    rr(ctx,10,cy-28,28,56,3);ctx.fillStyle="#0f0d00";ctx.strokeStyle="#ffe044";ctx.lineWidth=2;ctx.fill();ctx.stroke();ctx.fillStyle="#ffe044";ctx.font="9px Share Tech Mono";ctx.textAlign="center";ctx.fillText(VIN+"V",24,cy+40);
+    wl(ctx,38,cy,70,cy,"#ffe044");
+    // Switch (MOSFET)
+    drawSwitch(ctx,86,cy,((t*spd)%1)<D,"#00ff88");wl(ctx,102,cy,130,cy,ok?"#00ff88":"#3a3200");
+    ctx.fillStyle="#00ff88";ctx.font="7px Share Tech Mono";ctx.textAlign="center";ctx.fillText("SW",86,cy-22);ctx.fillText("D="+(D*100).toFixed(0)+"%",86,cy+18);
+    // Diode (flyback)
+    var dmx=130,dmy=cy;wl(ctx,dmx,dmy,dmx,dmy+40,"#ff9933",2);drawDiode(ctx,dmx,dmy+50,false);wl(ctx,dmx,dmy+64,dmx,dmy+80,"#ff9933",1);drawGND(ctx,dmx,dmy+80);ctx.fillStyle="#ff9933";ctx.font="7px Share Tech Mono";ctx.textAlign="center";ctx.fillText("D",dmx,dmy-10);
+    // Inductor
+    drawCoil(ctx,175,cy,4,9,20,"#ffe044",ok?8:3);ctx.fillStyle="#ffe044";ctx.font="7px Share Tech Mono";ctx.textAlign="center";ctx.fillText("L",175,cy-22);
+    wl(ctx,215,cy,235,cy,"#ffe044");
+    // Output cap
+    drawCap(ctx,235,cy,24,"#44aaff");wl(ctx,235,cy+32,235,cy+50,"#44aaff",1);drawGND(ctx,235,cy+50);ctx.fillStyle="#44aaff";ctx.font="7px Share Tech Mono";ctx.textAlign="center";ctx.fillText("Cout",235,cy-30);
+    wl(ctx,235,cy,W-30,cy,"#ffe044");
+    // Load
+    ctx.fillStyle="#0f0d00";ctx.strokeStyle="#ff9933";ctx.lineWidth=2;rr(ctx,W-36,cy-22,12,44,3);ctx.fill();ctx.stroke();ctx.strokeStyle="#ff9933";ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(W-30,cy-18);for(var j=0;j<=5;j++)ctx.lineTo(W-30+(j%2===0?-5:5),cy-18+j*32/5);ctx.lineTo(W-30,cy+18);ctx.stroke();
+    wl(ctx,W-30,cy+22,W-30,cy+50,"#ff9933",1);drawGND(ctx,W-30,cy+50);
+    // Waveform strip
+    var wy=H-34,wh=12,wx=14,ww=W-28;ctx.fillStyle="#0f0d00";rr(ctx,wx,wy-wh,ww,wh*2,3);ctx.fill();
+    ctx.beginPath();ctx.strokeStyle="#00ff88";ctx.lineWidth=2;
+    for(var px=0;px<=ww;px++){var ph=((px/ww*4+t*spd)%1);var y=wy-(ph<D?1:-1)*wh*0.8;if(px===0)ctx.moveTo(wx+px,y);else{var pp=((( px-1)/ww*4+t*spd)%1);if((ph<D)!=(pp<D)){ctx.lineTo(wx+px,pp<D?wy-wh*0.8:wy+wh*0.8);}ctx.lineTo(wx+px,y);}}ctx.stroke();
+    // Vavg line
+    ctx.strokeStyle="#ffe044";ctx.lineWidth=1;ctx.setLineDash([3,4]);ctx.beginPath();ctx.moveTo(wx,wy-D*wh*1.6);ctx.lineTo(wx+ww,wy-D*wh*1.6);ctx.stroke();ctx.setLineDash([]);
+    ctx.fillStyle=ok?"#00ff88":"#ff3355";ctx.font="bold 9px Share Tech Mono";ctx.textAlign="center";ctx.shadowColor=ctx.fillStyle;ctx.shadowBlur=ok?6:0;ctx.fillText("Buck: D="+( D*100).toFixed(0)+"% → Vout="+VOUT.toFixed(1)+"V  Efisiensi ≈90%+",W/2,cy-38);ctx.shadowBlur=0;
+    if(ok)pars(ctx,[[38,cy],[70,cy],[102,cy],[130,cy],[175,cy],[235,cy],[W-36,cy]],t,0.5+D*0.3,"rgba(255,224,68,0.85)",2);
+    requestAnimationFrame(draw);}
+  requestAnimationFrame(draw);read();
+})();
+
+// ═══ BOOST ═══
+(function(){
+  var cvs=el("c-boost"),ctx=cvs.getContext("2d");
+  var VIN=5,VOUT=12,FSW=200,IL=500;
+  function read(){VIN=parseFloat(el("bs-vin").value);VOUT=parseFloat(el("bs-vout").value);FSW=parseFloat(el("bs-f").value);IL=parseFloat(el("bs-il").value);el("bs-vin-v").textContent=VIN.toFixed(1)+" V";el("bs-vout-v").textContent=VOUT.toFixed(1)+" V";el("bs-f-v").textContent=FSW+" kHz";el("bs-il-v").textContent=(IL>=1000?(IL/1000).toFixed(1)+" A":IL+" mA");upd();}
+  function upd(){var ok=VOUT>VIN;var D=ok?1-VIN/VOUT:0;var Iin=ok?IL/(1-D):IL;el("bs-duty").textContent=(D*100).toFixed(1);el("bs-iin").textContent=Iin.toFixed(0);var Lmin=(VIN*D)/(2*FSW*1000*IL*0.3/1000)*1e6;el("bs-lmin").textContent=Lmin.toFixed(1);el("bs-eff").textContent=ok?"88+":"N/A";}
+  ["bs-vin","bs-vout","bs-f","bs-il"].forEach(function(id){el(id).addEventListener("input",read);});
+  function draw(ts){if(activeS!=="boost"){requestAnimationFrame(draw);return;}var W=cvs.width,H=cvs.height,t=ts/300;ctx.clearRect(0,0,W,H);
+    var ok=VOUT>VIN;var D=ok?1-VIN/VOUT:0;var spd=FSW/100;var cy=H/2;
+    rr(ctx,10,cy-28,28,56,3);ctx.fillStyle="#0f0d00";ctx.strokeStyle="#ffe044";ctx.lineWidth=2;ctx.fill();ctx.stroke();ctx.fillStyle="#ffe044";ctx.font="9px Share Tech Mono";ctx.textAlign="center";ctx.fillText(VIN.toFixed(1)+"V",24,cy+40);
+    wl(ctx,38,cy,60,cy,"#ffe044");
+    drawCoil(ctx,90,cy,4,9,20,"#ffe044",ok?8:3);ctx.fillStyle="#ffe044";ctx.font="7px Share Tech Mono";ctx.textAlign="center";ctx.fillText("L",90,cy-22);
+    wl(ctx,120,cy,145,cy,"#ffe044");
+    // Switch to GND
+    var sx=145;drawSwitch(ctx,sx,cy+20,((t*spd)%1)<D,"#00ff88");wl(ctx,sx,cy,sx,cy+4,"#3a3200");wl(ctx,sx,cy+36,sx,cy+50,"#3a3200",1);drawGND(ctx,sx,cy+50);ctx.fillStyle="#00ff88";ctx.font="7px Share Tech Mono";ctx.textAlign="center";ctx.fillText("SW",sx,cy-8);
+    // Diode forward
+    drawDiode(ctx,175,cy,ok?"#ff9933":undefined,ok);
+    wl(ctx,145,cy,163,cy,"#ff9933");wl(ctx,187,cy,210,cy,ok?"#ff9933":"#3a3200");
+    ctx.fillStyle="#ff9933";ctx.font="7px Share Tech Mono";ctx.textAlign="center";ctx.fillText("D",175,cy-20);
+    drawCap(ctx,210,cy,24,"#44aaff");wl(ctx,210,cy+32,210,cy+50,"#44aaff",1);drawGND(ctx,210,cy+50);
+    wl(ctx,210,cy,W-30,cy,ok?"#ffe044":"#3a3200");
+    ctx.fillStyle="#0f0d00";ctx.strokeStyle="#ff9933";ctx.lineWidth=2;rr(ctx,W-36,cy-22,12,44,3);ctx.fill();ctx.stroke();ctx.strokeStyle="#ff9933";ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(W-30,cy-18);for(var j=0;j<=5;j++)ctx.lineTo(W-30+(j%2===0?-5:5),cy-18+j*32/5);ctx.lineTo(W-30,cy+18);ctx.stroke();
+    wl(ctx,W-30,cy+22,W-30,cy+50,"#ff9933",1);drawGND(ctx,W-30,cy+50);
+    ctx.fillStyle=ok?"#00ff88":"#ff3355";ctx.font="bold 9px Share Tech Mono";ctx.textAlign="center";ctx.shadowColor=ctx.fillStyle;ctx.shadowBlur=ok?6:0;ctx.fillText("Boost: D="+( D*100).toFixed(0)+"% | "+VIN.toFixed(1)+"V → "+VOUT.toFixed(1)+"V  Iin="+(ok?IL/(1-D):0).toFixed(0)+"mA",W/2,cy-38);ctx.shadowBlur=0;
+    if(ok)pars(ctx,[[38,cy],[60,cy],[120,cy],[145,cy],[187,cy],[210,cy],[W-36,cy]],t,0.4,"rgba(255,224,68,0.85)",2);
+    requestAnimationFrame(draw);}
+  requestAnimationFrame(draw);read();
+})();
+
+// ═══ BUCK-BOOST ═══
+(function(){
+  var cvs=el("c-buckboost"),ctx=cvs.getContext("2d");
+  var VIN=9,VOUT=9,IL=500;
+  function read(){VIN=parseFloat(el("bb-vin").value);VOUT=parseFloat(el("bb-vout").value);IL=parseFloat(el("bb-il").value);el("bb-vin-v").textContent=VIN.toFixed(1)+" V";el("bb-vout-v").textContent=VOUT.toFixed(1)+" V";el("bb-il-v").textContent=(IL>=1000?(IL/1000).toFixed(1)+" A":IL+" mA");upd();}
+  function upd(){var D=VOUT/(VIN+VOUT);var mode=VOUT>VIN*1.05?"BOOST":VOUT<VIN*0.95?"BUCK":"PASS";el("bb-mode").textContent=mode;el("bb-duty").textContent=(D*100).toFixed(1);el("bb-eff").textContent="87";el("bb-type").textContent="SEPIC";}
+  ["bb-vin","bb-vout","bb-il"].forEach(function(id){el(id).addEventListener("input",read);});
+  function draw(ts){if(activeS!=="buckboost"){requestAnimationFrame(draw);return;}var W=cvs.width,H=cvs.height,t=ts/300;ctx.clearRect(0,0,W,H);
+    var D=VOUT/(VIN+VOUT);var mode=VOUT>VIN*1.05?"BOOST":VOUT<VIN*0.95?"BUCK":"PASS";
+    var modeCol=mode==="BOOST"?"#00ff88":mode==="BUCK"?"#44aaff":"#ffe044";var cy=H/2;
+    // Range diagram
+    var gx=20,gy=40,gw=W-40,gh=40;ctx.fillStyle="#0f0d00";rr(ctx,gx,gy,gw,gh,4);ctx.fill();ctx.strokeStyle="#3a3200";ctx.lineWidth=1;rr(ctx,gx,gy,gw,gh,4);ctx.stroke();
+    var vinX=gx+(VIN/40)*gw;var voutX=gx+(VOUT/40)*gw;
+    ctx.strokeStyle="#ffe044";ctx.lineWidth=2;ctx.setLineDash([3,4]);ctx.beginPath();ctx.moveTo(vinX,gy);ctx.lineTo(vinX,gy+gh);ctx.stroke();ctx.setLineDash([]);
+    ctx.strokeStyle=modeCol;ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(voutX,gy);ctx.lineTo(voutX,gy+gh);ctx.stroke();
+    ctx.fillStyle="#ffe044";ctx.font="8px Share Tech Mono";ctx.textAlign="center";ctx.fillText("Vin="+VIN.toFixed(1)+"V",vinX,gy-5);
+    ctx.fillStyle=modeCol;ctx.fillText("Vout="+VOUT.toFixed(1)+"V",voutX,gy+gh+14);
+    // Arrows showing mode
+    ctx.fillStyle=modeCol;ctx.font="bold 11px Share Tech Mono";ctx.textAlign="center";ctx.shadowColor=modeCol;ctx.shadowBlur=10;ctx.fillText(mode==="BOOST"?"⬆ STEP-UP":mode==="BUCK"?"⬇ STEP-DOWN":"↔ PASS-THROUGH",W/2,cy-10);ctx.shadowBlur=0;
+    ctx.fillStyle=modeCol;ctx.font="9px Share Tech Mono";ctx.textAlign="center";ctx.fillText("D = Vout/(Vin+Vout) = "+(D*100).toFixed(0)+"% | Tipe SEPIC",W/2,cy+14);
+    // Simple topology hint
+    ctx.fillStyle="#ffe044";ctx.font="7px Share Tech Mono";ctx.textAlign="center";ctx.fillText("SEPIC: 2 induktor, 2 kapasitor → Vout bebas dari Vin",W/2,cy+32);
+    ctx.fillStyle="var(--dim)";ctx.fillText("Digunakan: laptop charger, sistem baterai Li-Ion variable",W/2,H-10);
+    requestAnimationFrame(draw);}
+  requestAnimationFrame(draw);read();
+})();
+
+// ═══ CHARGE PUMP ═══
+(function(){
+  var cvs=el("c-charge"),ctx=cvs.getContext("2d");
+  var VIN=5,MODE=0,CP_C=10,CP_F=100;
+  var MODES=["×2 Doubler","Inverter (−Vin)","×3 Tripler"];
+  function read(){VIN=parseFloat(el("cp-vin").value);MODE=parseInt(el("cp-mode").value);CP_C=parseFloat(el("cp-c").value);CP_F=parseFloat(el("cp-f").value);el("cp-vin-v").textContent=VIN.toFixed(1)+" V";el("cp-mode-v").textContent=MODES[MODE];el("cp-c-v").textContent=CP_C+" µF";el("cp-f-v").textContent=CP_F+" kHz";upd();}
+  function upd(){var Vout=MODE===0?VIN*2:MODE===1?-VIN:VIN*3;var Rout=1/(CP_F*1000*CP_C*1e-6);el("cp-mvin").textContent=VIN.toFixed(2);el("cp-mvout").textContent=Math.abs(Vout).toFixed(1)+(MODE===1?" (neg)":"");el("cp-rout").textContent=(Rout*1000).toFixed(0);el("cp-mmode").textContent=["DOUBLER","INVERTER","TRIPLER"][MODE];}
+  ["cp-vin","cp-mode","cp-c","cp-f"].forEach(function(id){el(id).addEventListener("input",read);});
+  function draw(ts){if(activeS!=="charge"){requestAnimationFrame(draw);return;}var W=cvs.width,H=cvs.height,t=ts/300;ctx.clearRect(0,0,W,H);
+    var Vout=MODE===0?VIN*2:MODE===1?-VIN:VIN*3;var spd=CP_F/100;var cy=H/2;
+    // Show capacitor stages
+    var stages=MODE===2?3:2;var stageW=(W-40)/stages;
+    for(var i=0;i<stages;i++){
+      var sx=20+i*stageW;
+      rr(ctx,sx+5,cy-34,stageW-10,68,5);ctx.fillStyle="#0f0d00";ctx.strokeStyle=i===stages-1?"#ffe044":"rgba(255,224,68,0.3)";ctx.lineWidth=2;ctx.fill();ctx.stroke();
+      // Capacitor inside
+      drawCap(ctx,sx+stageW/2,cy,20,i===stages-1?"#ffe044":"#44aaff");
+      // Phase indicator
+      var ph=((t*spd+i*0.5)%1);var charging=ph<0.5;
+      ctx.fillStyle=charging?"#00ff88":"#ff9933";ctx.font="7px Share Tech Mono";ctx.textAlign="center";
+      ctx.fillText(charging?"CHARGE":"DISCHARGE",sx+stageW/2,cy-38);
+      ctx.fillStyle="#ffe044";ctx.font="8px Share Tech Mono";ctx.textAlign="center";ctx.fillText("C"+(i+1)+"="+CP_C+"µF",sx+stageW/2,cy+38);
+    }
+    // Vin → Vout arrow
+    ctx.fillStyle="#ffe044";ctx.font="bold 13px Share Tech Mono";ctx.textAlign="center";ctx.shadowColor="#ffe044";ctx.shadowBlur=10;ctx.fillText(VIN.toFixed(1)+"V → "+Math.abs(Vout).toFixed(1)+"V"+(MODE===1?" (NEG)":""),W/2,H-22);ctx.shadowBlur=0;
+    ctx.fillStyle="var(--dim)";ctx.font="8px Share Tech Mono";ctx.textAlign="center";ctx.fillText(["Doubler: Vin+Vin=2Vin","Inverter: −Vin (negatif)","Tripler: 3×Vin"][MODE],W/2,H-8);
+    requestAnimationFrame(draw);}
+  requestAnimationFrame(draw);read();
+})();
+</script>
+</body>
+</html>

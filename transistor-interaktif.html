@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Animasi Transistor Interaktif</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --p: #cc44ff; --p2: #ee99ff; --pd: #220033; --pg: rgba(180,50,255,.13);
+  --g: #00ff88; --c: #00ccff; --yl: #ffe044; --or: #ff9933; --rd: #ff3355;
+  --bg: #080010; --card: #0c0015; --bdr: #33005a; --dim: #664488;
+  --font: 'Share Tech Mono', monospace; --head: 'Orbitron', monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  background:radial-gradient(ellipse 130% 60% at 50% 0%,#1a0030 0%,#080010 60%);
+  min-height:100vh;font-family:var(--font);color:var(--p2);overflow-x:hidden;
+}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.07) 2px,rgba(0,0,0,.07) 4px);z-index:9999;}
+.wrap{max-width:540px;margin:0 auto;padding:20px 14px 48px;}
+
+header{text-align:center;margin-bottom:26px;}
+.sub{font-size:10px;letter-spacing:6px;color:#330055;margin-bottom:6px;}
+h1{font-family:var(--head);font-size:clamp(16px,5vw,24px);font-weight:900;
+   color:var(--p);text-shadow:0 0 28px rgba(180,50,255,.6);letter-spacing:3px;margin-bottom:10px;}
+.divline{width:90px;height:2px;background:linear-gradient(to right,transparent,var(--p),transparent);margin:0 auto;}
+
+.tabs{display:flex;gap:5px;margin-bottom:18px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;}
+.tabs::-webkit-scrollbar{display:none;}
+.tab{flex:0 0 auto;padding:7px 12px;border:1px solid var(--bdr);border-radius:8px;
+     background:var(--card);color:var(--dim);cursor:pointer;font-family:var(--font);
+     font-size:10px;letter-spacing:1px;transition:all .2s;white-space:nowrap;}
+.tab:hover{border-color:var(--p2);color:var(--p2);}
+.tab.on{border-color:var(--p);background:#180028;color:var(--p);box-shadow:0 0 14px rgba(180,50,255,.25);}
+
+.card{background:var(--card);border:1px solid var(--bdr);border-radius:16px;
+      padding:24px 18px;box-shadow:0 0 40px rgba(180,50,255,.05),inset 0 1px 0 #33005a;}
+
+.scene{display:none;flex-direction:column;align-items:center;gap:18px;}
+.scene.on{display:flex;}
+
+.ctrl{width:100%;background:#080010;border:1px solid var(--bdr);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:10px;}
+.ctrl-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.ctrl-lbl{font-size:11px;color:var(--dim);min-width:96px;letter-spacing:1px;}
+.sl{flex:1;min-width:100px;-webkit-appearance:none;height:4px;
+    background:linear-gradient(to right,var(--p) var(--pct,50%),#33005a var(--pct,50%));
+    border-radius:2px;outline:none;cursor:pointer;}
+.sl::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--p);box-shadow:0 0 8px rgba(180,50,255,.7);cursor:pointer;}
+.sl::-moz-range-thumb{width:16px;height:16px;border-radius:50%;border:none;background:var(--p);box-shadow:0 0 8px rgba(180,50,255,.7);cursor:pointer;}
+.ctrl-val{font-size:12px;color:var(--p);min-width:72px;text-align:right;}
+
+.metrics{display:flex;gap:8px;width:100%;flex-wrap:wrap;}
+.metric{flex:1;min-width:78px;background:#080010;border:1px solid var(--bdr);border-radius:8px;padding:8px 10px;text-align:center;}
+.metric-lbl{font-size:9px;color:var(--dim);letter-spacing:2px;margin-bottom:3px;}
+.metric-val{font-size:14px;color:var(--p);font-weight:bold;}
+.metric-unit{font-size:9px;color:var(--dim);}
+
+.btns{display:flex;gap:10px;}
+.btn{padding:9px 20px;border:2px solid var(--p);border-radius:8px;background:#180028;
+     color:var(--p);cursor:pointer;font-family:var(--font);font-size:12px;letter-spacing:1px;
+     box-shadow:0 0 10px rgba(180,50,255,.15);transition:all .15s;}
+.btn:hover{background:#220038;box-shadow:0 0 18px rgba(180,50,255,.3);}
+.btn.on{background:#220038;border-color:var(--p2);box-shadow:0 0 20px rgba(180,50,255,.4);}
+.btn.off{border-color:#221133;background:var(--bg);color:#443355;box-shadow:none;}
+.btn.off:hover{border-color:#443355;color:#665577;}
+
+.badge{padding:7px 20px;border-radius:30px;font-size:12px;letter-spacing:2px;transition:all .3s;text-align:center;border:1px solid;}
+.info{color:var(--dim);font-size:12px;text-align:center;line-height:1.8;}
+.info span{color:var(--p);}.info .yl{color:var(--yl);}.info .g{color:var(--g);}.info .rd{color:var(--rd);}
+
+canvas{display:block;border-radius:8px;}
+canvas.brd{border:1px solid var(--bdr);background:#080010;}
+footer{text-align:center;margin-top:22px;font-size:10px;letter-spacing:4px;color:#220033;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="sub">◈ SIMULASI INTERAKTIF ◈</div>
+    <h1>TRANSISTOR INTERAKTIF</h1>
+    <div class="divline"></div>
+  </header>
+
+  <div class="tabs">
+    <button class="tab on" data-s="bjt">⚡ BJT Dasar</button>
+    <button class="tab" data-s="switch">🔘 Saklar</button>
+    <button class="tab" data-s="amp">📢 Amplifier</button>
+    <button class="tab" data-s="curves">📈 Kurva IC-VCE</button>
+    <button class="tab" data-s="mosfet">🔷 MOSFET</button>
+  </div>
+
+  <div class="card">
+
+    <!-- ===== SCENE 1: BJT DASAR ===== -->
+    <div class="scene on" id="s-bjt">
+      <canvas id="c-bjt" class="brd" width="460" height="210" style="width:100%"></canvas>
+      <div class="ctrl">
+        <div class="ctrl-row">
+          <span class="ctrl-lbl">🔘 Tipe BJT</span>
+          <input type="range" class="sl" id="bj-type" min="0" max="1" value="0" step="1">
+          <span class="ctrl-val" id="bj-type-v">NPN</span>
+        </div>
+        <div class="ctrl-row">
+          <span class="ctrl-lbl">⚡ VCC</span>
+          <input type="range" class="sl" id="bj-vcc" min="1" max="24" value="12" step="0.5">
+          <span class="ctrl-val" id="bj-vcc-v">12 V</span>
+        </div>
+        <div class="ctrl-row">
+          <span class="ctrl-lbl">📶 Ib (Base)</span>
+          <input type="range" class="sl" id="bj-ib" min="0" max="500" value="50" step="5">
+          <span class="ctrl-val" id="bj-ib-v">50 µA</span>
+        </div>
+        <div class="ctrl-row">
+          <span class="ctrl-lbl">⚙ hFE (β)</span>
+          <input type="range" class="sl" id="bj-hfe" min="20" max="500" value="100" step="10">
+          <span class="ctrl-val" id="bj-hfe-v">100</span>
+        </div>
+      </div>
+      <div class="metrics">
+        <div class="metric"><div class="metric-lbl">Ib</div><div class="metric-val" id="bj-mib">50</div><div class="metric-unit">µA</div></div>
+        <div class="metric"><div class="metric-lbl">Ic</div><div class="metric-val" id="bj-mic">5.00</div><div class="metric-unit">mA</div></div>
+        <div class="metric"><div class="metric-lbl">Ie</div><div class="metric-val" id="bj-mie">5.05</div><div class="metric-unit">mA</div></div>
+        <div class="metric"><div class="metric-lbl">β (hFE)</div><div class="metric-val" id="bj-mhfe">100</div><div class="metric-unit">×</div></div>
+      </div>
+      <div class="badge" id="bj-badge" style="background:#180028;border-color:var(--p);color:var(--p)">● AKTIF</div>
+      <div class="info">Ic = β × Ib &nbsp;|&nbsp; <span>Ie = Ic + Ib</span><br>Base arus kecil → kendalikan arus Collector besar</div>
+    </div>
+
+    <!-- ===== SCENE 2: SAKLAR ===== -->
+    <div class="scene" id="s-switch">
+      <canvas id="c-switch" class="brd" width="460" height="210" style="width:100%"></canvas>
+      <div class="ctrl">
+        <div class="ctrl-row">
+          <span class="ctrl-lbl">⚡ VCC</span>
+          <input type="range" class="sl" id="sw-vcc" min="3" max="24" value="12" step="0.5">
+          <span class="ctrl-val" id="sw-vcc-v">12 V</span>
+        </div>
+        <div class="ctrl-row">
+          <span class="ctrl-lbl">⚙ Rc (Collector)</span>
+          <input type="range" class="sl" id="sw-rc" min="100" max="10000" value="1000" step="100">
+          <span class="ctrl-val" id="sw-rc-v">1.0 kΩ</span>
+        </div>
+        <div class="ctrl-row">
+          <span class="ctrl-lbl">⚙ Rb (Base)</span>
+          <input type="range" class="sl" id="sw-rb" min="1000" max="200000" value="47000" step="1000">
+          <span class="ctrl-val" id="sw-rb-v">47 kΩ</span>
+        </div>
+        <div class="ctrl-row">
+          <span class="ctrl-lbl">⚙ hFE (β)</span>
+          <input type="range" class="sl" id="sw-hfe" min="20" max="500" value="100" step="10">
+          <span class="ctrl-val" id="sw-hfe-v">100</span>
+        </div>
+      </div>
+      <div class="metrics">
+        <div class="metric"><div class="metric-lbl">Ib</div><div class="metric-val" id="sw-mib">0</div><div class="metric-unit">µA</div></div>
+        <div class="metric"><div class="metric-lbl">Ic</div><div class="metric-val" id="sw-mic">0</div><div class="metric-unit">mA</div></div>
+        <div class="metric"><div class="metric-lbl">VCE</div><div class="metric-val" id="sw-vce">12.0</div><div class="metric-unit">V</div></div>
+        <div class="metric"><div class="metric-lbl">BEBAN</div><div class="metric-val" id="sw-load" style="font-size:10px">MATI</div><div class="metric-unit"></div></div>
+      </div>
+      <div class="btns">
+        <button class="btn off" id="sw-btn">⚡ INPUT HIGH (5V)</button>
+      </div>
+      <div class="badge" id="sw-badge" style="background:#080010;border-color:#221133;color:#443355">✕ CUT-OFF (OFF)</div>
+      <div class="info" id="sw-info">Transistor sebagai <span>saklar digital</span><br>Input HIGH → transistor jenuh → beban ON</div>
+    </div>
+
+    <!-- ===== SCENE 3: AMPLIFIER ===== -->
+    <div class="scene" id="s-amp">
+      <canvas id="c-amp" class="brd" width="460" height="210" style="width:100%"></canvas>
+      <div class="ctrl">
+        <div class="ctrl-row">
+          <span class="ctrl-lbl">⚡ VCC</span>
+          <input type="range" class="sl" id="am-vcc" min="5" max="24" value="12" step="0.5">
+          <span class="ctrl-val" id="am-vcc-v">12 V</span>
+        </div>
+        <div class="ctrl-row">
+          <span class="ctrl-lbl">⚙ Rc</span>
+          <input type="range" class="sl" id="am-rc" min="100" max="10000" value="2200" step="100">
+          <span class="ctrl-val" id="am-rc-v">2.2 kΩ</span>
+        </div>
+        <div class="ctrl-row">
+          <span class="ctrl-lbl">📶 Vin (mV peak)</span>
+          <input type="range" class="sl" id="am-vin" min="1" max="200" value="20" step="1">
+          <span class="ctrl-val" id="am-vin-v">20 mV</span>
+        </div>
+        <div class="ctrl-row">
+          <span class="ctrl-lbl">⚙ hFE (β)</span>
+          <input type="range" class="sl" id="am-hfe" min="20" max="500" value="150" step="10">
+          <span class="ctrl-val" id="am-hfe-v">150</span>
+        </div>
+        <div class="ctrl-row">
+          <span class="ctrl-lbl">📶 Frekuensi</span>
+          <input type="range" class="sl" id="am-freq" min="20" max="2000" value="100" step="10">
+          <span class="ctrl-val" id="am-freq-v">100 Hz</span>
+        </div>
+      </div>
+      <div class="metrics">
+        <div class="metric"><div class="metric-lbl">GAIN (Av)</div><div class="metric-val" id="am-gain">-</div><div class="metric-unit">×</div></div>
+        <div class="metric"><div class="metric-lbl">Vout peak</div><div class="metric-val" id="am-vout">-</div><div class="metric-unit">mV</div></div>
+        <div class="metric"><div class="metric-lbl">Ic quiescent</div><div class="metric-val" id="am-icq">-</div><div class="metric-unit">mA</div></div>
+        <div class="metric"><div class="metric-lbl">FASA</div><div class="metric-val" id="am-phase" style="font-size:11px">180°</div><div class="metric-unit">inv</div></div>
+      </div>
+      <div class="info">Common Emitter: <span>Av = −β×Rc/re</span><br>Sinyal output <span class="rd">terbalik fase 180°</span></div>
+    </div>
+
+    <!-- ===== SCENE 4: KURVA IC-VCE ===== -->
+    <div class="scene" id="s-curves">
+      <canvas id="c-curves" class="brd" width="460" height="250" style="width:100%"></canvas>
+      <div class="ctrl">
+        <div class="ctrl-row">
+          <span class="ctrl-lbl">⚙ hFE (β)</span>
+          <input type="range" class="sl" id="cv-hfe" min="20" max="500" value="100" step="10">
+          <span class="ctrl-val" id="cv-hfe-v">100</span>
+        </div>
+        <div class="ctrl-row">
+          <span class="ctrl-lbl">📶 Ib titik uji</span>
+          <input type="range" class="sl" id="cv-ib" min="0" max="200" value="50" step="5">
+          <span class="ctrl-val" id="cv-ib-v">50 µA</span>
+        </div>
+        <div class="ctrl-row">
+          <span class="ctrl-lbl">⚡ VCE titik uji</span>
+          <input type="range" class="sl" id="cv-vce" min="0" max="20" value="6" step="0.1">
+          <span class="ctrl-val" id="cv-vce-v">6.0 V</span>
+        </div>
+      </div>
+      <div class="metrics">
+        <div class="metric"><div class="metric-lbl">Ic</div><div class="metric-val" id="cv-mic">5.00</div><div class="metric-unit">mA</div></div>
+        <div class="metric"><div class="metric-lbl">REGION</div><div class="metric-val" id="cv-reg" style="font-size:10px">AKTIF</div><div class="metric-unit"></div></div>
+        <div class="metric"><div class="metric-lbl">Pdis</div><div class="metric-val" id="cv-pdis">30.0</div><div class="metric-unit">mW</div></div>
+      </div>
+      <div class="info">Kurva karakteristik output BJT<br>Region: <span>Aktif</span> | <span class="yl">Jenuh</span> | <span class="rd">Cutoff</span></div>
+    </div>
+
+    <!-- ===== SCENE 5: MOSFET ===== -->
+    <div class="scene" id="s-mosfet">
+      <canvas id="c-mosfet" class="brd" width="460" height="210" style="width:100%"></canvas>
+      <div class="ctrl">
+        <div class="ctrl-row">
+          <span class="ctrl-lbl">🔘 Tipe</span>
+          <input type="range" class="sl" id="mf-type" min="0" max="1" value="0" step="1">
+          <span class="ctrl-val" id="mf-type-v">N-Channel</span>
+        </div>
+        <div class="ctrl-row">
+          <span class="ctrl-lbl">⚡ VDD</span>
+          <input type="range" class="sl" id="mf-vdd" min="3" max="24" value="12" step="0.5">
+          <span class="ctrl-val" id="mf-vdd-v">12 V</span>
+        </div>
+        <div class="ctrl-row">
+          <span class="ctrl-lbl">🔌 VGS (Gate)</span>
+          <input type="range" class="sl" id="mf-vgs" min="0" max="12" value="0" step="0.1">
+          <span class="ctrl-val" id="mf-vgs-v">0.0 V</span>
+        </div>
+        <div class="ctrl-row">
+          <span class="ctrl-lbl">🔒 Vth (threshold)</span>
+          <input type="range" class="sl" id="mf-vth" min="1" max="6" value="2.5" step="0.1">
+          <span class="ctrl-val" id="mf-vth-v">2.5 V</span>
+        </div>
+        <div class="ctrl-row">
+          <span class="ctrl-lbl">⚙ Rd (Drain)</span>
+          <input type="range" class="sl" id="mf-rd" min="100" max="10000" value="1000" step="100">
+          <span class="ctrl-val" id="mf-rd-v">1.0 kΩ</span>
+        </div>
+      </div>
+      <div class="metrics">
+        <div class="metric"><div class="metric-lbl">VGS</div><div class="metric-val" id="mf-mvgs">0.0</div><div class="metric-unit">V</div></div>
+        <div class="metric"><div class="metric-lbl">ID</div><div class="metric-val" id="mf-mid">0.0</div><div class="metric-unit">mA</div></div>
+        <div class="metric"><div class="metric-lbl">VDS</div><div class="metric-val" id="mf-mvds">12.0</div><div class="metric-unit">V</div></div>
+        <div class="metric"><div class="metric-lbl">STATUS</div><div class="metric-val" id="mf-mstatus" style="font-size:10px">OFF</div><div class="metric-unit"></div></div>
+      </div>
+      <div class="badge" id="mf-badge" style="background:#080010;border-color:#221133;color:#443355">✕ CHANNEL TERTUTUP</div>
+      <div class="info">MOSFET: <span>dikontrol tegangan Gate</span><br>VGS &gt; Vth → channel terbuka → arus mengalir</div>
+    </div>
+
+  </div>
+  <footer>◈ SIMULASI TRANSISTOR INTERAKTIF ◈</footer>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+let activeScene = 'bjt';
+
+// Slider pct
+document.querySelectorAll('.sl').forEach(s => {
+  const u = () => { const p=((s.value-s.min)/(s.max-s.min)*100).toFixed(1)+'%'; s.style.setProperty('--pct',p); };
+  u(); s.addEventListener('input', u);
+});
+
+// Tabs
+document.querySelectorAll('.tab').forEach(t => {
+  t.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
+    document.querySelectorAll('.scene').forEach(x=>x.classList.remove('on'));
+    t.classList.add('on'); activeScene=t.dataset.s; $('s-'+activeScene).classList.add('on');
+  });
+});
+
+// ── UTILS ─────────────────────────────────────────────────────
+function fmtR(v){ if(v>=1e6)return(v/1e6).toFixed(2)+' MΩ'; if(v>=1e3)return(v/1e3).toFixed(1)+' kΩ'; return v.toFixed(0)+' Ω'; }
+function rr(ctx,x,y,w,h,r){
+  ctx.beginPath(); ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y); ctx.arcTo(x+w,y,x+w,y+r,r);
+  ctx.lineTo(x+w,y+h-r); ctx.arcTo(x+w,y+h,x+w-r,y+h,r); ctx.lineTo(x+r,y+h);
+  ctx.arcTo(x,y+h,x,y+h-r,r); ctx.lineTo(x,y+r); ctx.arcTo(x,y,x+r,y,r); ctx.closePath();
+}
+
+function drawParticles(ctx,pts,t,spd,col,n){
+  for(let s=0;s<pts.length-1;s++){
+    const [x1,y1]=pts[s],[x2,y2]=pts[s+1];
+    for(let i=0;i<n;i++){
+      const f=((t*spd+s*0.33+i/n)%1);
+      const px=x1+f*(x2-x1), py=y1+f*(y2-y1);
+      if(px<Math.min(x1,x2)-2||px>Math.max(x1,x2)+2)continue;
+      if(py<Math.min(y1,y2)-2||py>Math.max(y1,y2)+2)continue;
+      ctx.beginPath(); ctx.arc(px,py,3,0,Math.PI*2);
+      ctx.fillStyle=col; ctx.shadowColor=col; ctx.shadowBlur=8; ctx.fill(); ctx.shadowBlur=0;
+    }
+  }
+}
+
+// Draw NPN transistor symbol
+function drawNPN(ctx, cx, cy, sz, conducting, Vbe_active){
+  const s=sz||28;
+  ctx.save(); ctx.translate(cx,cy);
+  const col = conducting ? '#cc44ff' : '#442255';
+  const glowB = conducting ? 14 : 0;
+
+  // Body circle
+  ctx.beginPath(); ctx.arc(0,0,s,0,Math.PI*2);
+  ctx.fillStyle='#0c0015'; ctx.strokeStyle=col; ctx.lineWidth=2;
+  ctx.shadowColor=col; ctx.shadowBlur=glowB; ctx.fill(); ctx.stroke(); ctx.shadowBlur=0;
+
+  // Base lead (left)
+  ctx.strokeStyle=col; ctx.lineWidth=2.5;
+  ctx.beginPath(); ctx.moveTo(-s,0); ctx.lineTo(-s*0.35,0); ctx.stroke();
+  // Vertical base bar
+  ctx.beginPath(); ctx.moveTo(-s*0.35,-s*0.55); ctx.lineTo(-s*0.35,s*0.55); ctx.stroke();
+
+  // Collector (top right) with arrow
+  ctx.beginPath(); ctx.moveTo(-s*0.35,-s*0.3); ctx.lineTo(s*0.75,-s*0.75); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(s*0.75,-s*0.75); ctx.lineTo(s*0.75,-s*1.1); ctx.stroke();
+
+  // Emitter (bottom right) with arrow
+  ctx.beginPath(); ctx.moveTo(-s*0.35,s*0.3); ctx.lineTo(s*0.75,s*0.75); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(s*0.75,s*0.75); ctx.lineTo(s*0.75,s*1.1); ctx.stroke();
+
+  // Emitter arrow
+  const ax=s*0.75, ay=s*0.75;
+  const ang=Math.atan2(ay-s*0.3, ax+s*0.35);
+  ctx.fillStyle=col;
+  ctx.save(); ctx.translate(ax*0.6,ay*0.6); ctx.rotate(ang);
+  ctx.beginPath(); ctx.moveTo(0,-4); ctx.lineTo(8,0); ctx.lineTo(0,4); ctx.closePath(); ctx.fill();
+  ctx.restore();
+
+  // Labels
+  ctx.fillStyle='#664488'; ctx.font='9px Share Tech Mono'; ctx.textAlign='center';
+  ctx.fillText('B',-s-8,4); ctx.fillText('C',s*0.75+12,-s*1.1+4); ctx.fillText('E',s*0.75+12,s*1.1+4);
+
+  ctx.restore();
+}
+
+// Draw PNP transistor symbol
+function drawPNP(ctx, cx, cy, sz, conducting){
+  const s=sz||28;
+  ctx.save(); ctx.translate(cx,cy);
+  const col = conducting ? '#ff9933' : '#443322';
+
+  ctx.beginPath(); ctx.arc(0,0,s,0,Math.PI*2);
+  ctx.fillStyle='#0c0015'; ctx.strokeStyle=col; ctx.lineWidth=2;
+  ctx.shadowColor=col; ctx.shadowBlur=conducting?14:0; ctx.fill(); ctx.stroke(); ctx.shadowBlur=0;
+
+  ctx.strokeStyle=col; ctx.lineWidth=2.5;
+  ctx.beginPath(); ctx.moveTo(-s,0); ctx.lineTo(-s*0.35,0); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(-s*0.35,-s*0.55); ctx.lineTo(-s*0.35,s*0.55); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(-s*0.35,-s*0.3); ctx.lineTo(s*0.75,-s*0.75); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(s*0.75,-s*0.75); ctx.lineTo(s*0.75,-s*1.1); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(-s*0.35,s*0.3); ctx.lineTo(s*0.75,s*0.75); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(s*0.75,s*0.75); ctx.lineTo(s*0.75,s*1.1); ctx.stroke();
+
+  // PNP arrow points INWARD on emitter
+  const ax=-s*0.35+4, ay=s*0.3+4;
+  const ang=Math.atan2(s*0.75-s*0.3, s*0.75+s*0.35)+Math.PI;
+  ctx.fillStyle=col;
+  ctx.save(); ctx.translate(ax+18,ay+18); ctx.rotate(ang);
+  ctx.beginPath(); ctx.moveTo(0,-4); ctx.lineTo(8,0); ctx.lineTo(0,4); ctx.closePath(); ctx.fill();
+  ctx.restore();
+
+  ctx.fillStyle='#664433'; ctx.font='9px Share Tech Mono'; ctx.textAlign='center';
+  ctx.fillText('B',-s-8,4); ctx.fillText('C',s*0.75+12,-s*1.1+4); ctx.fillText('E',s*0.75+12,s*1.1+4);
+  ctx.restore();
+}
+
+// Draw MOSFET symbol
+function drawNMOS(ctx, cx, cy, sz, conducting){
+  const s=sz||28;
+  ctx.save(); ctx.translate(cx,cy);
+  const col = conducting ? '#00ccff' : '#003344';
+
+  ctx.beginPath(); ctx.arc(0,0,s,0,Math.PI*2);
+  ctx.fillStyle='#0c0015'; ctx.strokeStyle=col; ctx.lineWidth=2;
+  ctx.shadowColor=col; ctx.shadowBlur=conducting?16:0; ctx.fill(); ctx.stroke(); ctx.shadowBlur=0;
+
+  // Gate lead
+  ctx.strokeStyle=col; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(-s,0); ctx.lineTo(-s*0.4,0); ctx.stroke();
+  // Gate plate
+  ctx.beginPath(); ctx.moveTo(-s*0.4,-s*0.7); ctx.lineTo(-s*0.4,s*0.7); ctx.stroke();
+  // Oxide gap
+  ctx.beginPath(); ctx.moveTo(-s*0.2,-s*0.7); ctx.lineTo(-s*0.2,s*0.7);
+  ctx.strokeStyle=col+(conducting?'99':'44'); ctx.lineWidth=3; ctx.stroke();
+
+  // Channel segments
+  ctx.strokeStyle=col; ctx.lineWidth=2;
+  [-s*0.5,-s*0.1,s*0.3].forEach(y=>{
+    ctx.beginPath(); ctx.moveTo(-s*0.05,y); ctx.lineTo(s*0.6,y); ctx.stroke();
+  });
+  ctx.beginPath(); ctx.moveTo(s*0.6,-s*0.5); ctx.lineTo(s*0.6,s*0.3); ctx.stroke();
+
+  // Drain & Source
+  ctx.beginPath(); ctx.moveTo(s*0.6,-s*0.5); ctx.lineTo(s*0.6,-s*1.1); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(s*0.6,s*0.3); ctx.lineTo(s*0.6,s*1.1); ctx.stroke();
+
+  // Arrow showing N-channel
+  ctx.fillStyle=col;
+  ctx.save(); ctx.translate(s*0.05,0); ctx.rotate(Math.PI);
+  ctx.beginPath(); ctx.moveTo(0,-4); ctx.lineTo(8,0); ctx.lineTo(0,4); ctx.closePath(); ctx.fill();
+  ctx.restore();
+
+  ctx.fillStyle='#446688'; ctx.font='9px Share Tech Mono'; ctx.textAlign='center';
+  ctx.fillText('G',-s-8,4); ctx.fillText('D',s*0.6+12,-s*1.1+4); ctx.fillText('S',s*0.6+12,s*1.1+4);
+  ctx.restore();
+}
+
+// Draw resistor helper
+function drawRes(ctx, x, y, w, h, val, col){
+  ctx.fillStyle='#0c0015'; ctx.strokeStyle=col||'#ff9933'; ctx.lineWidth=2;
+  rr(ctx,x,y,w,h,3); ctx.fill(); ctx.stroke();
+  ctx.strokeStyle=col||'#ff9933'; ctx.lineWidth=1.3; ctx.beginPath();
+  const zx=x+6; ctx.moveTo(zx,y+h/2);
+  for(let i=0;i<=6;i++) ctx.lineTo(zx+i*(w-12)/6, y+h/2+(i%2===0?-(h/2-3):(h/2-3)));
+  ctx.lineTo(x+w-6,y+h/2); ctx.stroke();
+  if(val){ ctx.fillStyle=col||'#ff9933'; ctx.font='9px Share Tech Mono'; ctx.textAlign='center'; ctx.fillText(val,x+w/2,y+h+12); }
+}
+
+// ── SCENE 1: BJT DASAR ────────────────────────────────────────
+(function(){
+  const cvs=$('c-bjt'),ctx=cvs.getContext('2d');
+  let type=0,VCC=12,Ib=50,hfe=100;
+
+  function read(){
+    type=+$('bj-type').value|0; VCC=+$('bj-vcc').value; Ib=+$('bj-ib').value; hfe=+$('bj-hfe').value;
+    $('bj-type-v').textContent=type===0?'NPN':'PNP';
+    $('bj-vcc-v').textContent=VCC+' V';
+    $('bj-ib-v').textContent=Ib+' µA';
+    $('bj-hfe-v').textContent=hfe;
+    updateMetrics();
+  }
+  ['bj-type','bj-vcc','bj-ib','bj-hfe'].forEach(id=>$(id).addEventListener('input',read));
+
+  function updateMetrics(){
+    const Ic=Ib*hfe/1000, Ie=Ic+Ib/1000;
+    const conducting=Ib>0;
+    $('bj-mib').textContent=Ib; $('bj-mic').textContent=Ic.toFixed(2); $('bj-mie').textContent=Ie.toFixed(2); $('bj-mhfe').textContent=hfe;
+    const b=$('bj-badge');
+    if(!conducting){ b.textContent='○ CUT-OFF'; b.style.borderColor='#221133'; b.style.color='#443355'; b.style.background='#080010'; }
+    else if(Ic>VCC/100){ b.textContent='▼ JENUH'; b.style.borderColor='var(--yl)'; b.style.color='var(--yl)'; b.style.background='#1a1400'; }
+    else { b.textContent='● AKTIF'; b.style.borderColor='var(--p)'; b.style.color='var(--p)'; b.style.background='#180028'; }
+  }
+
+  function draw(ts){
+    if(activeScene!=='bjt'){requestAnimationFrame(draw);return;}
+    const W=cvs.width,H=cvs.height,t=ts/700;
+    ctx.clearRect(0,0,W,H);
+    const Ic=Ib*hfe/1000, conducting=Ib>0;
+    const ic_norm=Math.min(Ic/(VCC/500),1), ib_norm=Math.min(Ib/500,1);
+
+    // Transistor symbol center
+    const tx=W/2+20, ty=H/2;
+    if(type===0) drawNPN(ctx,tx,ty,32,conducting);
+    else drawPNP(ctx,tx,ty,32,conducting);
+
+    // VCC supply (top)
+    ctx.fillStyle='#cc44ff'; ctx.font='bold 11px Share Tech Mono'; ctx.textAlign='center';
+    ctx.fillText('VCC='+VCC+'V', tx+36, 18);
+    ctx.strokeStyle='#441166'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(tx+36,22); ctx.lineTo(tx+36,ty-46); ctx.stroke();
+
+    // Collector resistor
+    const rcX=tx+36-15, rcY=ty-46, rcW=30, rcH=44;
+    drawRes(ctx,rcX,rcY,rcW,rcH,'Rc','#ff9933');
+    ctx.strokeStyle='#441166'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(tx+36,rcY+rcH); ctx.lineTo(tx+36,ty-35); ctx.stroke();
+
+    // Ground (bottom emitter)
+    ctx.strokeStyle='#441166'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(tx+36,ty+35); ctx.lineTo(tx+36,H-20); ctx.stroke();
+    [20,13,6].forEach((w,i)=>{
+      ctx.beginPath(); ctx.moveTo(tx+36-w,H-20+i*5); ctx.lineTo(tx+36+w,H-20+i*5); ctx.strokeStyle='#554466'; ctx.stroke();
+    });
+
+    // Base circuit (left)
+    const bx=80;
+    ctx.strokeStyle='#441166'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(bx,H/2); ctx.lineTo(tx-64,H/2); ctx.stroke();
+
+    // Base resistor
+    drawRes(ctx,bx-14,H/2-22,28,44,null,'#cc44ff');
+    ctx.strokeStyle='#441166'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(bx,ty-22); ctx.lineTo(bx,20); ctx.stroke();
+    ctx.fillStyle='#cc44ff'; ctx.font='9px Share Tech Mono'; ctx.textAlign='center';
+    ctx.fillText('Rb',bx,H/2+56); ctx.fillText('Vb',bx,14);
+
+    // Input voltage source symbol
+    ctx.beginPath(); ctx.arc(bx,40,12,0,Math.PI*2);
+    ctx.fillStyle='#0c0015'; ctx.strokeStyle='#cc44ff'; ctx.lineWidth=2; ctx.fill(); ctx.stroke();
+    ctx.fillStyle='#cc44ff'; ctx.font='10px Share Tech Mono'; ctx.textAlign='center';
+    ctx.fillText('~',bx,44);
+
+    // Labels
+    ctx.fillStyle='#664488'; ctx.font='9px Share Tech Mono'; ctx.textAlign='center';
+    ctx.fillText('Ib='+Ib+'µA',tx-55,H/2-10);
+    ctx.fillStyle='#cc44ff'; ctx.font='bold 10px Share Tech Mono';
+    ctx.fillText('Ic='+Ic.toFixed(2)+'mA',tx+36+28,ty-10);
+
+    // Amplification display
+    const ax=60,ay=H-55,aw=W-120;
+    ctx.fillStyle='#0c0015'; ctx.strokeStyle='#332244'; ctx.lineWidth=1;
+    rr(ctx,ax,ay,aw,28,4); ctx.fill(); ctx.stroke();
+    const fillW=Math.max(2,ic_norm*aw);
+    ctx.fillStyle='#cc44ff'; ctx.shadowColor='#cc44ff'; ctx.shadowBlur=ic_norm*8;
+    rr(ctx,ax,ay,fillW,28,4); ctx.fill(); ctx.shadowBlur=0;
+    ctx.fillStyle='#fff'; ctx.font='9px Share Tech Mono'; ctx.textAlign='center';
+    ctx.fillText('Ic = β × Ib = '+hfe+' × '+Ib+'µA = '+Ic.toFixed(2)+'mA', W/2, ay+17);
+
+    // Particles
+    if(conducting){
+      // Base current (small)
+      const ib_spd=0.2+ib_norm*0.3;
+      drawParticles(ctx,[[bx,H/2],[tx-64,H/2]],t,ib_spd,'rgba(200,100,255,0.7)',1);
+      // Collector current (large)
+      const ic_spd=0.3+ic_norm*0.8;
+      drawParticles(ctx,[[tx+36,rcY+rcH],[tx+36,ty-35]],t,ic_spd,'rgba(180,50,255,0.9)',2);
+      drawParticles(ctx,[[tx+36,ty+35],[tx+36,H-20]],t,ic_spd,'rgba(180,50,255,0.6)',2);
+    }
+
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
+  read();
+})();
+
+// ── SCENE 2: SAKLAR ───────────────────────────────────────────
+(function(){
+  const cvs=$('c-switch'),ctx=cvs.getContext('2d');
+  let VCC=12,Rc=1000,Rb=47000,hfe=100,inputHigh=false;
+  const particles=[];
+  for(let i=0;i<20;i++) particles.push({x:0,y:0,vx:0,vy:0,life:0});
+
+  function read(){
+    VCC=+$('sw-vcc').value; Rc=+$('sw-rc').value; Rb=+$('sw-rb').value; hfe=+$('sw-hfe').value;
+    $('sw-vcc-v').textContent=VCC+' V';
+    $('sw-rc-v').textContent=fmtR(Rc);
+    $('sw-rb-v').textContent=fmtR(Rb);
+    $('sw-hfe-v').textContent=hfe;
+    updateMetrics();
+  }
+  ['sw-vcc','sw-rc','sw-rb','sw-hfe'].forEach(id=>$(id).addEventListener('input',read));
+
+  let btnOn=false;
+  $('sw-btn').addEventListener('click',()=>{
+    btnOn=!btnOn;
+    inputHigh=btnOn;
+    $('sw-btn').textContent=btnOn?'✕ INPUT LOW (0V)':'⚡ INPUT HIGH (5V)';
+    $('sw-btn').className=btnOn?'btn on':'btn off';
+    updateMetrics();
+  });
+
+  function updateMetrics(){
+    const Vin=inputHigh?5:0;
+    const Ib=inputHigh?Math.max(0,(Vin-0.7)/Rb*1e6):0;
+    const IcSat=VCC/Rc*1000;
+    const IcAct=Ib*hfe/1000;
+    const saturated=IcAct>=IcSat;
+    const Ic=saturated?IcSat:IcAct;
+    const VCE=saturated?0.2:VCC-Ic/1000*Rc;
+    $('sw-mib').textContent=Ib.toFixed(0);
+    $('sw-mic').textContent=Ic.toFixed(2);
+    $('sw-vce').textContent=VCE.toFixed(2);
+    const st=$('sw-load'),b=$('sw-badge');
+    if(!inputHigh){
+      st.textContent='MATI'; st.style.color='var(--dim)';
+      b.textContent='✕ CUT-OFF (OFF)'; b.style.borderColor='#221133'; b.style.color='#443355'; b.style.background='#080010';
+    } else if(saturated){
+      st.textContent='HIDUP ✓'; st.style.color='var(--g)';
+      b.textContent='▶ JENUH (ON)'; b.style.borderColor='var(--g)'; b.style.color='var(--g)'; b.style.background='#001a0a';
+    } else {
+      st.textContent='PARSIAL'; st.style.color='var(--yl)';
+      b.textContent='◎ AKTIF'; b.style.borderColor='var(--yl)'; b.style.color='var(--yl)'; b.style.background='#1a1400';
+    }
+  }
+
+  function spawnSpark(x,y){
+    const p=particles.find(p=>p.life<=0); if(!p)return;
+    p.x=x; p.y=y; const a=Math.random()*Math.PI*2;
+    p.vx=Math.cos(a)*(1+Math.random()*3); p.vy=Math.sin(a)*(1+Math.random()*3);
+    p.life=20+Math.random()*20; p.maxLife=p.life;
+  }
+
+  let frame=0;
+  function draw(ts){
+    if(activeScene!=='switch'){requestAnimationFrame(draw);return;}
+    const W=cvs.width,H=cvs.height,t=ts/700;
+    ctx.clearRect(0,0,W,H); frame++;
+
+    const Vin=inputHigh?5:0;
+    const Ib=inputHigh?Math.max(0,(Vin-0.7)/Rb*1e6):0;
+    const IcSat=VCC/Rc*1000, IcAct=Ib*hfe/1000;
+    const saturated=IcAct>=IcSat, conducting=inputHigh&&Ib>0;
+    const Ic=saturated?IcSat:IcAct;
+    const ic_norm=Math.min(Ic/IcSat,1);
+
+    const tx=W/2-20,ty=H/2;
+    drawNPN(ctx,tx,ty,30,conducting);
+
+    // VCC
+    ctx.fillStyle='#cc44ff'; ctx.font='bold 10px Share Tech Mono'; ctx.textAlign='center';
+    ctx.fillText('VCC='+VCC+'V',tx+34,15);
+    ctx.strokeStyle='#331144'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(tx+34,18); ctx.lineTo(tx+34,ty-42); ctx.stroke();
+
+    // Rc
+    drawRes(ctx,tx+20,ty-42,28,40,fmtR(Rc).replace(' ',''),'#ff9933');
+    ctx.strokeStyle='#331144'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(tx+34,ty-2); ctx.lineTo(tx+34,ty-2); ctx.stroke();
+
+    // Load (LED/bulb)
+    const loadX=W-60, loadY=ty;
+    ctx.strokeStyle='#331144'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(tx+34,ty-42); ctx.lineTo(loadX,ty-42); ctx.lineTo(loadX,loadY-20); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(loadX,loadY+20); ctx.lineTo(loadX,H-20); ctx.lineTo(tx+34,H-20); ctx.lineTo(tx+34,ty+34); ctx.stroke();
+
+    // Load bulb
+    const litColor=conducting?'#ffe044':'#332200';
+    if(conducting&&frame%3===0) spawnSpark(loadX,loadY);
+    ctx.beginPath(); ctx.arc(loadX,loadY,20,0,Math.PI*2);
+    ctx.fillStyle=conducting?'#1a1400':'#0c0010';
+    ctx.strokeStyle=litColor; ctx.lineWidth=2;
+    ctx.shadowColor=litColor; ctx.shadowBlur=conducting?ic_norm*20:0;
+    ctx.fill(); ctx.stroke(); ctx.shadowBlur=0;
+    ctx.fillStyle=litColor; ctx.font='14px serif'; ctx.textAlign='center';
+    ctx.fillText('💡',loadX,loadY+5);
+    ctx.fillStyle=conducting?'#ffe044':'#443322'; ctx.font='8px Share Tech Mono';
+    ctx.fillText(conducting?'ON':'OFF',loadX,loadY+30);
+
+    // Rb & input
+    const rbX=60;
+    ctx.strokeStyle='#331144'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(rbX,ty); ctx.lineTo(tx-42,ty); ctx.stroke();
+    drawRes(ctx,rbX-14,ty-22,28,44,null,'#cc44ff');
+    ctx.strokeStyle='#331144';
+    ctx.beginPath(); ctx.moveTo(rbX,ty-22); ctx.lineTo(rbX,28); ctx.stroke();
+
+    // Input signal
+    ctx.beginPath(); ctx.arc(rbX,40,16,0,Math.PI*2);
+    ctx.fillStyle='#0c0015';
+    ctx.strokeStyle=inputHigh?'#cc44ff':'#221133'; ctx.lineWidth=2;
+    ctx.shadowColor=inputHigh?'#cc44ff':'transparent'; ctx.shadowBlur=inputHigh?10:0;
+    ctx.fill(); ctx.stroke(); ctx.shadowBlur=0;
+    ctx.fillStyle=inputHigh?'#cc44ff':'#443355'; ctx.font='bold 9px Share Tech Mono'; ctx.textAlign='center';
+    ctx.fillText(inputHigh?'HI':'LO',rbX,44);
+    ctx.fillStyle='#664488'; ctx.font='9px Share Tech Mono';
+    ctx.fillText(inputHigh?'5V':'0V',rbX,14);
+
+    // Ground
+    ctx.strokeStyle='#331144'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(tx+34,ty+34); ctx.lineTo(tx+34,H-20); ctx.stroke();
+    [18,12,6].forEach((w,i)=>{ ctx.beginPath(); ctx.moveTo(tx+34-w,H-20+i*5); ctx.lineTo(tx+34+w,H-20+i*5); ctx.strokeStyle='#443355'; ctx.stroke(); });
+
+    // Rb label
+    ctx.fillStyle='#664488'; ctx.font='9px Share Tech Mono'; ctx.textAlign='center';
+    ctx.fillText(fmtR(Rb).replace(' ',''),rbX,ty+56);
+
+    // Particles (sparks from bulb)
+    particles.forEach(p=>{
+      if(p.life<=0)return;
+      p.x+=p.vx; p.y+=p.vy; p.vy+=0.1; p.life--;
+      const a=p.life/p.maxLife;
+      ctx.beginPath(); ctx.arc(p.x,p.y,2,0,Math.PI*2);
+      ctx.fillStyle=`rgba(255,220,50,${a*0.8})`; ctx.shadowColor='#ffe044'; ctx.shadowBlur=5; ctx.fill(); ctx.shadowBlur=0;
+    });
+
+    if(conducting){
+      drawParticles(ctx,[[rbX,ty],[tx-42,ty]],t,0.3+0.2,'rgba(180,80,255,0.7)',1);
+      drawParticles(ctx,[[tx+34,ty-42],[loadX,ty-42],[loadX,ty-20]],t,0.4+ic_norm*0.5,'rgba(255,220,50,0.9)',2);
+      drawParticles(ctx,[[loadX,ty+20],[loadX,H-20],[tx+34,H-20],[tx+34,ty+34]],t,0.4+ic_norm*0.5,'rgba(255,220,50,0.6)',2);
+    }
+
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
+  read();
+})();
+
+// ── SCENE 3: AMPLIFIER ────────────────────────────────────────
+(function(){
+  const cvs=$('c-amp'),ctx=cvs.getContext('2d');
+  let VCC=12,Rc=2200,Vin_mV=20,hfe=150,FREQ=100;
+
+  function read(){
+    VCC=+$('am-vcc').value; Rc=+$('am-rc').value; Vin_mV=+$('am-vin').value; hfe=+$('am-hfe').value; FREQ=+$('am-freq').value;
+    $('am-vcc-v').textContent=VCC+' V'; $('am-rc-v').textContent=fmtR(Rc);
+    $('am-vin-v').textContent=Vin_mV+' mV'; $('am-hfe-v').textContent=hfe; $('am-freq-v').textContent=FREQ+' Hz';
+    updateMetrics();
+  }
+  ['am-vcc','am-rc','am-vin','am-hfe','am-freq'].forEach(id=>$(id).addEventListener('input',read));
+
+  function updateMetrics(){
+    const Icq=VCC/(2*Rc)*1000;
+    const re=26/Icq;
+    const Av=hfe*Rc/((hfe+1)*re);
+    const Vout_mV=Vin_mV*Av;
+    $('am-gain').textContent=Av.toFixed(0);
+    $('am-vout').textContent=Vout_mV.toFixed(0);
+    $('am-icq').textContent=Icq.toFixed(2);
+    $('am-phase').textContent='180°';
+  }
+
+  function draw(ts){
+    if(activeScene!=='amp'){requestAnimationFrame(draw);return;}
+    const W=cvs.width,H=cvs.height,t=ts/300;
+    ctx.clearRect(0,0,W,H);
+
+    const Icq=VCC/(2*Rc)*1000, re=26/Icq, Av=hfe*Rc/((hfe+1)*re);
+    const Vout_mV=Math.min(Vin_mV*Av, VCC*400);
+    const speed=FREQ/100;
+
+    // Waveform display split
+    const wTop=15,wMid=H/2+5,wBot=H-10,wL=30,wR=W-30;
+
+    // INPUT waveform
+    ctx.strokeStyle='#221133'; ctx.lineWidth=1; ctx.setLineDash([2,4]);
+    ctx.beginPath(); ctx.moveTo(wL,wTop+(wMid-wTop)/2); ctx.lineTo(wR,wTop+(wMid-wTop)/2); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle='#664488'; ctx.font='9px Share Tech Mono'; ctx.textAlign='left'; ctx.fillText('Vin ('+Vin_mV+'mV)',wL+2,wTop+10);
+
+    ctx.beginPath(); ctx.strokeStyle='#cc44ff'; ctx.lineWidth=2; ctx.shadowColor='#cc44ff'; ctx.shadowBlur=4;
+    for(let px=wL;px<=wR;px++){
+      const nx=(px-wL)/(wR-wL);
+      const amp=Math.min(Vin_mV/200,(wMid-wTop)*0.38/1);
+      const y=(wTop+(wMid-wTop)/2)-Math.sin(nx*Math.PI*4-t*speed)*amp*4;
+      if(px===wL)ctx.moveTo(px,y); else ctx.lineTo(px,y);
+    }
+    ctx.stroke(); ctx.shadowBlur=0;
+
+    // Transistor symbol mini
+    drawNPN(ctx,W/2,wMid-2,18,true);
+
+    // OUTPUT waveform (inverted, larger)
+    ctx.strokeStyle='#221133'; ctx.lineWidth=1; ctx.setLineDash([2,4]);
+    ctx.beginPath(); ctx.moveTo(wL,wMid+(wBot-wMid)/2); ctx.lineTo(wR,wMid+(wBot-wMid)/2); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle='#00aa66'; ctx.font='9px Share Tech Mono'; ctx.textAlign='left';
+    ctx.fillText('Vout ('+Vout_mV.toFixed(0)+'mV  Av='+Av.toFixed(0)+'×)',wL+2,wMid+12);
+
+    const outAmp=Math.min(Vout_mV/200,(wBot-wMid)*0.4/1);
+    const clipping=outAmp>((wBot-wMid)*0.4);
+
+    ctx.beginPath(); ctx.strokeStyle=clipping?'#ff3355':'#00ff88'; ctx.lineWidth=2;
+    ctx.shadowColor=clipping?'#ff3355':'#00ff88'; ctx.shadowBlur=4;
+    for(let px=wL;px<=wR;px++){
+      const nx=(px-wL)/(wR-wL);
+      const rawY=-Math.sin(nx*Math.PI*4-t*speed)*outAmp*4;
+      const clampedY=Math.max(-((wBot-wMid)*0.4*4), Math.min((wBot-wMid)*0.4*4, rawY));
+      const y=(wMid+(wBot-wMid)/2)+clampedY;
+      if(px===wL)ctx.moveTo(px,y); else ctx.lineTo(px,y);
+    }
+    ctx.stroke(); ctx.shadowBlur=0;
+
+    if(clipping){
+      ctx.fillStyle='#ff3355'; ctx.font='bold 9px Share Tech Mono'; ctx.textAlign='center';
+      ctx.fillText('⚠ CLIPPING!',W/2,wBot-4);
+    }
+
+    // Phase inversion arrow
+    ctx.fillStyle='#664488'; ctx.font='9px Share Tech Mono'; ctx.textAlign='right';
+    ctx.fillText('↕ 180° terbalik',wR-2,wMid+(wBot-wMid)/2-8);
+
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
+  read();
+})();
+
+// ── SCENE 4: KURVA IC-VCE ─────────────────────────────────────
+(function(){
+  const cvs=$('c-curves'),ctx=cvs.getContext('2d');
+  let hfe=100,Ib_test=50,VCE_test=6;
+
+  function read(){
+    hfe=+$('cv-hfe').value; Ib_test=+$('cv-ib').value; VCE_test=+$('cv-vce').value;
+    $('cv-hfe-v').textContent=hfe; $('cv-ib-v').textContent=Ib_test+' µA'; $('cv-vce-v').textContent=VCE_test.toFixed(1)+' V';
+    updateMetrics();
+  }
+  ['cv-hfe','cv-ib','cv-vce'].forEach(id=>$(id).addEventListener('input',read));
+
+  function updateMetrics(){
+    const Ic=Ib_test*hfe/1000;
+    const Pdis=Ic*VCE_test;
+    let reg;
+    if(Ib_test===0) reg='CUTOFF';
+    else if(VCE_test<0.2) reg='JENUH';
+    else reg='AKTIF';
+    $('cv-mic').textContent=Ic.toFixed(2);
+    $('cv-reg').textContent=reg;
+    $('cv-reg').style.color=reg==='AKTIF'?'var(--p)':reg==='JENUH'?'var(--yl)':'var(--rd)';
+    $('cv-pdis').textContent=Pdis.toFixed(1);
+  }
+
+  function draw(ts){
+    if(activeScene!=='curves'){requestAnimationFrame(draw);return;}
+    const W=cvs.width,H=cvs.height;
+    ctx.clearRect(0,0,W,H);
+
+    const gx=55,gy=15,gw=W-75,gh=H-60;
+    const VCE_max=20, Ic_max=60;
+
+    ctx.fillStyle='#080010'; rr(ctx,gx,gy,gw,gh,6); ctx.fill();
+    ctx.strokeStyle='#1a0028'; ctx.lineWidth=1;
+    for(let i=1;i<10;i++){
+      ctx.beginPath(); ctx.moveTo(gx+i*gw/10,gy); ctx.lineTo(gx+i*gw/10,gy+gh); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(gx,gy+i*gh/10); ctx.lineTo(gx+gw,gy+i*gh/10); ctx.stroke();
+    }
+
+    // Axes
+    ctx.strokeStyle='#443366'; ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.moveTo(gx,gy+gh); ctx.lineTo(gx+gw,gy+gh); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(gx,gy); ctx.lineTo(gx,gy+gh); ctx.stroke();
+    ctx.fillStyle='#554477'; ctx.font='9px Share Tech Mono'; ctx.textAlign='center';
+    ctx.fillText('VCE (V)',gx+gw/2,gy+gh+22);
+    ctx.save(); ctx.translate(gx-18,gy+gh/2); ctx.rotate(-Math.PI/2); ctx.fillText('Ic (mA)',0,0); ctx.restore();
+
+    // Axis ticks
+    for(let v=0;v<=VCE_max;v+=4){
+      const x=gx+(v/VCE_max)*gw;
+      ctx.strokeStyle='#332244'; ctx.lineWidth=1;
+      ctx.beginPath(); ctx.moveTo(x,gy+gh); ctx.lineTo(x,gy+gh+4); ctx.stroke();
+      ctx.fillStyle='#443366'; ctx.font='8px Share Tech Mono'; ctx.textAlign='center';
+      ctx.fillText(v,x,gy+gh+12);
+    }
+    for(let i=0;i<=Ic_max;i+=10){
+      const y=gy+gh-(i/Ic_max)*gh;
+      ctx.strokeStyle='#332244'; ctx.lineWidth=1;
+      ctx.beginPath(); ctx.moveTo(gx-4,y); ctx.lineTo(gx,y); ctx.stroke();
+      ctx.fillStyle='#443366'; ctx.font='8px Share Tech Mono'; ctx.textAlign='right';
+      ctx.fillText(i,gx-6,y+3);
+    }
+
+    // Power hyperbola (safe operating area)
+    const Pmax=300; // mW
+    ctx.strokeStyle='rgba(255,50,50,0.25)'; ctx.lineWidth=1.5; ctx.setLineDash([3,5]);
+    ctx.beginPath();
+    for(let px=0;px<=gw;px++){
+      const vce=(px/gw)*VCE_max; if(vce<0.1)continue;
+      const ic=Pmax/vce;
+      const cx=gx+px, cy=gy+gh-(ic/Ic_max)*gh;
+      if(cy<gy||cy>gy+gh)continue;
+      if(px===0)ctx.moveTo(cx,cy); else ctx.lineTo(cx,cy);
+    }
+    ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle='rgba(255,50,50,0.4)'; ctx.font='8px Share Tech Mono'; ctx.textAlign='right';
+    ctx.fillText('Pmax',gx+gw-2,gy+10);
+
+    // Saturation region shading
+    const satX=gx+(0.2/VCE_max)*gw;
+    ctx.fillStyle='rgba(255,220,50,0.07)';
+    ctx.fillRect(gx,gy,satX-gx,gh);
+    ctx.fillStyle='rgba(255,220,50,0.5)'; ctx.font='8px Share Tech Mono'; ctx.textAlign='center';
+    ctx.fillText('SAT',gx+(satX-gx)/2+4,gy+12);
+
+    // Ic-VCE curves for multiple Ib values
+    const IbValues=[0,20,50,100,150,200];
+    IbValues.forEach((Ib,idx)=>{
+      const IcSat=Ib*hfe/1000;
+      const isActive=Ib===Ib_test||Math.abs(Ib-Ib_test)<1;
+      const col=`hsl(${270+idx*20},${isActive?100:50}%,${isActive?65:35}%)`;
+      ctx.strokeStyle=col; ctx.lineWidth=isActive?2.5:1.2;
+      if(isActive){ctx.shadowColor=col; ctx.shadowBlur=6;}
+      ctx.beginPath();
+      for(let px=0;px<=gw;px++){
+        const vce=(px/gw)*VCE_max;
+        let ic;
+        if(Ib===0) ic=0.001;
+        else if(vce<0.2) ic=IcSat*(vce/0.2);
+        else ic=IcSat*(1+vce*0.005);
+        ic=Math.min(ic,Ic_max);
+        const cx=gx+px, cy=gy+gh-(ic/Ic_max)*gh;
+        if(px===0)ctx.moveTo(cx,cy); else ctx.lineTo(cx,cy);
+      }
+      ctx.stroke(); ctx.shadowBlur=0;
+      if(Ib>0){
+        const labelX=gx+gw-4, labelIc=Math.min(IcSat*(1+VCE_max*0.005),Ic_max);
+        const labelY=gy+gh-(labelIc/Ic_max)*gh;
+        if(labelY>gy+4&&labelY<gy+gh-4){
+          ctx.fillStyle=col; ctx.font='8px Share Tech Mono'; ctx.textAlign='right';
+          ctx.fillText(Ib+'µA',labelX,labelY-2);
+        }
+      }
+    });
+
+    // Test point
+    const Ic_pt=Ib_test*hfe/1000;
+    const ptX=gx+(VCE_test/VCE_max)*gw;
+    const ptY=gy+gh-(Math.min(Ic_pt,Ic_max)/Ic_max)*gh;
+    ctx.beginPath(); ctx.arc(ptX,ptY,7,0,Math.PI*2);
+    ctx.fillStyle='#cc44ff'; ctx.shadowColor='#cc44ff'; ctx.shadowBlur=18; ctx.fill(); ctx.shadowBlur=0;
+    ctx.strokeStyle='#fff'; ctx.lineWidth=1.5; ctx.stroke();
+    ctx.setLineDash([3,4]);
+    ctx.strokeStyle='rgba(180,50,255,0.5)'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(ptX,gy+gh); ctx.lineTo(ptX,ptY); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(gx,ptY); ctx.lineTo(ptX,ptY); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle='#cc44ff'; ctx.font='bold 9px Share Tech Mono'; ctx.textAlign='left';
+    ctx.fillText('('+VCE_test.toFixed(1)+'V, '+Ic_pt.toFixed(1)+'mA)',ptX+10,ptY-6);
+
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
+  read();
+})();
+
+// ── SCENE 5: MOSFET ───────────────────────────────────────────
+(function(){
+  const cvs=$('c-mosfet'),ctx=cvs.getContext('2d');
+  let type=0,VDD=12,VGS=0,Vth=2.5,Rd=1000;
+  const channelParts=[];
+  for(let i=0;i<30;i++) channelParts.push({x:0,y:0,vx:0,vy:0,life:0,maxLife:0});
+
+  function read(){
+    type=+$('mf-type').value|0; VDD=+$('mf-vdd').value; VGS=+$('mf-vgs').value; Vth=+$('mf-vth').value; Rd=+$('mf-rd').value;
+    $('mf-type-v').textContent=type===0?'N-Channel':'P-Channel';
+    $('mf-vdd-v').textContent=VDD+' V'; $('mf-vgs-v').textContent=VGS.toFixed(1)+' V';
+    $('mf-vth-v').textContent=Vth.toFixed(1)+' V'; $('mf-rd-v').textContent=fmtR(Rd);
+    updateMetrics();
+  }
+  ['mf-type','mf-vdd','mf-vgs','mf-vth','mf-rd'].forEach(id=>$(id).addEventListener('input',read));
+
+  function updateMetrics(){
+    const on=VGS>=Vth;
+    const k=0.5; // simplified
+    const Vov=VGS-Vth;
+    const ID_sat=on?k*Vov*Vov:0;
+    const ID=on?Math.min(ID_sat,VDD/Rd*1000):0;
+    const VDS=VDD-ID/1000*Rd;
+    $('mf-mvgs').textContent=VGS.toFixed(1);
+    $('mf-mid').textContent=ID.toFixed(2);
+    $('mf-mvds').textContent=VDS.toFixed(2);
+    const st=$('mf-mstatus'),b=$('mf-badge');
+    if(!on){ st.textContent='OFF'; st.style.color='var(--dim)'; b.textContent='✕ CHANNEL TERTUTUP'; b.style.borderColor='#221133'; b.style.color='#443355'; b.style.background='#080010'; }
+    else if(VDS<Vov){ st.textContent='LINIER'; st.style.color='var(--yl)'; b.textContent='◎ REGION LINIER'; b.style.borderColor='var(--yl)'; b.style.color='var(--yl)'; b.style.background='#1a1400'; }
+    else { st.textContent='SATURASI'; st.style.color='var(--c)'; b.textContent='▶ SATURASI (ON)'; b.style.borderColor='var(--c)'; b.style.color='var(--c)'; b.style.background='#001a28'; }
+  }
+
+  function draw(ts){
+    if(activeScene!=='mosfet'){requestAnimationFrame(draw);return;}
+    const W=cvs.width,H=cvs.height,t=ts/700;
+    ctx.clearRect(0,0,W,H);
+
+    const on=VGS>=Vth;
+    const Vov=VGS-Vth;
+    const ID=on?Math.min(0.5*Vov*Vov,VDD/Rd*1000):0;
+    const id_norm=Math.min(ID/(VDD/Rd*1000),1);
+    const VDS=VDD-ID/1000*Rd;
+
+    // MOSFET symbol
+    const mx=W/2+10, my=H/2;
+    drawNMOS(ctx,mx,my,32,on&&id_norm>0.05);
+
+    // VDD
+    ctx.fillStyle='#00ccff'; ctx.font='bold 10px Share Tech Mono'; ctx.textAlign='center';
+    ctx.fillText('VDD='+VDD+'V',mx+34,14);
+    ctx.strokeStyle='#003344'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(mx+34,17); ctx.lineTo(mx+34,my-40); ctx.stroke();
+
+    // Drain resistor
+    drawRes(ctx,mx+20,my-40,28,38,fmtR(Rd).replace(' ',''),'#ff9933');
+    ctx.strokeStyle='#003344'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(mx+34,my-2); ctx.lineTo(mx+34,my-2); ctx.stroke();
+
+    // Ground
+    ctx.beginPath(); ctx.moveTo(mx+34,my+36); ctx.lineTo(mx+34,H-20); ctx.stroke();
+    [18,12,6].forEach((w,i)=>{ ctx.beginPath(); ctx.moveTo(mx+34-w,H-20+i*5); ctx.lineTo(mx+34+w,H-20+i*5); ctx.strokeStyle='#003344'; ctx.stroke(); });
+
+    // Gate voltage source
+    const gx=70,gy_=my;
+    ctx.strokeStyle='#003344'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(gx,gy_); ctx.lineTo(mx-45,gy_); ctx.stroke();
+    ctx.beginPath(); ctx.arc(gx,gy_,20,0,Math.PI*2);
+    ctx.fillStyle='#0c0015';
+    ctx.strokeStyle=on?'#00ccff':'#113344'; ctx.lineWidth=2;
+    ctx.shadowColor=on?'#00ccff':'transparent'; ctx.shadowBlur=on?10:0;
+    ctx.fill(); ctx.stroke(); ctx.shadowBlur=0;
+    ctx.fillStyle=on?'#00ccff':'#224455'; ctx.font='bold 9px Share Tech Mono'; ctx.textAlign='center';
+    ctx.fillText(VGS.toFixed(1)+'V',gx,gy_+4);
+
+    // Threshold indicator
+    ctx.strokeStyle='#003344'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(gx,gy_-20); ctx.lineTo(gx,20); ctx.stroke();
+    ctx.fillStyle='#004466'; ctx.font='9px Share Tech Mono'; ctx.textAlign='center';
+    ctx.fillText('Vth='+Vth.toFixed(1)+'V',gx,14);
+
+    // Vth bar
+    const bx=35, bw2=W-80, bby=H-50;
+    ctx.fillStyle='#08001a'; ctx.strokeStyle='#221133'; ctx.lineWidth=1;
+    rr(ctx,bx,bby,bw2,12,3); ctx.fill(); ctx.stroke();
+    // Vth marker
+    const vthX=bx+(Vth/12)*bw2;
+    ctx.strokeStyle='#ffe044'; ctx.lineWidth=2; ctx.setLineDash([3,3]);
+    ctx.beginPath(); ctx.moveTo(vthX,bby-4); ctx.lineTo(vthX,bby+16); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle='#ffe044'; ctx.font='8px Share Tech Mono'; ctx.textAlign='center';
+    ctx.fillText('Vth',vthX,bby-8);
+    // VGS fill
+    const vgsX=bx+(Math.min(VGS,12)/12)*bw2;
+    if(VGS>0){
+      ctx.fillStyle=on?'#00ccff':'#224455'; ctx.shadowColor=on?'#00ccff':'transparent'; ctx.shadowBlur=on?8:0;
+      rr(ctx,bx,bby,vgsX-bx,12,3); ctx.fill(); ctx.shadowBlur=0;
+    }
+    ctx.fillStyle='#336688'; ctx.font='9px Share Tech Mono'; ctx.textAlign='center';
+    ctx.fillText('VGS='+VGS.toFixed(1)+'V  /  Vth='+Vth.toFixed(1)+'V  '+(on?'→ ON':'→ OFF'),W/2,bby+24);
+
+    // Channel visualization
+    if(on&&id_norm>0.02){
+      const chW=60, chH=8, chX=mx-32+8, chY=my-4;
+      const strength=id_norm;
+      const grad=ctx.createLinearGradient(chX,0,chX+chW,0);
+      grad.addColorStop(0,`rgba(0,204,255,${strength*0.8})`);
+      grad.addColorStop(1,`rgba(0,204,255,${strength*0.2})`);
+      ctx.fillStyle=grad; rr(ctx,chX,chY,chW,chH,3); ctx.fill();
+    }
+
+    // Particles
+    if(on&&id_norm>0.05){
+      const spd=0.3+id_norm*0.7;
+      drawParticles(ctx,[[mx+34,my-40],[mx+34,my-2],[mx+34,my+36],[mx+34,H-20]],t,spd,'rgba(0,200,255,0.9)',2);
+    }
+
+    // ID display
+    ctx.fillStyle=on?'#00ccff':'#334455'; ctx.font='bold 10px Share Tech Mono'; ctx.textAlign='right';
+    ctx.shadowColor=on?'#00ccff':'transparent'; ctx.shadowBlur=on?8:0;
+    ctx.fillText('ID='+ID.toFixed(2)+'mA  VDS='+VDS.toFixed(2)+'V',W-20,my-10);
+    ctx.shadowBlur=0;
+
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
+  read();
+})();
+</script>
+</body>
+</html>

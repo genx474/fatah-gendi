@@ -1,0 +1,2086 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Komponen Aktif Elektronika</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --c1:#00e5cc;--c2:#88ffee;--c3:#003330;
+  --m:#cc44ff;--m2:#ee99ff;
+  --o:#ff9933;--o2:#ffcc77;
+  --g:#00ff88;--r:#ff3355;--y:#ffe044;--b:#44aaff;
+  --bg:#030a09;--card:#060f0d;--bdr:#0d3330;--dim:#2a7a70;
+  --font:'Share Tech Mono',monospace;--head:'Orbitron',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  background:radial-gradient(ellipse 140% 60% at 50% 0%,#0a2a26 0%,#030a09 60%);
+  min-height:100vh;font-family:var(--font);color:var(--c2);overflow-x:hidden;
+}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.07) 2px,rgba(0,0,0,.07) 4px);z-index:9999;}
+.wrap{max-width:560px;margin:0 auto;padding:18px 12px 48px;}
+
+header{text-align:center;margin-bottom:22px;}
+.sub{font-size:9px;letter-spacing:6px;color:#0a3330;margin-bottom:5px;}
+h1{font-family:var(--head);font-size:clamp(14px,4.5vw,22px);font-weight:900;
+   color:var(--c1);text-shadow:0 0 24px rgba(0,229,204,.5);letter-spacing:2px;margin-bottom:8px;}
+.divline{width:80px;height:2px;background:linear-gradient(to right,transparent,var(--c1),transparent);margin:0 auto;}
+
+/* category tabs */
+.cat-tabs{display:flex;gap:4px;margin-bottom:12px;overflow-x:auto;padding-bottom:3px;scrollbar-width:none;}
+.cat-tabs::-webkit-scrollbar{display:none;}
+.ctab{flex:0 0 auto;padding:6px 11px;border:1px solid var(--bdr);border-radius:7px;
+      background:var(--card);color:var(--dim);cursor:pointer;font-family:var(--font);
+      font-size:9px;letter-spacing:1px;transition:all .2s;white-space:nowrap;}
+.ctab:hover{border-color:var(--c2);color:var(--c2);}
+.ctab.on{border-color:var(--c1);background:#0a1f1d;color:var(--c1);box-shadow:0 0 12px rgba(0,229,204,.2);}
+
+/* component sub-tabs */
+.comp-tabs{display:flex;gap:4px;margin-bottom:14px;overflow-x:auto;padding-bottom:3px;scrollbar-width:none;}
+.comp-tabs::-webkit-scrollbar{display:none;}
+.ptab{flex:0 0 auto;padding:5px 10px;border:1px solid var(--bdr);border-radius:6px;
+      background:var(--card);color:var(--dim);cursor:pointer;font-family:var(--font);
+      font-size:9px;letter-spacing:1px;transition:all .2s;white-space:nowrap;}
+.ptab:hover{border-color:var(--c2);color:var(--c2);}
+.ptab.on{border-color:var(--c1);background:#081a18;color:var(--c1);box-shadow:0 0 10px rgba(0,229,204,.18);}
+
+.card{background:var(--card);border:1px solid var(--bdr);border-radius:14px;
+      padding:20px 16px;box-shadow:0 0 36px rgba(0,229,204,.04),inset 0 1px 0 #0d3330;}
+
+.panel{display:none;flex-direction:column;align-items:center;gap:16px;}
+.panel.on{display:flex;}
+
+.ctrl{width:100%;background:#040c0b;border:1px solid var(--bdr);border-radius:11px;padding:12px 14px;display:flex;flex-direction:column;gap:9px;}
+.ctrl-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.ctrl-lbl{font-size:10px;color:var(--dim);min-width:92px;letter-spacing:.8px;}
+.sl{flex:1;min-width:90px;-webkit-appearance:none;height:4px;
+    background:linear-gradient(to right,var(--c1) var(--pct,50%),#0d3330 var(--pct,50%));
+    border-radius:2px;outline:none;cursor:pointer;}
+.sl::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;border-radius:50%;background:var(--c1);box-shadow:0 0 7px rgba(0,229,204,.7);cursor:pointer;}
+.sl::-moz-range-thumb{width:15px;height:15px;border-radius:50%;border:none;background:var(--c1);cursor:pointer;}
+.ctrl-val{font-size:11px;color:var(--c1);min-width:68px;text-align:right;}
+
+.metrics{display:flex;gap:7px;width:100%;flex-wrap:wrap;}
+.metric{flex:1;min-width:72px;background:#040c0b;border:1px solid var(--bdr);border-radius:7px;padding:7px 8px;text-align:center;}
+.metric-lbl{font-size:8px;color:var(--dim);letter-spacing:2px;margin-bottom:2px;}
+.metric-val{font-size:13px;color:var(--c1);font-weight:bold;}
+.metric-unit{font-size:8px;color:var(--dim);}
+
+.btns{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;}
+.btn{padding:7px 18px;border:2px solid var(--c1);border-radius:7px;background:#0a1f1d;
+     color:var(--c1);cursor:pointer;font-family:var(--font);font-size:11px;letter-spacing:1px;
+     box-shadow:0 0 8px rgba(0,229,204,.12);transition:all .15s;}
+.btn:hover{background:#102825;box-shadow:0 0 14px rgba(0,229,204,.25);}
+.btn.on{background:#102825;border-color:var(--c2);}
+.btn.off{border-color:#0d2420;background:#040c0b;color:#1a5a50;box-shadow:none;}
+
+.badge{padding:6px 18px;border-radius:28px;font-size:11px;letter-spacing:2px;transition:all .3s;text-align:center;border:1px solid;}
+.info{color:var(--dim);font-size:11px;text-align:center;line-height:1.75;}
+.info span{color:var(--c1);}.info .o{color:var(--o);}.info .g{color:var(--g);}.info .r{color:var(--r);}.info .y{color:var(--y);}.info .m{color:var(--m);}
+
+canvas{display:block;border-radius:7px;}
+canvas.brd{border:1px solid var(--bdr);background:#040c0b;}
+footer{text-align:center;margin-top:20px;font-size:9px;letter-spacing:4px;color:#0a2a26;}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="sub">◈ SIMULASI KOMPONEN AKTIF ◈</div>
+  <h1>ELEKTRONIKA AKTIF</h1>
+  <div class="divline"></div>
+</header>
+
+<!-- CATEGORY TABS -->
+<div class="cat-tabs">
+  <button class="ctab on" data-cat="diode">🔵 Dioda</button>
+  <button class="ctab" data-cat="bjt">🟠 BJT</button>
+  <button class="ctab" data-cat="fet">🟣 FET</button>
+  <button class="ctab" data-cat="thyristor">🔴 Thyristor</button>
+  <button class="ctab" data-cat="opamp">🟢 Op-Amp</button>
+  <button class="ctab" data-cat="other">⚪ Lainnya</button>
+</div>
+
+<!-- ═══ DIODA CATEGORY ═══ -->
+<div id="cat-diode">
+  <div class="comp-tabs">
+    <button class="ptab on" data-panel="pn">PN Junction</button>
+    <button class="ptab" data-panel="zener">Zener</button>
+    <button class="ptab" data-panel="schottky">Schottky</button>
+    <button class="ptab" data-panel="led">LED</button>
+    <button class="ptab" data-panel="photo">Fotodioda</button>
+    <button class="ptab" data-panel="varactor">Varaktor</button>
+  </div>
+</div>
+
+<!-- ═══ BJT CATEGORY ═══ -->
+<div id="cat-bjt" style="display:none">
+  <div class="comp-tabs">
+    <button class="ptab on" data-panel="npn">NPN</button>
+    <button class="ptab" data-panel="pnp">PNP</button>
+    <button class="ptab" data-panel="darlington">Darlington</button>
+  </div>
+</div>
+
+<!-- ═══ FET CATEGORY ═══ -->
+<div id="cat-fet" style="display:none">
+  <div class="comp-tabs">
+    <button class="ptab on" data-panel="nmos">N-MOSFET</button>
+    <button class="ptab" data-panel="pmos">P-MOSFET</button>
+    <button class="ptab" data-panel="jfet">JFET</button>
+    <button class="ptab" data-panel="cmos">CMOS</button>
+  </div>
+</div>
+
+<!-- ═══ THYRISTOR CATEGORY ═══ -->
+<div id="cat-thyristor" style="display:none">
+  <div class="comp-tabs">
+    <button class="ptab on" data-panel="scr">SCR</button>
+    <button class="ptab" data-panel="triac">TRIAC</button>
+    <button class="ptab" data-panel="diac">DIAC</button>
+    <button class="ptab" data-panel="igbt">IGBT</button>
+  </div>
+</div>
+
+<!-- ═══ OPAMP CATEGORY ═══ -->
+<div id="cat-opamp" style="display:none">
+  <div class="comp-tabs">
+    <button class="ptab on" data-panel="inv">Inverting</button>
+    <button class="ptab" data-panel="noninv">Non-Inverting</button>
+    <button class="ptab" data-panel="comp">Komparator</button>
+    <button class="ptab" data-panel="diff">Differensial</button>
+  </div>
+</div>
+
+<!-- ═══ OTHER CATEGORY ═══ -->
+<div id="cat-other" style="display:none">
+  <div class="comp-tabs">
+    <button class="ptab on" data-panel="solar">Solar Cell</button>
+    <button class="ptab" data-panel="ujt">UJT</button>
+    <button class="ptab" data-panel="tunnel">Tunnel Dioda</button>
+  </div>
+</div>
+
+<div class="card">
+<!-- ══ DIODA PANELS ══ -->
+<div class="panel on" id="p-pn">
+  <canvas id="c-pn" class="brd" width="460" height="190" style="width:100%"></canvas>
+  <div class="ctrl">
+    <div class="ctrl-row"><span class="ctrl-lbl">⚡ Tegangan</span><input type="range" class="sl" id="pn-v" min="-5" max="2" value="0.7" step="0.05"><span class="ctrl-val" id="pn-v-lbl">0.70 V</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">⚙ R seri</span><input type="range" class="sl" id="pn-r" min="10" max="10000" value="1000" step="10"><span class="ctrl-val" id="pn-r-lbl">1.0 kΩ</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">🔘 Jenis</span><input type="range" class="sl" id="pn-type" min="0" max="2" value="0" step="1"><span class="ctrl-val" id="pn-type-lbl">Silicon</span></div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-lbl">STATUS</div><div class="metric-val" id="pn-status" style="font-size:10px">MAJU</div><div class="metric-unit"></div></div>
+    <div class="metric"><div class="metric-lbl">Vf drop</div><div class="metric-val" id="pn-vf">0.70</div><div class="metric-unit">V</div></div>
+    <div class="metric"><div class="metric-lbl">ARUS</div><div class="metric-val" id="pn-i">0.00</div><div class="metric-unit">mA</div></div>
+    <div class="metric"><div class="metric-lbl">DAYA</div><div class="metric-val" id="pn-p">0.00</div><div class="metric-unit">mW</div></div>
+  </div>
+  <div class="info">Konduksi saat V &gt; Vf (threshold)<br><span>Silicon 0.7V | Germanium 0.3V | Schottky 0.2V</span></div>
+</div>
+
+<div class="panel" id="p-zener">
+  <canvas id="c-zener" class="brd" width="460" height="190" style="width:100%"></canvas>
+  <div class="ctrl">
+    <div class="ctrl-row"><span class="ctrl-lbl">⚡ Vin</span><input type="range" class="sl" id="zn-vin" min="1" max="30" value="15" step="0.5"><span class="ctrl-val" id="zn-vin-lbl">15 V</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">🔒 Vz</span><input type="range" class="sl" id="zn-vz" min="2" max="18" value="5" step="0.5"><span class="ctrl-val" id="zn-vz-lbl">5.0 V</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">⚙ R seri</span><input type="range" class="sl" id="zn-r" min="100" max="10000" value="1000" step="100"><span class="ctrl-val" id="zn-r-lbl">1.0 kΩ</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">👤 R beban</span><input type="range" class="sl" id="zn-rl" min="100" max="20000" value="5000" step="100"><span class="ctrl-val" id="zn-rl-lbl">5.0 kΩ</span></div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-lbl">Vout</div><div class="metric-val" id="zn-vout">5.00</div><div class="metric-unit">V</div></div>
+    <div class="metric"><div class="metric-lbl">Iz</div><div class="metric-val" id="zn-iz">9.00</div><div class="metric-unit">mA</div></div>
+    <div class="metric"><div class="metric-lbl">Pdis</div><div class="metric-val" id="zn-pdis">45</div><div class="metric-unit">mW</div></div>
+    <div class="metric"><div class="metric-lbl">STATUS</div><div class="metric-val" id="zn-status" style="font-size:10px">REGULASI</div><div class="metric-unit"></div></div>
+  </div>
+  <div class="info">Zener breakdown: <span>Vout terkunci = Vz</span><br>Digunakan sebagai <span>voltage regulator</span></div>
+</div>
+
+<div class="panel" id="p-schottky">
+  <canvas id="c-schottky" class="brd" width="460" height="190" style="width:100%"></canvas>
+  <div class="ctrl">
+    <div class="ctrl-row"><span class="ctrl-lbl">⚡ Tegangan</span><input type="range" class="sl" id="sk-v" min="0" max="3" value="0.5" step="0.05"><span class="ctrl-val" id="sk-v-lbl">0.50 V</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">⚙ R seri</span><input type="range" class="sl" id="sk-r" min="10" max="5000" value="500" step="10"><span class="ctrl-val" id="sk-r-lbl">500 Ω</span></div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-lbl">Vf (Schottky)</div><div class="metric-val">0.20</div><div class="metric-unit">V</div></div>
+    <div class="metric"><div class="metric-lbl">Vf (Silicon)</div><div class="metric-val">0.70</div><div class="metric-unit">V</div></div>
+    <div class="metric"><div class="metric-lbl">ARUS</div><div class="metric-val" id="sk-i">0.60</div><div class="metric-unit">mA</div></div>
+    <div class="metric"><div class="metric-lbl">KECEPATAN</div><div class="metric-val" style="font-size:10px">SANGAT CEPAT</div><div class="metric-unit"></div></div>
+  </div>
+  <div class="info">Schottky: logam–semikonduktor → <span>Vf lebih rendah (0.2V)</span><br>Recovery sangat cepat → cocok untuk <span>frekuensi tinggi</span></div>
+</div>
+
+<div class="panel" id="p-led">
+  <canvas id="c-led" class="brd" width="460" height="190" style="width:100%"></canvas>
+  <div class="ctrl">
+    <div class="ctrl-row"><span class="ctrl-lbl">⚡ Tegangan</span><input type="range" class="sl" id="ld-v" min="1" max="12" value="5" step="0.1"><span class="ctrl-val" id="ld-v-lbl">5.0 V</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">⚙ R seri</span><input type="range" class="sl" id="ld-r" min="47" max="2200" value="220" step="10"><span class="ctrl-val" id="ld-r-lbl">220 Ω</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">🎨 Warna</span><input type="range" class="sl" id="ld-col" min="0" max="4" value="0" step="1"><span class="ctrl-val" id="ld-col-lbl">MERAH</span></div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-lbl">ARUS</div><div class="metric-val" id="ld-i">14.5</div><div class="metric-unit">mA</div></div>
+    <div class="metric"><div class="metric-lbl">Vf</div><div class="metric-val" id="ld-vf">1.8</div><div class="metric-unit">V</div></div>
+    <div class="metric"><div class="metric-lbl">λ</div><div class="metric-val" id="ld-wl">625</div><div class="metric-unit">nm</div></div>
+    <div class="metric"><div class="metric-lbl">CAHAYA</div><div class="metric-val" id="ld-bright">72</div><div class="metric-unit">%</div></div>
+  </div>
+  <div class="info">LED memancarkan cahaya saat arus mengalir<br>Warna berbeda → <span>Vf berbeda</span> → panjang gelombang berbeda</div>
+</div>
+
+<div class="panel" id="p-photo">
+  <canvas id="c-photo" class="brd" width="460" height="190" style="width:100%"></canvas>
+  <div class="ctrl">
+    <div class="ctrl-row"><span class="ctrl-lbl">☀ Intensitas cahaya</span><input type="range" class="sl" id="ph-lux" min="0" max="100" value="50" step="1"><span class="ctrl-val" id="ph-lux-lbl">50 %</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">⚡ Vbias (reverse)</span><input type="range" class="sl" id="ph-vr" min="0" max="30" value="5" step="0.5"><span class="ctrl-val" id="ph-vr-lbl">5.0 V</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">⚙ R beban</span><input type="range" class="sl" id="ph-rl" min="100" max="100000" value="10000" step="100"><span class="ctrl-val" id="ph-rl-lbl">10 kΩ</span></div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-lbl">I foto</div><div class="metric-val" id="ph-i">250</div><div class="metric-unit">µA</div></div>
+    <div class="metric"><div class="metric-lbl">Vout</div><div class="metric-val" id="ph-vout">2.50</div><div class="metric-unit">V</div></div>
+    <div class="metric"><div class="metric-lbl">RESPONSIF</div><div class="metric-val" id="ph-resp">0.50</div><div class="metric-unit">A/W</div></div>
+    <div class="metric"><div class="metric-lbl">MODE</div><div class="metric-val" style="font-size:10px">PHOTOCON.</div><div class="metric-unit"></div></div>
+  </div>
+  <div class="info">Fotodioda: cahaya menghasilkan <span>arus proporsional</span><br>Mode photoconductive: bias balik → respons lebih cepat</div>
+</div>
+
+<div class="panel" id="p-varactor">
+  <canvas id="c-varactor" class="brd" width="460" height="190" style="width:100%"></canvas>
+  <div class="ctrl">
+    <div class="ctrl-row"><span class="ctrl-lbl">⚡ V reverse</span><input type="range" class="sl" id="va-vr" min="0" max="20" value="5" step="0.1"><span class="ctrl-val" id="va-vr-lbl">5.0 V</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">🌀 L (inductor)</span><input type="range" class="sl" id="va-l" min="1" max="500" value="100" step="1"><span class="ctrl-val" id="va-l-lbl">100 nH</span></div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-lbl">C (varaktor)</div><div class="metric-val" id="va-c">20.0</div><div class="metric-unit">pF</div></div>
+    <div class="metric"><div class="metric-lbl">f resonansi</div><div class="metric-val" id="va-fr">112</div><div class="metric-unit">MHz</div></div>
+    <div class="metric"><div class="metric-lbl">ΔC/ΔV</div><div class="metric-val" id="va-sens">-4.0</div><div class="metric-unit">pF/V</div></div>
+    <div class="metric"><div class="metric-lbl">APLIKASI</div><div class="metric-val" style="font-size:9px">VCO / TUNER</div><div class="metric-unit"></div></div>
+  </div>
+  <div class="info">Varaktor: kapasitansi junction <span>berubah sesuai tegangan</span><br>C ∝ 1/√Vr → digunakan pada <span>VCO dan RF tuner</span></div>
+</div>
+
+<!-- ══ BJT PANELS ══ -->
+<div class="panel" id="p-npn">
+  <canvas id="c-npn" class="brd" width="460" height="200" style="width:100%"></canvas>
+  <div class="ctrl">
+    <div class="ctrl-row"><span class="ctrl-lbl">⚡ VCC</span><input type="range" class="sl" id="npn-vcc" min="1" max="24" value="12" step="0.5"><span class="ctrl-val" id="npn-vcc-lbl">12 V</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">📶 Ib (µA)</span><input type="range" class="sl" id="npn-ib" min="0" max="500" value="50" step="5"><span class="ctrl-val" id="npn-ib-lbl">50 µA</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">⚙ β (hFE)</span><input type="range" class="sl" id="npn-hfe" min="20" max="500" value="100" step="10"><span class="ctrl-val" id="npn-hfe-lbl">100</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">⚙ Rc</span><input type="range" class="sl" id="npn-rc" min="100" max="10000" value="1000" step="100"><span class="ctrl-val" id="npn-rc-lbl">1.0 kΩ</span></div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-lbl">Ib</div><div class="metric-val" id="npn-mib">50</div><div class="metric-unit">µA</div></div>
+    <div class="metric"><div class="metric-lbl">Ic</div><div class="metric-val" id="npn-mic">5.00</div><div class="metric-unit">mA</div></div>
+    <div class="metric"><div class="metric-lbl">VCE</div><div class="metric-val" id="npn-vce">7.00</div><div class="metric-unit">V</div></div>
+    <div class="metric"><div class="metric-lbl">REGION</div><div class="metric-val" id="npn-reg" style="font-size:10px">AKTIF</div><div class="metric-unit"></div></div>
+  </div>
+  <div class="info">NPN: <span>Ic = β × Ib</span> &nbsp;|&nbsp; Ie = Ic + Ib<br>Arus kecil Base → kendali arus Collector besar</div>
+</div>
+
+<div class="panel" id="p-pnp">
+  <canvas id="c-pnp" class="brd" width="460" height="200" style="width:100%"></canvas>
+  <div class="ctrl">
+    <div class="ctrl-row"><span class="ctrl-lbl">⚡ VEE</span><input type="range" class="sl" id="pnp-vee" min="1" max="24" value="12" step="0.5"><span class="ctrl-val" id="pnp-vee-lbl">12 V</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">📶 Ib (µA)</span><input type="range" class="sl" id="pnp-ib" min="0" max="500" value="50" step="5"><span class="ctrl-val" id="pnp-ib-lbl">50 µA</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">⚙ β (hFE)</span><input type="range" class="sl" id="pnp-hfe" min="20" max="500" value="100" step="10"><span class="ctrl-val" id="pnp-hfe-lbl">100</span></div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-lbl">Ib</div><div class="metric-val" id="pnp-mib">50</div><div class="metric-unit">µA</div></div>
+    <div class="metric"><div class="metric-lbl">Ic</div><div class="metric-val" id="pnp-mic">5.00</div><div class="metric-unit">mA</div></div>
+    <div class="metric"><div class="metric-lbl">VEC</div><div class="metric-val" id="pnp-vec">7.00</div><div class="metric-unit">V</div></div>
+    <div class="metric"><div class="metric-lbl">REGION</div><div class="metric-val" id="pnp-reg" style="font-size:10px">AKTIF</div><div class="metric-unit"></div></div>
+  </div>
+  <div class="info">PNP: arah arus <span>kebalikan NPN</span><br>Emitter (+) → Collector (−), dikontrol Base</div>
+</div>
+
+<div class="panel" id="p-darlington">
+  <canvas id="c-darlington" class="brd" width="460" height="200" style="width:100%"></canvas>
+  <div class="ctrl">
+    <div class="ctrl-row"><span class="ctrl-lbl">⚡ VCC</span><input type="range" class="sl" id="dl-vcc" min="5" max="30" value="12" step="0.5"><span class="ctrl-val" id="dl-vcc-lbl">12 V</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">📶 Ib (µA)</span><input type="range" class="sl" id="dl-ib" min="0" max="100" value="10" step="1"><span class="ctrl-val" id="dl-ib-lbl">10 µA</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">⚙ β1 × β2</span><input type="range" class="sl" id="dl-hfe" min="50" max="500" value="100" step="10"><span class="ctrl-val" id="dl-hfe-lbl">100</span></div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-lbl">β total</div><div class="metric-val" id="dl-btot">10000</div><div class="metric-unit">×</div></div>
+    <div class="metric"><div class="metric-lbl">Ib input</div><div class="metric-val" id="dl-mib">10</div><div class="metric-unit">µA</div></div>
+    <div class="metric"><div class="metric-lbl">Ic output</div><div class="metric-val" id="dl-mic">100</div><div class="metric-unit">mA</div></div>
+    <div class="metric"><div class="metric-lbl">Vbe total</div><div class="metric-val">~1.4</div><div class="metric-unit">V</div></div>
+  </div>
+  <div class="info">Darlington: dua BJT → <span>β total = β1 × β2</span><br>Penguatan arus sangat besar untuk drive beban berat</div>
+</div>
+
+<!-- ══ FET PANELS ══ -->
+<div class="panel" id="p-nmos">
+  <canvas id="c-nmos" class="brd" width="460" height="200" style="width:100%"></canvas>
+  <div class="ctrl">
+    <div class="ctrl-row"><span class="ctrl-lbl">⚡ VDD</span><input type="range" class="sl" id="nm-vdd" min="3" max="24" value="12" step="0.5"><span class="ctrl-val" id="nm-vdd-lbl">12 V</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">🔌 VGS</span><input type="range" class="sl" id="nm-vgs" min="0" max="12" value="0" step="0.1"><span class="ctrl-val" id="nm-vgs-lbl">0.0 V</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">🔒 Vth</span><input type="range" class="sl" id="nm-vth" min="1" max="6" value="2.5" step="0.1"><span class="ctrl-val" id="nm-vth-lbl">2.5 V</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">⚙ Rd</span><input type="range" class="sl" id="nm-rd" min="100" max="10000" value="1000" step="100"><span class="ctrl-val" id="nm-rd-lbl">1.0 kΩ</span></div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-lbl">VGS</div><div class="metric-val" id="nm-mvgs">0.0</div><div class="metric-unit">V</div></div>
+    <div class="metric"><div class="metric-lbl">ID</div><div class="metric-val" id="nm-mid">0.00</div><div class="metric-unit">mA</div></div>
+    <div class="metric"><div class="metric-lbl">VDS</div><div class="metric-val" id="nm-mvds">12.0</div><div class="metric-unit">V</div></div>
+    <div class="metric"><div class="metric-lbl">STATUS</div><div class="metric-val" id="nm-mst" style="font-size:10px">OFF</div><div class="metric-unit"></div></div>
+  </div>
+  <div class="info">N-MOSFET: dikontrol <span>tegangan VGS</span><br>VGS &gt; Vth → channel terbuka → arus drain mengalir</div>
+</div>
+
+<div class="panel" id="p-pmos">
+  <canvas id="c-pmos" class="brd" width="460" height="200" style="width:100%"></canvas>
+  <div class="ctrl">
+    <div class="ctrl-row"><span class="ctrl-lbl">⚡ VDD</span><input type="range" class="sl" id="pm-vdd" min="3" max="24" value="12" step="0.5"><span class="ctrl-val" id="pm-vdd-lbl">12 V</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">🔌 VGS</span><input type="range" class="sl" id="pm-vgs" min="-12" max="0" value="0" step="0.1"><span class="ctrl-val" id="pm-vgs-lbl">0.0 V</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">🔒 |Vtp|</span><input type="range" class="sl" id="pm-vth" min="1" max="6" value="2.5" step="0.1"><span class="ctrl-val" id="pm-vth-lbl">2.5 V</span></div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-lbl">VGS</div><div class="metric-val" id="pm-mvgs">0.0</div><div class="metric-unit">V</div></div>
+    <div class="metric"><div class="metric-lbl">ID</div><div class="metric-val" id="pm-mid">0.00</div><div class="metric-unit">mA</div></div>
+    <div class="metric"><div class="metric-lbl">VSD</div><div class="metric-val" id="pm-mvsd">12.0</div><div class="metric-unit">V</div></div>
+    <div class="metric"><div class="metric-lbl">STATUS</div><div class="metric-val" id="pm-mst" style="font-size:10px">OFF</div><div class="metric-unit"></div></div>
+  </div>
+  <div class="info">P-MOSFET: ON saat <span>VGS &lt; −|Vtp|</span><br>Digunakan pada sisi high-side switching</div>
+</div>
+
+<div class="panel" id="p-jfet">
+  <canvas id="c-jfet" class="brd" width="460" height="200" style="width:100%"></canvas>
+  <div class="ctrl">
+    <div class="ctrl-row"><span class="ctrl-lbl">⚡ VDD</span><input type="range" class="sl" id="jf-vdd" min="3" max="20" value="12" step="0.5"><span class="ctrl-val" id="jf-vdd-lbl">12 V</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">🔌 VGS</span><input type="range" class="sl" id="jf-vgs" min="-6" max="0" value="0" step="0.1"><span class="ctrl-val" id="jf-vgs-lbl">0.0 V</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">📶 IDSS (mA)</span><input type="range" class="sl" id="jf-idss" min="1" max="20" value="10" step="0.5"><span class="ctrl-val" id="jf-idss-lbl">10 mA</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">🔒 Vp (pinch-off)</span><input type="range" class="sl" id="jf-vp" min="-8" max="-1" value="-4" step="0.1"><span class="ctrl-val" id="jf-vp-lbl">-4.0 V</span></div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-lbl">ID</div><div class="metric-val" id="jf-mid">10.0</div><div class="metric-unit">mA</div></div>
+    <div class="metric"><div class="metric-lbl">gm</div><div class="metric-val" id="jf-gm">5.00</div><div class="metric-unit">mS</div></div>
+    <div class="metric"><div class="metric-lbl">VGS</div><div class="metric-val" id="jf-mvgs">0.0</div><div class="metric-unit">V</div></div>
+    <div class="metric"><div class="metric-lbl">STATUS</div><div class="metric-val" id="jf-mst" style="font-size:10px">PENUH</div><div class="metric-unit"></div></div>
+  </div>
+  <div class="info">JFET: normally-ON, dimatikan dengan <span>tegangan balik VGS</span><br>ID = IDSS × (1 − VGS/Vp)²</div>
+</div>
+
+<div class="panel" id="p-cmos">
+  <canvas id="c-cmos" class="brd" width="460" height="200" style="width:100%"></canvas>
+  <div class="ctrl">
+    <div class="ctrl-row"><span class="ctrl-lbl">⚡ VDD</span><input type="range" class="sl" id="cm-vdd" min="3" max="15" value="5" step="0.5"><span class="ctrl-val" id="cm-vdd-lbl">5 V</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">🔌 Vin</span><input type="range" class="sl" id="cm-vin" min="0" max="5" value="0" step="0.1"><span class="ctrl-val" id="cm-vin-lbl">0.0 V</span></div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-lbl">Vin</div><div class="metric-val" id="cm-mvin">0.0</div><div class="metric-unit">V</div></div>
+    <div class="metric"><div class="metric-lbl">Vout</div><div class="metric-val" id="cm-mvout">5.0</div><div class="metric-unit">V</div></div>
+    <div class="metric"><div class="metric-lbl">P aktif</div><div class="metric-val" id="cm-mp">0.0</div><div class="metric-unit">µW</div></div>
+    <div class="metric"><div class="metric-lbl">LOGIKA</div><div class="metric-val" id="cm-logic" style="font-size:11px">NOT Gate</div><div class="metric-unit"></div></div>
+  </div>
+  <div class="info">CMOS Inverter: <span>PMOS + NMOS saling melengkapi</span><br>Vout = VDD−Vin → konsumsi daya sangat rendah</div>
+</div>
+
+<!-- ══ THYRISTOR PANELS ══ -->
+<div class="panel" id="p-scr">
+  <canvas id="c-scr" class="brd" width="460" height="200" style="width:100%"></canvas>
+  <div class="ctrl">
+    <div class="ctrl-row"><span class="ctrl-lbl">⚡ VAK</span><input type="range" class="sl" id="scr-vak" min="0" max="24" value="12" step="0.5"><span class="ctrl-val" id="scr-vak-lbl">12 V</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">📶 Ig (Gate)</span><input type="range" class="sl" id="scr-ig" min="0" max="100" value="0" step="1"><span class="ctrl-val" id="scr-ig-lbl">0 mA</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">⚙ R beban</span><input type="range" class="sl" id="scr-rl" min="10" max="1000" value="100" step="10"><span class="ctrl-val" id="scr-rl-lbl">100 Ω</span></div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-lbl">STATUS</div><div class="metric-val" id="scr-status" style="font-size:10px">BLOCKING</div><div class="metric-unit"></div></div>
+    <div class="metric"><div class="metric-lbl">IAK</div><div class="metric-val" id="scr-iak">0.00</div><div class="metric-unit">mA</div></div>
+    <div class="metric"><div class="metric-lbl">Vf (on)</div><div class="metric-val">~1.2</div><div class="metric-unit">V</div></div>
+    <div class="metric"><div class="metric-lbl">LATCH</div><div class="metric-val" id="scr-latch" style="font-size:10px">TIDAK</div><div class="metric-unit"></div></div>
+  </div>
+  <div class="btns"><button class="btn" id="scr-fire">⚡ TRIGGER GATE</button><button class="btn off" id="scr-reset">↺ RESET (VAK=0)</button></div>
+  <div class="info">SCR: sekali dipicu → <span>latch ON</span> sampai VAK ≈ 0<br>Digunakan pada <span>power control AC/DC</span></div>
+</div>
+
+<div class="panel" id="p-triac">
+  <canvas id="c-triac" class="brd" width="460" height="200" style="width:100%"></canvas>
+  <div class="ctrl">
+    <div class="ctrl-row"><span class="ctrl-lbl">⚡ VAC (Vpeak)</span><input type="range" class="sl" id="tr-vac" min="10" max="240" value="220" step="5"><span class="ctrl-val" id="tr-vac-lbl">220 V</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">📐 Sudut picu (°)</span><input type="range" class="sl" id="tr-angle" min="0" max="170" value="90" step="5"><span class="ctrl-val" id="tr-angle-lbl">90°</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">⚙ R beban</span><input type="range" class="sl" id="tr-rl" min="10" max="1000" value="100" step="10"><span class="ctrl-val" id="tr-rl-lbl">100 Ω</span></div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-lbl">Vrms out</div><div class="metric-val" id="tr-vrms">155</div><div class="metric-unit">V</div></div>
+    <div class="metric"><div class="metric-lbl">Daya</div><div class="metric-val" id="tr-p">240</div><div class="metric-unit">W</div></div>
+    <div class="metric"><div class="metric-lbl">% Daya</div><div class="metric-val" id="tr-ppct">50</div><div class="metric-unit">%</div></div>
+    <div class="metric"><div class="metric-lbl">SUDUT</div><div class="metric-val" id="tr-mangle">90</div><div class="metric-unit">°</div></div>
+  </div>
+  <div class="info">TRIAC: dua SCR anti-paralel → <span>kontrol AC kedua arah</span><br>Phase control: sudut picu &rarr; atur daya beban</div>
+</div>
+
+<div class="panel" id="p-diac">
+  <canvas id="c-diac" class="brd" width="460" height="190" style="width:100%"></canvas>
+  <div class="ctrl">
+    <div class="ctrl-row"><span class="ctrl-lbl">⚡ Tegangan</span><input type="range" class="sl" id="dc-v" min="-50" max="50" value="0" step="1"><span class="ctrl-val" id="dc-v-lbl">0 V</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">🔒 VBO (breakover)</span><input type="range" class="sl" id="dc-vbo" min="20" max="40" value="32" step="1"><span class="ctrl-val" id="dc-vbo-lbl">32 V</span></div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-lbl">STATUS</div><div class="metric-val" id="dc-status" style="font-size:10px">BLOCKING</div><div class="metric-unit"></div></div>
+    <div class="metric"><div class="metric-lbl">ARUS</div><div class="metric-val" id="dc-i">0.00</div><div class="metric-unit">mA</div></div>
+    <div class="metric"><div class="metric-lbl">VBO</div><div class="metric-val" id="dc-vbo-m">32</div><div class="metric-unit">V</div></div>
+    <div class="metric"><div class="metric-lbl">ARAH</div><div class="metric-val" id="dc-dir" style="font-size:10px">SIMETRIS</div><div class="metric-unit"></div></div>
+  </div>
+  <div class="info">DIAC: konduksi dua arah saat |V| &gt; <span>VBO</span><br>Digunakan untuk memicu TRIAC pada power control</div>
+</div>
+
+<div class="panel" id="p-igbt">
+  <canvas id="c-igbt" class="brd" width="460" height="200" style="width:100%"></canvas>
+  <div class="ctrl">
+    <div class="ctrl-row"><span class="ctrl-lbl">⚡ VCE</span><input type="range" class="sl" id="ig-vce" min="0" max="600" value="300" step="10"><span class="ctrl-val" id="ig-vce-lbl">300 V</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">🔌 VGE</span><input type="range" class="sl" id="ig-vge" min="0" max="20" value="0" step="0.5"><span class="ctrl-val" id="ig-vge-lbl">0.0 V</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">🔒 Vth gate</span><input type="range" class="sl" id="ig-vth" min="3" max="8" value="5" step="0.5"><span class="ctrl-val" id="ig-vth-lbl">5.0 V</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">⚙ R beban</span><input type="range" class="sl" id="ig-rl" min="1" max="100" value="10" step="1"><span class="ctrl-val" id="ig-rl-lbl">10 Ω</span></div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-lbl">VGE</div><div class="metric-val" id="ig-mvge">0.0</div><div class="metric-unit">V</div></div>
+    <div class="metric"><div class="metric-lbl">IC</div><div class="metric-val" id="ig-mic">0.00</div><div class="metric-unit">A</div></div>
+    <div class="metric"><div class="metric-lbl">Pcond</div><div class="metric-val" id="ig-mp">0.00</div><div class="metric-unit">W</div></div>
+    <div class="metric"><div class="metric-lbl">STATUS</div><div class="metric-val" id="ig-mst" style="font-size:10px">OFF</div><div class="metric-unit"></div></div>
+  </div>
+  <div class="info">IGBT = BJT + MOSFET: <span>kontrol tegangan, arus besar</span><br>Ideal untuk inverter, VFD, dan UPS daya tinggi</div>
+</div>
+
+<!-- ══ OP-AMP PANELS ══ -->
+<div class="panel" id="p-inv">
+  <canvas id="c-inv" class="brd" width="460" height="200" style="width:100%"></canvas>
+  <div class="ctrl">
+    <div class="ctrl-row"><span class="ctrl-lbl">⚡ Vin (mV)</span><input type="range" class="sl" id="iv-vin" min="-500" max="500" value="100" step="10"><span class="ctrl-val" id="iv-vin-lbl">100 mV</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">⚙ Rf</span><input type="range" class="sl" id="iv-rf" min="1000" max="100000" value="10000" step="1000"><span class="ctrl-val" id="iv-rf-lbl">10 kΩ</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">⚙ Rin</span><input type="range" class="sl" id="iv-rin" min="1000" max="100000" value="1000" step="1000"><span class="ctrl-val" id="iv-rin-lbl">1.0 kΩ</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">⚡ Vsat (±)</span><input type="range" class="sl" id="iv-vsat" min="5" max="15" value="12" step="0.5"><span class="ctrl-val" id="iv-vsat-lbl">±12 V</span></div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-lbl">GAIN (Av)</div><div class="metric-val" id="iv-gain">-10</div><div class="metric-unit">×</div></div>
+    <div class="metric"><div class="metric-lbl">Vout</div><div class="metric-val" id="iv-vout">-1.00</div><div class="metric-unit">V</div></div>
+    <div class="metric"><div class="metric-lbl">FASA</div><div class="metric-val" style="font-size:10px">180° INV</div><div class="metric-unit"></div></div>
+    <div class="metric"><div class="metric-lbl">CLIPPING</div><div class="metric-val" id="iv-clip" style="font-size:10px">TIDAK</div><div class="metric-unit"></div></div>
+  </div>
+  <div class="info">Inverting: Av = <span>−Rf/Rin</span> &nbsp;|&nbsp; Vout terbalik fase<br>V− = 0V (virtual ground karena feedback)</div>
+</div>
+
+<div class="panel" id="p-noninv">
+  <canvas id="c-noninv" class="brd" width="460" height="200" style="width:100%"></canvas>
+  <div class="ctrl">
+    <div class="ctrl-row"><span class="ctrl-lbl">⚡ Vin (mV)</span><input type="range" class="sl" id="ni-vin" min="-500" max="500" value="100" step="10"><span class="ctrl-val" id="ni-vin-lbl">100 mV</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">⚙ Rf</span><input type="range" class="sl" id="ni-rf" min="1000" max="100000" value="10000" step="1000"><span class="ctrl-val" id="ni-rf-lbl">10 kΩ</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">⚙ R1</span><input type="range" class="sl" id="ni-r1" min="1000" max="100000" value="1000" step="1000"><span class="ctrl-val" id="ni-r1-lbl">1.0 kΩ</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">⚡ Vsat (±)</span><input type="range" class="sl" id="ni-vsat" min="5" max="15" value="12" step="0.5"><span class="ctrl-val" id="ni-vsat-lbl">±12 V</span></div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-lbl">GAIN (Av)</div><div class="metric-val" id="ni-gain">11</div><div class="metric-unit">×</div></div>
+    <div class="metric"><div class="metric-lbl">Vout</div><div class="metric-val" id="ni-vout">1.10</div><div class="metric-unit">V</div></div>
+    <div class="metric"><div class="metric-lbl">FASA</div><div class="metric-val" style="font-size:10px">0° SAMA</div><div class="metric-unit"></div></div>
+    <div class="metric"><div class="metric-lbl">CLIPPING</div><div class="metric-val" id="ni-clip" style="font-size:10px">TIDAK</div><div class="metric-unit"></div></div>
+  </div>
+  <div class="info">Non-Inverting: Av = <span>1 + Rf/R1</span> &nbsp;|&nbsp; fasa sama<br>Impedansi input sangat tinggi → tidak membebani sumber</div>
+</div>
+
+<div class="panel" id="p-comp">
+  <canvas id="c-comp" class="brd" width="460" height="200" style="width:100%"></canvas>
+  <div class="ctrl">
+    <div class="ctrl-row"><span class="ctrl-lbl">⚡ V+ (input)</span><input type="range" class="sl" id="cp-vp" min="-5" max="5" value="1" step="0.1"><span class="ctrl-val" id="cp-vp-lbl">1.0 V</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">📏 V− (ref)</span><input type="range" class="sl" id="cp-vn" min="-5" max="5" value="0" step="0.1"><span class="ctrl-val" id="cp-vn-lbl">0.0 V</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">⚡ Vsat (±)</span><input type="range" class="sl" id="cp-vsat" min="3" max="15" value="12" step="0.5"><span class="ctrl-val" id="cp-vsat-lbl">±12 V</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">📐 Histeresis</span><input type="range" class="sl" id="cp-hyst" min="0" max="2" value="0" step="0.05"><span class="ctrl-val" id="cp-hyst-lbl">0.00 V</span></div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-lbl">V+</div><div class="metric-val" id="cp-mvp">1.00</div><div class="metric-unit">V</div></div>
+    <div class="metric"><div class="metric-lbl">V−</div><div class="metric-val" id="cp-mvn">0.00</div><div class="metric-unit">V</div></div>
+    <div class="metric"><div class="metric-lbl">Vout</div><div class="metric-val" id="cp-vout">+12</div><div class="metric-unit">V</div></div>
+    <div class="metric"><div class="metric-lbl">OUTPUT</div><div class="metric-val" id="cp-out" style="font-size:11px">HIGH</div><div class="metric-unit"></div></div>
+  </div>
+  <div class="info">Komparator: Vout = <span>+Vsat</span> jika V+ &gt; V−<br>Dengan histeresis → <span>Schmitt Trigger</span> (anti-noise)</div>
+</div>
+
+<div class="panel" id="p-diff">
+  <canvas id="c-diff" class="brd" width="460" height="200" style="width:100%"></canvas>
+  <div class="ctrl">
+    <div class="ctrl-row"><span class="ctrl-lbl">⚡ V1 (mV)</span><input type="range" class="sl" id="df-v1" min="-500" max="500" value="200" step="10"><span class="ctrl-val" id="df-v1-lbl">200 mV</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">⚡ V2 (mV)</span><input type="range" class="sl" id="df-v2" min="-500" max="500" value="100" step="10"><span class="ctrl-val" id="df-v2-lbl">100 mV</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">⚙ R gain</span><input type="range" class="sl" id="df-r" min="1000" max="100000" value="10000" step="1000"><span class="ctrl-val" id="df-r-lbl">10 kΩ</span></div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-lbl">V1</div><div class="metric-val" id="df-mv1">200</div><div class="metric-unit">mV</div></div>
+    <div class="metric"><div class="metric-lbl">V2</div><div class="metric-val" id="df-mv2">100</div><div class="metric-unit">mV</div></div>
+    <div class="metric"><div class="metric-lbl">Vout</div><div class="metric-val" id="df-vout">1.00</div><div class="metric-unit">V</div></div>
+    <div class="metric"><div class="metric-lbl">GAIN</div><div class="metric-val" id="df-gain">10</div><div class="metric-unit">×</div></div>
+  </div>
+  <div class="info">Differential: Vout = <span>Gain × (V1−V2)</span><br>Digunakan pada <span>sensor bridge</span> dan instrumentasi</div>
+</div>
+
+<!-- ══ OTHER PANELS ══ -->
+<div class="panel" id="p-solar">
+  <canvas id="c-solar" class="brd" width="460" height="200" style="width:100%"></canvas>
+  <div class="ctrl">
+    <div class="ctrl-row"><span class="ctrl-lbl">☀ Iradiasi (W/m²)</span><input type="range" class="sl" id="sl-irr" min="0" max="1000" value="500" step="10"><span class="ctrl-val" id="sl-irr-lbl">500 W/m²</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">🌡 Suhu sel (°C)</span><input type="range" class="sl" id="sl-temp" min="0" max="80" value="25" step="1"><span class="ctrl-val" id="sl-temp-lbl">25 °C</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">⚙ R beban</span><input type="range" class="sl" id="sl-rl" min="1" max="200" value="20" step="1"><span class="ctrl-val" id="sl-rl-lbl">20 Ω</span></div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-lbl">Isc</div><div class="metric-val" id="sl-isc">2.50</div><div class="metric-unit">A</div></div>
+    <div class="metric"><div class="metric-lbl">Voc</div><div class="metric-val" id="sl-voc">0.60</div><div class="metric-unit">V</div></div>
+    <div class="metric"><div class="metric-lbl">Pmax</div><div class="metric-val" id="sl-pmax">1.13</div><div class="metric-unit">W</div></div>
+    <div class="metric"><div class="metric-lbl">EFISIENSI</div><div class="metric-val" id="sl-eff">22.5</div><div class="metric-unit">%</div></div>
+  </div>
+  <div class="info">Solar Cell: efek fotovoltaik → <span>konversi cahaya ke listrik</span><br>Suhu naik → Voc turun | Iradiasi naik → Isc naik</div>
+</div>
+
+<div class="panel" id="p-ujt">
+  <canvas id="c-ujt" class="brd" width="460" height="200" style="width:100%"></canvas>
+  <div class="ctrl">
+    <div class="ctrl-row"><span class="ctrl-lbl">⚡ VBB</span><input type="range" class="sl" id="uj-vbb" min="5" max="30" value="20" step="0.5"><span class="ctrl-val" id="uj-vbb-lbl">20 V</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">🔌 VE (Emitter)</span><input type="range" class="sl" id="uj-ve" min="0" max="25" value="0" step="0.5"><span class="ctrl-val" id="uj-ve-lbl">0.0 V</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">📶 η (eta)</span><input type="range" class="sl" id="uj-eta" min="0.3" max="0.9" value="0.63" step="0.01"><span class="ctrl-val" id="uj-eta-lbl">0.63</span></div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-lbl">VP (peak)</div><div class="metric-val" id="uj-vp">13.3</div><div class="metric-unit">V</div></div>
+    <div class="metric"><div class="metric-lbl">STATUS</div><div class="metric-val" id="uj-status" style="font-size:10px">BLOCKING</div><div class="metric-unit"></div></div>
+    <div class="metric"><div class="metric-lbl">IE</div><div class="metric-val" id="uj-ie">0.00</div><div class="metric-unit">mA</div></div>
+    <div class="metric"><div class="metric-lbl">RBB</div><div class="metric-val" id="uj-rbb">5.0</div><div class="metric-unit">kΩ</div></div>
+  </div>
+  <div class="info">UJT: konduksi saat VE &gt; <span>VP = η×VBB + 0.7</span><br>Digunakan pada rangkaian <span>osilator relaksasi</span></div>
+</div>
+
+<div class="panel" id="p-tunnel">
+  <canvas id="c-tunnel" class="brd" width="460" height="200" style="width:100%"></canvas>
+  <div class="ctrl">
+    <div class="ctrl-row"><span class="ctrl-lbl">⚡ Tegangan (mV)</span><input type="range" class="sl" id="tn-v" min="-100" max="600" value="100" step="5"><span class="ctrl-val" id="tn-v-lbl">100 mV</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">📶 Ip (peak)</span><input type="range" class="sl" id="tn-ip" min="1" max="20" value="10" step="0.5"><span class="ctrl-val" id="tn-ip-lbl">10 mA</span></div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-lbl">ARUS</div><div class="metric-val" id="tn-i">10.0</div><div class="metric-unit">mA</div></div>
+    <div class="metric"><div class="metric-lbl">Vp</div><div class="metric-val">~80</div><div class="metric-unit">mV</div></div>
+    <div class="metric"><div class="metric-lbl">Vv</div><div class="metric-val">~350</div><div class="metric-unit">mV</div></div>
+    <div class="metric"><div class="metric-lbl">REGION</div><div class="metric-val" id="tn-reg" style="font-size:9px">TUNNELING</div><div class="metric-unit"></div></div>
+  </div>
+  <div class="info">Tunnel Dioda: efek kuantum → <span>NDR (negative resistance)</span><br>Arus turun saat tegangan naik → aplikasi <span>osilator GHz</span></div>
+</div>
+
+</div><!-- /card -->
+<footer>◈ KOMPONEN AKTIF ELEKTRONIKA ◈</footer>
+</div>
+
+</html>
+<script>
+"use strict";
+
+// ── GLOBALS ─────────────────────────────────────────────────
+var activePanel = "pn";
+var activeCat   = "diode";
+
+function el(id) { return document.getElementById(id); }
+
+function fmtR(v) {
+  if (v >= 1e6) return (v / 1e6).toFixed(2) + " MΩ";
+  if (v >= 1e3) return (v / 1e3).toFixed(1) + " kΩ";
+  return v.toFixed(0) + " Ω";
+}
+function clr(ctx, col, blur) {
+  ctx.shadowColor = col; ctx.shadowBlur = blur || 0;
+}
+
+// slider gradient
+document.querySelectorAll(".sl").forEach(function(s) {
+  function u() { s.style.setProperty("--pct", ((s.value - s.min) / (s.max - s.min) * 100).toFixed(1) + "%"); }
+  u(); s.addEventListener("input", u);
+});
+
+// Category tab switching
+var catPanelMap = {
+  diode: ["pn","zener","schottky","led","photo","varactor"],
+  bjt: ["npn","pnp","darlington"],
+  fet: ["nmos","pmos","jfet","cmos"],
+  thyristor: ["scr","triac","diac","igbt"],
+  opamp: ["inv","noninv","comp","diff"],
+  other: ["solar","ujt","tunnel"]
+};
+
+document.querySelectorAll(".ctab").forEach(function(t) {
+  t.addEventListener("click", function() {
+    document.querySelectorAll(".ctab").forEach(function(x) { x.classList.remove("on"); });
+    t.classList.add("on");
+    activeCat = t.dataset.cat;
+    // show/hide cat containers
+    ["diode","bjt","fet","thyristor","opamp","other"].forEach(function(c) {
+      el("cat-" + c).style.display = c === activeCat ? "" : "none";
+    });
+    // activate first panel of this cat
+    var panels = catPanelMap[activeCat];
+    if (panels && panels.length) switchPanel(panels[0]);
+  });
+});
+
+function switchPanel(pid) {
+  // update ptabs for active cat
+  var catEl = el("cat-" + activeCat);
+  if (catEl) {
+    catEl.querySelectorAll(".ptab").forEach(function(x) {
+      x.classList.toggle("on", x.dataset.panel === pid);
+    });
+  }
+  // switch panels
+  document.querySelectorAll(".panel").forEach(function(x) { x.classList.remove("on"); });
+  var pEl = el("p-" + pid);
+  if (pEl) pEl.classList.add("on");
+  activePanel = pid;
+}
+
+// Sub-tab switching
+document.querySelectorAll(".ptab").forEach(function(t) {
+  t.addEventListener("click", function() {
+    // find parent cat
+    var parent = t.closest("[id^='cat-']");
+    if (parent) {
+      parent.querySelectorAll(".ptab").forEach(function(x) { x.classList.remove("on"); });
+    }
+    t.classList.add("on");
+    switchPanel(t.dataset.panel);
+  });
+});
+
+// ── DRAW HELPERS ────────────────────────────────────────────
+function rr(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y); ctx.arcTo(x+w,y,x+w,y+r,r);
+  ctx.lineTo(x+w,y+h-r); ctx.arcTo(x+w,y+h,x+w-r,y+h,r);
+  ctx.lineTo(x+r,y+h); ctx.arcTo(x,y+h,x,y+h-r,r);
+  ctx.lineTo(x,y+r); ctx.arcTo(x,y,x+r,y,r); ctx.closePath();
+}
+
+function wire(ctx, x1, y1, x2, y2, col) {
+  ctx.strokeStyle = col || "#0d3330"; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+}
+
+function dot(ctx, x, y, r, col, glow) {
+  ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2);
+  ctx.fillStyle = col;
+  if (glow) { ctx.shadowColor = col; ctx.shadowBlur = glow; }
+  ctx.fill(); ctx.shadowBlur = 0;
+}
+
+function particles(ctx, pts, t, spd, col, n) {
+  for (var s = 0; s < pts.length - 1; s++) {
+    var x1=pts[s][0], y1=pts[s][1], x2=pts[s+1][0], y2=pts[s+1][1];
+    for (var i = 0; i < n; i++) {
+      var f = ((t * spd + s * 0.25 + i / n) % 1 + 1) % 1;
+      var px = x1 + f*(x2-x1), py = y1 + f*(y2-y1);
+      if (px < Math.min(x1,x2)-2 || px > Math.max(x1,x2)+2) continue;
+      if (py < Math.min(y1,y2)-2 || py > Math.max(y1,y2)+2) continue;
+      dot(ctx, px, py, 3, col, 7);
+    }
+  }
+}
+
+function drawBattery(ctx, cx, cy, V, col) {
+  col = col || "#00e5cc";
+  rr(ctx, cx-18, cy-34, 36, 68, 4);
+  ctx.fillStyle = "#060f0d"; ctx.strokeStyle = col; ctx.lineWidth = 2;
+  ctx.fill(); ctx.stroke();
+  var bg = ctx.createLinearGradient(0,cy+30,0,cy-30);
+  bg.addColorStop(0,"rgba(0,229,204,0)"); bg.addColorStop(1,col);
+  ctx.fillStyle = bg; ctx.globalAlpha = 0.65;
+  rr(ctx,cx-16,cy-28,32,56,2); ctx.fill(); ctx.globalAlpha = 1;
+  ctx.fillStyle = col; ctx.font = "9px Share Tech Mono"; ctx.textAlign = "center";
+  ctx.fillText(V+"V", cx, cy+48);
+}
+
+function drawOpAmp(ctx, cx, cy, sz) {
+  sz = sz || 36;
+  ctx.fillStyle = "#0a1a18"; ctx.strokeStyle = "#00e5cc"; ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(cx - sz, cy - sz);
+  ctx.lineTo(cx - sz, cy + sz);
+  ctx.lineTo(cx + sz, cy);
+  ctx.closePath();
+  ctx.fill(); ctx.stroke();
+  ctx.fillStyle = "#00e5cc"; ctx.font = "9px Share Tech Mono"; ctx.textAlign = "center";
+  ctx.fillText("−", cx - sz + 10, cy - sz/2 + 4);
+  ctx.fillText("+", cx - sz + 10, cy + sz/2 + 4);
+}
+
+function drawDiode(ctx, cx, cy, sz, col, filled) {
+  sz = sz || 18;
+  ctx.strokeStyle = col; ctx.fillStyle = filled ? col : "transparent"; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(cx-sz,cy-sz); ctx.lineTo(cx+sz,cy); ctx.lineTo(cx-sz,cy+sz); ctx.closePath();
+  ctx.fill(); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx+sz,cy-sz); ctx.lineTo(cx+sz,cy+sz); ctx.stroke();
+}
+
+function drawMOSFET(ctx, cx, cy, sz, col, on, ntype) {
+  sz = sz || 26;
+  col = col || "#00e5cc";
+  ctx.fillStyle = "#060f0d"; ctx.strokeStyle = col; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.arc(cx,cy,sz,0,Math.PI*2);
+  if (on) { ctx.shadowColor = col; ctx.shadowBlur = 12; }
+  ctx.fill(); ctx.stroke(); ctx.shadowBlur = 0;
+  // gate
+  ctx.strokeStyle = col; ctx.lineWidth = 2;
+  wire(ctx, cx-sz, cy, cx-sz*0.4, cy, col);
+  ctx.beginPath(); ctx.moveTo(cx-sz*0.4,cy-sz*0.7); ctx.lineTo(cx-sz*0.4,cy+sz*0.7); ctx.stroke();
+  // oxide
+  ctx.strokeStyle = on ? col : col+"55"; ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.moveTo(cx-sz*0.2,cy-sz*0.7); ctx.lineTo(cx-sz*0.2,cy+sz*0.7); ctx.stroke();
+  // drain/source
+  ctx.strokeStyle = col; ctx.lineWidth = 2;
+  wire(ctx, cx-sz*0.05,cy-sz*0.45, cx+sz*0.7,cy-sz*0.45, col);
+  wire(ctx, cx-sz*0.05,cy+sz*0.45, cx+sz*0.7,cy+sz*0.45, col);
+  wire(ctx, cx+sz*0.7,cy-sz*0.45, cx+sz*0.7,cy-sz, col);
+  wire(ctx, cx+sz*0.7,cy+sz*0.45, cx+sz*0.7,cy+sz, col);
+  // channel
+  if (on) {
+    ctx.fillStyle = col+"55"; ctx.fillRect(cx-sz*0.1,cy-sz*0.45,sz*0.8,sz*0.9);
+  }
+  // arrow
+  if (ntype) {
+    ctx.fillStyle = col;
+    ctx.save(); ctx.translate(cx-sz*0.05,cy);
+    ctx.beginPath(); ctx.moveTo(0,-4); ctx.lineTo(-8,0); ctx.lineTo(0,4); ctx.closePath(); ctx.fill();
+    ctx.restore();
+  }
+}
+
+function sineWave(ctx, x, y, w, h, t, freq, col, phase) {
+  phase = phase || 0; freq = freq || 1;
+  ctx.beginPath(); ctx.strokeStyle = col; ctx.lineWidth = 2;
+  ctx.shadowColor = col; ctx.shadowBlur = 4;
+  for (var i = 0; i <= w; i++) {
+    var sy = y - Math.sin((i/w)*Math.PI*4*freq - t + phase) * h;
+    if (i === 0) ctx.moveTo(x+i, sy); else ctx.lineTo(x+i, sy);
+  }
+  ctx.stroke(); ctx.shadowBlur = 0;
+}
+
+// ════════════════════════════════════════════════════════════
+// PANEL: PN DIODE
+// ════════════════════════════════════════════════════════════
+(function() {
+  var cvs = el("c-pn"), ctx = cvs.getContext("2d");
+  var TYPES = [{name:"Silicon",vf:0.7},{name:"Germanium",vf:0.3},{name:"Schottky",vf:0.2}];
+  var V=0.7, R=1000, tidx=0;
+  function read() {
+    V=parseFloat(el("pn-v").value); R=parseFloat(el("pn-r").value); tidx=parseInt(el("pn-type").value);
+    el("pn-v-lbl").textContent=V.toFixed(2)+" V"; el("pn-r-lbl").textContent=fmtR(R);
+    el("pn-type-lbl").textContent=TYPES[tidx].name; upd();
+  }
+  function upd() {
+    var d=TYPES[tidx]; var on=V>d.vf; var I=on?(V-d.vf)/R*1000:0; var P=on?(d.vf*I):0;
+    el("pn-status").textContent=on?"MAJU":(V<0?"BALIK":"BAWAH Vf");
+    el("pn-status").style.color=on?"var(--c1)":V<0?"var(--r)":"var(--y)";
+    el("pn-vf").textContent=d.vf.toFixed(2); el("pn-i").textContent=I.toFixed(2); el("pn-p").textContent=P.toFixed(2);
+  }
+  ["pn-v","pn-r","pn-type"].forEach(function(id){el(id).addEventListener("input",read);});
+  function draw(ts) {
+    if (activePanel!=="pn"){requestAnimationFrame(draw);return;}
+    var W=cvs.width,H=cvs.height,t=ts/700;
+    ctx.clearRect(0,0,W,H);
+    var d=TYPES[tidx]; var on=V>d.vf; var I=on?(V-d.vf)/R:0; var inorm=Math.min(I/0.01,1);
+    var lx=40,rx=W-40,ty=H/2-30,by=H/2+30;
+    // circuit wires
+    var wc="#0d3330";
+    [[lx,ty,rx,ty],[rx,ty,rx,by],[lx,by,rx,by],[lx,ty,lx,by]].forEach(function(s){wire(ctx,s[0],s[1],s[2],s[3],wc);});
+    // battery
+    drawBattery(ctx, lx-2, H/2, V, V>=0?"#00e5cc":"#ff3355");
+    // diode top center
+    var dmx=W/2;
+    wire(ctx,lx,ty,dmx-24,ty,wc); wire(ctx,dmx+24,ty,rx,ty,wc);
+    var dcol=on?"#00e5cc":V<0?"#ff3355":"#ffe044";
+    if (on){ctx.shadowColor=dcol;ctx.shadowBlur=14;}
+    drawDiode(ctx,dmx,ty,20,dcol,on);
+    ctx.shadowBlur=0;
+    // polarity
+    ctx.fillStyle="#ff3355";ctx.font="10px Share Tech Mono";ctx.textAlign="center";ctx.fillText("A",dmx-28,ty-12);
+    ctx.fillStyle="#44aaff";ctx.fillText("K",dmx+28,ty-12);
+    ctx.fillStyle=dcol;ctx.font="9px Share Tech Mono";ctx.fillText(d.name+" Vf="+d.vf+"V",dmx,ty+36);
+    // ammeter
+    ctx.beginPath();ctx.arc(rx+18,H/2,16,0,Math.PI*2);
+    ctx.fillStyle="#060f0d";ctx.strokeStyle=on?"#00e5cc":"#0d3330";ctx.lineWidth=2;
+    if(on){ctx.shadowColor="#00e5cc";ctx.shadowBlur=8;}ctx.fill();ctx.stroke();ctx.shadowBlur=0;
+    ctx.fillStyle=on?"#00e5cc":"#224a44";ctx.font="8px Share Tech Mono";ctx.textAlign="center";
+    ctx.fillText("A",rx+18,H/2-2);ctx.fillText(I>0?((I*1000).toFixed(1)):0,rx+18,H/2+8);
+    if (on){
+      var spd=0.35+inorm*0.7;
+      particles(ctx,[[lx,ty],[dmx-24,ty],[dmx+24,ty],[rx,ty],[rx,by],[lx,by]],t,spd,"rgba(0,229,204,0.85)",2);
+    }
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw); read();
+})();
+
+// ════════════════════════════════════════════════════════════
+// PANEL: ZENER
+// ════════════════════════════════════════════════════════════
+(function() {
+  var cvs=el("c-zener"),ctx=cvs.getContext("2d");
+  var VIN=15,VZ=5,R=1000,RL=5000;
+  function read() {
+    VIN=parseFloat(el("zn-vin").value);VZ=parseFloat(el("zn-vz").value);
+    R=parseFloat(el("zn-r").value);RL=parseFloat(el("zn-rl").value);
+    el("zn-vin-lbl").textContent=VIN.toFixed(1)+" V";el("zn-vz-lbl").textContent=VZ.toFixed(1)+" V";
+    el("zn-r-lbl").textContent=fmtR(R);el("zn-rl-lbl").textContent=fmtR(RL); upd();
+  }
+  function upd() {
+    var reg=VIN>VZ; var Vout=reg?VZ:VIN;
+    var Ir=(VIN-Vout)/R*1000; var Il=Vout/RL*1000; var Iz=reg?Math.max(0,Ir-Il):0;
+    var P=Iz*Vout/1000;
+    el("zn-vout").textContent=Vout.toFixed(2);el("zn-iz").textContent=Iz.toFixed(2);
+    el("zn-pdis").textContent=(P*1000).toFixed(1);
+    el("zn-status").textContent=reg&&Iz>0?"REGULASI":!reg?"TIDAK AKTIF":"OVER BEBAN";
+    el("zn-status").style.color=reg&&Iz>0?"var(--c1)":"var(--r)";
+  }
+  ["zn-vin","zn-vz","zn-r","zn-rl"].forEach(function(id){el(id).addEventListener("input",read);});
+  function draw(ts) {
+    if(activePanel!=="zener"){requestAnimationFrame(draw);return;}
+    var W=cvs.width,H=cvs.height,t=ts/700;
+    ctx.clearRect(0,0,W,H);
+    var reg=VIN>VZ; var Vout=reg?VZ:VIN;
+    var Ir=(VIN-Vout)/R; var inorm=Math.min(Ir/0.02,1);
+    var lx=35,rx=W-35,cy=H/2,mx=W/2+25;
+    var wc="#0d3330";
+    [[lx,35,rx,35],[rx,35,rx,H-20],[lx,H-20,rx,H-20],[lx,35,lx,H-20]].forEach(function(s){wire(ctx,s[0],s[1],s[2],s[3],wc);});
+    drawBattery(ctx,lx-2,cy,VIN,"#00e5cc");
+    // series R
+    var rmx=lx+80;
+    wire(ctx,lx,35,rmx-24,35,wc); wire(ctx,rmx+24,35,mx,35,wc);
+    rr(ctx,rmx-24,35-10,48,20,3);ctx.fillStyle="#0a1800";ctx.strokeStyle="#ff9933";ctx.lineWidth=2;ctx.fill();ctx.stroke();
+    ctx.beginPath();ctx.strokeStyle="#ff9933";ctx.lineWidth=1.2;var zx=rmx-18;ctx.moveTo(zx,35);
+    for(var i=0;i<=5;i++)ctx.lineTo(zx+i*36/5,35+(i%2===0?-7:7));ctx.lineTo(rmx+18,35);ctx.stroke();
+    ctx.fillStyle="#ff9933";ctx.font="8px Share Tech Mono";ctx.textAlign="center";ctx.fillText(fmtR(R).replace(" ",""),rmx,35+18);
+    // zener diode
+    wire(ctx,mx,35,mx,cy-22,wc); wire(ctx,mx,cy+22,mx,H-20,wc);
+    ctx.strokeStyle=reg?"#00e5cc":"#224a44"; ctx.fillStyle=reg?"#00e5cc":"transparent"; ctx.lineWidth=2;
+    if(reg){ctx.shadowColor="#00e5cc";ctx.shadowBlur=12;}
+    ctx.save();ctx.translate(mx,cy);ctx.rotate(Math.PI/2);
+    ctx.beginPath();ctx.moveTo(-18,-18);ctx.lineTo(18,0);ctx.lineTo(-18,18);ctx.closePath();ctx.fill();ctx.stroke();
+    ctx.beginPath();ctx.moveTo(18,-24);ctx.lineTo(18,-18);ctx.lineTo(18,18);ctx.lineTo(18,24);ctx.stroke();
+    ctx.restore();ctx.shadowBlur=0;
+    ctx.fillStyle="var(--c1)";ctx.font="8px Share Tech Mono";ctx.textAlign="left";ctx.fillText("Vz="+VZ+"V",mx+12,cy+4);
+    // load R
+    rr(ctx,rx-10,cy-20,20,40,3);ctx.fillStyle="#001018";ctx.strokeStyle="#44aaff";ctx.lineWidth=2;ctx.fill();ctx.stroke();
+    ctx.beginPath();ctx.strokeStyle="#44aaff";ctx.lineWidth=1.2;ctx.moveTo(rx,cy-14);
+    for(var j=0;j<=5;j++)ctx.lineTo(rx+(j%2===0?-6:6),cy-14+j*28/5);ctx.lineTo(rx,cy+14);ctx.stroke();
+    ctx.fillStyle="#44aaff";ctx.font="8px Share Tech Mono";ctx.textAlign="center";ctx.fillText(fmtR(RL).replace(" ",""),rx,cy+28);
+    // Vout label
+    ctx.fillStyle="#ffe044";ctx.font="bold 11px Share Tech Mono";ctx.textAlign="center";
+    ctx.shadowColor="#ffe044";ctx.shadowBlur=8;ctx.fillText("Vout="+Vout.toFixed(2)+"V",(mx+rx)/2,35-12);ctx.shadowBlur=0;
+    if(inorm>0.01){
+      particles(ctx,[[lx,35],[rmx-24,35],[rmx+24,35],[mx,35],[mx,cy-22]],t,0.3+inorm*0.5,"rgba(0,229,204,0.85)",2);
+      particles(ctx,[[mx,cy+22],[mx,H-20],[lx,H-20]],t,0.3,"rgba(0,229,204,0.5)",1);
+    }
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw); read();
+})();
+
+// ════════════════════════════════════════════════════════════
+// PANEL: SCHOTTKY
+// ════════════════════════════════════════════════════════════
+(function() {
+  var cvs=el("c-schottky"),ctx=cvs.getContext("2d");
+  var V=0.5,R=500;
+  function read(){
+    V=parseFloat(el("sk-v").value);R=parseFloat(el("sk-r").value);
+    el("sk-v-lbl").textContent=V.toFixed(2)+" V"; el("sk-r-lbl").textContent=fmtR(R);
+    el("sk-i").textContent=V>0.2?((V-0.2)/R*1000).toFixed(2):"0.00";
+  }
+  ["sk-v","sk-r"].forEach(function(id){el(id).addEventListener("input",read);});
+  function draw(ts) {
+    if(activePanel!=="schottky"){requestAnimationFrame(draw);return;}
+    var W=cvs.width,H=cvs.height,t=ts/700;
+    ctx.clearRect(0,0,W,H);
+    var si_on=V>0.7, sk_on=V>0.2;
+    var cy=H/2, cx=W/2;
+    // Labels panel
+    ctx.fillStyle="#0d3330"; ctx.fillRect(0,0,W,H);
+    // Draw both diodes for comparison
+    var skX=cx-80, siX=cx+80;
+    // Schottky
+    wire(ctx,skX-50,cy,skX-22,cy,"#0d3330"); wire(ctx,skX+22,cy,skX+50,cy,"#0d3330");
+    var skcol=sk_on?"#00e5cc":"#224a44";
+    if(sk_on){ctx.shadowColor=skcol;ctx.shadowBlur=16;}
+    drawDiode(ctx,skX,cy,18,skcol,sk_on);ctx.shadowBlur=0;
+    // Schottky S-mark on bar
+    ctx.strokeStyle=skcol;ctx.lineWidth=2;
+    ctx.beginPath();ctx.moveTo(skX+18,cy-20);ctx.bezierCurveTo(skX+26,cy-14,skX+10,cy-6,skX+18,cy);
+    ctx.bezierCurveTo(skX+26,cy+6,skX+10,cy+14,skX+18,cy+20);ctx.stroke();
+    ctx.fillStyle=skcol;ctx.font="bold 10px Share Tech Mono";ctx.textAlign="center";
+    ctx.fillText("SCHOTTKY",skX,cy+42);ctx.font="9px Share Tech Mono";ctx.fillText("Vf = 0.2V",skX,cy+55);
+    ctx.fillStyle=sk_on?"#00ff88":"var(--dim)";ctx.fillText(sk_on?"ON ("+V.toFixed(2)+"V)":"OFF",skX,cy-36);
+    // Silicon
+    wire(ctx,siX-50,cy,siX-22,cy,"#0d3330"); wire(ctx,siX+22,cy,siX+50,cy,"#0d3330");
+    var sicol=si_on?"#ff9933":"#3a1800";
+    if(si_on){ctx.shadowColor=sicol;ctx.shadowBlur=14;}
+    drawDiode(ctx,siX,cy,18,sicol,si_on);ctx.shadowBlur=0;
+    ctx.fillStyle=sicol;ctx.font="bold 10px Share Tech Mono";ctx.textAlign="center";
+    ctx.fillText("SILICON PN",siX,cy+42);ctx.font="9px Share Tech Mono";ctx.fillText("Vf = 0.7V",siX,cy+55);
+    ctx.fillStyle=si_on?"#ff9933":"var(--dim)";ctx.fillText(si_on?"ON ("+V.toFixed(2)+"V)":"OFF (belum "+V.toFixed(2)+"V)",siX,cy-36);
+    // V bar
+    var bx=30,bw=W-60,bby=H-26,bh=10;
+    ctx.fillStyle="#040c0b";rr(ctx,bx,bby,bw,bh,3);ctx.fill();
+    ctx.strokeStyle="#0d3330";ctx.lineWidth=1;rr(ctx,bx,bby,bw,bh,3);ctx.stroke();
+    var vpct=Math.min(V/3,1);
+    ctx.fillStyle="rgba(0,229,204,0.7)";rr(ctx,bx,bby,vpct*bw,bh,3);ctx.fill();
+    // markers
+    [0.2/3,0.7/3].forEach(function(f,i){
+      var mx=bx+f*bw; var mc=i===0?"#00e5cc":"#ff9933";
+      ctx.strokeStyle=mc;ctx.lineWidth=2;ctx.setLineDash([3,3]);
+      ctx.beginPath();ctx.moveTo(mx,bby-5);ctx.lineTo(mx,bby+bh+5);ctx.stroke();ctx.setLineDash([]);
+      ctx.fillStyle=mc;ctx.font="8px Share Tech Mono";ctx.textAlign="center";
+      ctx.fillText(i===0?"0.2V":"0.7V",mx,bby-9);
+    });
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw); read();
+})();
+
+// ════════════════════════════════════════════════════════════
+// PANEL: LED
+// ════════════════════════════════════════════════════════════
+(function() {
+  var cvs=el("c-led"),ctx=cvs.getContext("2d");
+  var LEDS=[{n:"MERAH",h:"#ff2244",vf:1.8,wl:625},{n:"ORANYE",h:"#ff7700",vf:2.0,wl:610},
+            {n:"KUNING",h:"#ffee00",vf:2.1,wl:590},{n:"HIJAU",h:"#00ff44",vf:2.2,wl:530},{n:"BIRU",h:"#2244ff",vf:3.2,wl:470}];
+  var V=5,R=220,ci=0;
+  var photons=[];for(var pi=0;pi<30;pi++)photons.push({x:0,y:0,vx:0,vy:0,life:0,maxLife:1,col:"#ff0"});
+  var frm=0;
+  function read(){
+    V=parseFloat(el("ld-v").value);R=parseFloat(el("ld-r").value);ci=parseInt(el("ld-col").value);
+    el("ld-v-lbl").textContent=V.toFixed(1)+" V";el("ld-r-lbl").textContent=R+" Ω";el("ld-col-lbl").textContent=LEDS[ci].n;
+    var lc=LEDS[ci]; var I=V>lc.vf?(V-lc.vf)/R*1000:0; var b=Math.min(I/20,1);
+    el("ld-i").textContent=I.toFixed(1);el("ld-vf").textContent=lc.vf.toFixed(1);
+    el("ld-wl").textContent=lc.wl;el("ld-bright").textContent=(b*100).toFixed(0);
+  }
+  ["ld-v","ld-r","ld-col"].forEach(function(id){el(id).addEventListener("input",read);});
+  function spawnPhoton(cx,cy,lc,b){
+    var p=null;for(var i=0;i<photons.length;i++){if(photons[i].life<=0){p=photons[i];break;}}
+    if(!p)return;
+    var a=-Math.PI/2+(-0.9+Math.random()*1.8);var spd=1+Math.random()*2;
+    p.x=cx;p.y=cy;p.vx=Math.cos(a)*spd;p.vy=Math.sin(a)*spd;
+    p.life=30+Math.random()*30;p.maxLife=p.life;p.col=lc.h;
+  }
+  function draw(ts){
+    if(activePanel!=="led"){requestAnimationFrame(draw);return;}
+    var W=cvs.width,H=cvs.height,t=ts/700;
+    ctx.clearRect(0,0,W,H);frm++;
+    var lc=LEDS[ci];var I=V>lc.vf?(V-lc.vf)/R*1000:0;var b=Math.min(I/20,1);
+    var lx=35,rx=W-35,ty=50,by=H-20,cx2=W/2;
+    if(b>0.05&&frm%2===0)spawnPhoton(cx2,ty,lc,b);
+    photons.forEach(function(p){
+      if(p.life<=0)return;p.x+=p.vx;p.y+=p.vy;p.life--;
+      var a=p.life/p.maxLife;
+      ctx.beginPath();ctx.arc(p.x,p.y,2,0,Math.PI*2);
+      ctx.fillStyle=p.col;ctx.globalAlpha=a*b;ctx.shadowColor=p.col;ctx.shadowBlur=6;ctx.fill();ctx.shadowBlur=0;
+    });ctx.globalAlpha=1;
+    [[lx,ty,rx,ty],[rx,ty,rx,by],[lx,by,rx,by],[lx,ty,lx,by]].forEach(function(s){wire(ctx,s[0],s[1],s[2],s[3],"#0d3330");});
+    drawBattery(ctx,lx-2,(ty+by)/2,V,"#00e5cc");
+    // R seri
+    var rmx=cx2-70;wire(ctx,lx,ty,rmx-22,ty,"#0d3330");wire(ctx,rmx+22,ty,cx2-24,ty,"#0d3330");
+    rr(ctx,rmx-22,ty-10,44,20,3);ctx.fillStyle="#0a1800";ctx.strokeStyle="#ff9933";ctx.lineWidth=2;ctx.fill();ctx.stroke();
+    ctx.fillStyle="#ff9933";ctx.font="8px Share Tech Mono";ctx.textAlign="center";ctx.fillText(R+"Ω",rmx,ty+18);
+    // LED glow
+    if(b>0.05){
+      var gr=ctx.createRadialGradient(cx2,ty,0,cx2,ty,80*b);
+      gr.addColorStop(0,lc.h+Math.round(b*100).toString(16).padStart(2,"0"));gr.addColorStop(1,"transparent");
+      ctx.fillStyle=gr;ctx.fillRect(cx2-100,ty-60,200,140);
+    }
+    // LED symbol
+    wire(ctx,cx2-24,ty,cx2-24,ty,"#0d3330");wire(ctx,cx2+24,ty,rx,ty,"#0d3330");
+    ctx.strokeStyle=lc.h;ctx.fillStyle=b>0.1?lc.h:"transparent";ctx.lineWidth=2;
+    if(b>0.05){ctx.shadowColor=lc.h;ctx.shadowBlur=6+b*18;}
+    ctx.beginPath();ctx.moveTo(cx2-20,ty-20);ctx.lineTo(cx2+20,ty);ctx.lineTo(cx2-20,ty+20);ctx.closePath();ctx.fill();ctx.stroke();
+    ctx.beginPath();ctx.moveTo(cx2+20,ty-22);ctx.lineTo(cx2+20,ty+22);ctx.stroke();ctx.shadowBlur=0;
+    // rays
+    if(b>0.1){
+      [[-15,-32],[0,-36],[15,-32]].forEach(function(d){
+        ctx.strokeStyle=lc.h;ctx.lineWidth=1.5;ctx.globalAlpha=b;
+        ctx.beginPath();ctx.moveTo(cx2+22,-8+ty);ctx.lineTo(cx2+22+d[0],-8+ty+d[1]);ctx.stroke();
+        dot(ctx,cx2+22+d[0],-8+ty+d[1],2,lc.h);ctx.globalAlpha=1;
+      });
+    }
+    ctx.fillStyle=lc.h;ctx.font="9px Share Tech Mono";ctx.textAlign="center";
+    ctx.shadowColor=lc.h;ctx.shadowBlur=b*12;ctx.fillText("λ="+lc.wl+"nm  Vf="+lc.vf+"V",cx2,ty+38);ctx.shadowBlur=0;
+    // brightness bar
+    var bx=50,bby=H-16,bw=W-100;
+    ctx.fillStyle="#040c0b";rr(ctx,bx,bby,bw,10,3);ctx.fill();
+    if(b>0){ctx.fillStyle=lc.h;ctx.shadowColor=lc.h;ctx.shadowBlur=b*8;rr(ctx,bx,bby,bw*b,10,3);ctx.fill();ctx.shadowBlur=0;}
+    if(b>0.01){var spd=0.3+b*0.6;particles(ctx,[[lx,ty],[rmx-22,ty],[rmx+22,ty],[cx2-24,ty],[cx2+24,ty],[rx,ty],[rx,by],[lx,by]],t,spd,"rgba(0,229,204,0.8)",2);}
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);read();
+})();
+
+// ════════════════════════════════════════════════════════════
+// PANEL: PHOTO DIODE
+// ════════════════════════════════════════════════════════════
+(function() {
+  var cvs=el("c-photo"),ctx=cvs.getContext("2d");
+  var LUX=50,VR=5,RL=10000;
+  function read(){
+    LUX=parseFloat(el("ph-lux").value);VR=parseFloat(el("ph-vr").value);RL=parseFloat(el("ph-rl").value);
+    el("ph-lux-lbl").textContent=LUX+" %";el("ph-vr-lbl").textContent=VR.toFixed(1)+" V";el("ph-rl-lbl").textContent=fmtR(RL);
+    var Iph=LUX*5/1000;var Vout=Math.min(Iph*RL/1000,VR);
+    el("ph-i").textContent=(Iph*1000).toFixed(0);el("ph-vout").textContent=Vout.toFixed(2);el("ph-resp").textContent="0.50";
+  }
+  ["ph-lux","ph-vr","ph-rl"].forEach(function(id){el(id).addEventListener("input",read);});
+  function draw(ts){
+    if(activePanel!=="photo"){requestAnimationFrame(draw);return;}
+    var W=cvs.width,H=cvs.height,t=ts/700;
+    ctx.clearRect(0,0,W,H);
+    var Iph=LUX*5/1000; var inorm=LUX/100;
+    var cx2=W/2,cy=H/2;
+    // sun rays
+    for(var i=0;i<8;i++){
+      var angle=i*Math.PI/4-t*0.3;var r1=30,r2=44+Math.sin(t+i)*4;
+      ctx.strokeStyle="rgba(255,220,50,"+inorm*0.7+")";ctx.lineWidth=2;
+      ctx.beginPath();ctx.moveTo(cx2-120+Math.cos(angle)*r1,60+Math.sin(angle)*r1);
+      ctx.lineTo(cx2-120+Math.cos(angle)*r2,60+Math.sin(angle)*r2);ctx.stroke();
+    }
+    ctx.beginPath();ctx.arc(cx2-120,60,26,0,Math.PI*2);
+    ctx.fillStyle="rgba(255,220,50,"+inorm*0.9+")";ctx.shadowColor="#ffe044";ctx.shadowBlur=inorm*20;ctx.fill();ctx.shadowBlur=0;
+    ctx.fillStyle="#ffe044";ctx.font="9px Share Tech Mono";ctx.textAlign="center";ctx.fillText(LUX+"%",cx2-120,64);
+    // arrows pointing at diode
+    for(var j=0;j<3;j++){
+      var ay=cy-25+j*25;var ax=cx2-80;var prog=((t*0.5+j*0.35)%1);
+      ctx.strokeStyle="rgba(255,220,50,"+(inorm*(1-prog)*0.8)+")";ctx.lineWidth=2;
+      ctx.beginPath();ctx.moveTo(ax+prog*50,ay);ctx.lineTo(ax+prog*50+10,ay);ctx.stroke();
+    }
+    // diode reversed biased
+    var dcol=inorm>0.05?"#00e5cc":"#224a44";
+    wire(ctx,cx2-26,cy,cx2-66,cy,"#0d3330");wire(ctx,cx2+26,cy,cx2+66,cy,"#0d3330");
+    if(inorm>0.1){ctx.shadowColor=dcol;ctx.shadowBlur=12;}
+    drawDiode(ctx,cx2,cy,20,dcol,false);ctx.shadowBlur=0;
+    // arrows on diode (light arrows)
+    ctx.strokeStyle="rgba(255,220,50,"+inorm*0.8+")";ctx.lineWidth=1.5;
+    ctx.beginPath();ctx.moveTo(cx2-50,cy-30);ctx.lineTo(cx2-10,cy+10);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(cx2-35,cy-35);ctx.lineTo(cx2+5,cy+5);ctx.stroke();
+    // labels
+    ctx.fillStyle="#ffe044";ctx.font="8px Share Tech Mono";ctx.textAlign="center";ctx.fillText("hν",cx2-30,cy-38);
+    ctx.fillStyle=dcol;ctx.fillText("Fotodioda",cx2,cy+38);ctx.fillText("Mode Photoconductive",cx2,cy+50);
+    // output
+    var Vout=Math.min(Iph*RL/1000,VR);
+    rr(ctx,cx2+80,cy-24,60,48,5);ctx.fillStyle="#0a1a18";ctx.strokeStyle="#44aaff";ctx.lineWidth=2;ctx.fill();ctx.stroke();
+    ctx.fillStyle="#44aaff";ctx.font="bold 10px Share Tech Mono";ctx.textAlign="center";
+    ctx.fillText("Vout",cx2+110,cy-8);ctx.fillText(Vout.toFixed(2)+"V",cx2+110,cy+10);
+    if(inorm>0.05){
+      particles(ctx,[[cx2+26,cy],[cx2+66,cy]],t,0.3+inorm*0.5,"rgba(0,229,204,0.85)",2);
+    }
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);read();
+})();
+
+// ════════════════════════════════════════════════════════════
+// PANEL: VARACTOR
+// ════════════════════════════════════════════════════════════
+(function() {
+  var cvs=el("c-varactor"),ctx=cvs.getContext("2d");
+  var VR=5,L=100;
+  function C0(){return 100;}
+  function Cv(v){return C0()/Math.sqrt(1+v/0.7);}
+  function fr(c){var Ln=L*1e-9,Cn=c*1e-12;return 1/(2*Math.PI*Math.sqrt(Ln*Cn))/1e6;}
+  function read(){
+    VR=parseFloat(el("va-vr").value);L=parseFloat(el("va-l").value);
+    el("va-vr-lbl").textContent=VR.toFixed(1)+" V";el("va-l-lbl").textContent=L+" nH";
+    var cv=Cv(VR); var f=fr(cv); var sens=(Cv(VR+0.5)-Cv(VR-0.5));
+    el("va-c").textContent=cv.toFixed(1);el("va-fr").textContent=f.toFixed(1);el("va-sens").textContent=sens.toFixed(1);
+  }
+  ["va-vr","va-l"].forEach(function(id){el(id).addEventListener("input",read);});
+  function draw(ts){
+    if(activePanel!=="varactor"){requestAnimationFrame(draw);return;}
+    var W=cvs.width,H=cvs.height,t=ts/400;
+    ctx.clearRect(0,0,W,H);
+    var cv=Cv(VR); var f=fr(cv); var cnorm=cv/C0();
+    var cx2=W/2,cy=H/2;
+    // draw diode with variable cap symbol
+    wire(ctx,cx2-80,cy,cx2-24,cy,"#0d3330");wire(ctx,cx2+24,cy,cx2+80,cy,"#0d3330");
+    var vcol="rgba(0,229,204,0.85)";
+    drawDiode(ctx,cx2,cy,20,vcol,false);
+    // variable cap arrows on diode
+    ctx.strokeStyle="rgba(0,229,204,0.7)";ctx.lineWidth=1.5;
+    ctx.beginPath();ctx.moveTo(cx2+22,cy-8);ctx.lineTo(cx2+22-4,cy-8-6);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(cx2+22,cy-8);ctx.lineTo(cx2+22+4,cy-8-6);ctx.stroke();
+    // C graph
+    var gx=30,gy=H/2-55,gw=120,gh=50;
+    ctx.fillStyle="#040c0b";rr(ctx,gx,gy,gw,gh,4);ctx.fill();
+    ctx.strokeStyle="#0d3330";ctx.lineWidth=1;rr(ctx,gx,gy,gw,gh,4);ctx.stroke();
+    ctx.beginPath();ctx.strokeStyle="#00e5cc";ctx.lineWidth=2;
+    for(var px=0;px<=gw;px++){
+      var v2=px/gw*20;var cv2=C0()/Math.sqrt(1+v2/0.7);
+      var py=gy+gh-(cv2/C0())*gh;
+      if(px===0)ctx.moveTo(gx+px,py);else ctx.lineTo(gx+px,py);
+    }ctx.stroke();
+    // test dot
+    var ptx=gx+(VR/20)*gw;var pty=gy+gh-(cnorm)*gh;
+    dot(ctx,ptx,pty,5,"#ffe044",14);
+    ctx.fillStyle="#0d3330";ctx.fillText("",0,0);
+    ctx.fillStyle="#00e5cc";ctx.font="8px Share Tech Mono";ctx.textAlign="left";ctx.fillText("C(V)",gx+2,gy+10);
+    ctx.fillStyle="#ffe044";ctx.textAlign="center";ctx.fillText("C="+cv.toFixed(1)+"pF",gx+gw/2,gy+gh+12);
+    // LC resonance display
+    var cx3=W/2+90;var fy=H/2;
+    ctx.beginPath();ctx.arc(cx3,fy,26,0,Math.PI*2);
+    ctx.fillStyle="#0a1a18";ctx.strokeStyle="#cc44ff";ctx.lineWidth=2;ctx.fill();ctx.stroke();
+    ctx.fillStyle="#cc44ff";ctx.font="bold 8px Share Tech Mono";ctx.textAlign="center";
+    ctx.fillText("f₀",cx3,fy-4);ctx.fillText(f.toFixed(0)+"MHz",cx3,fy+8);
+    // sin wave  
+    sineWave(ctx,gx,gy+gh+22,gw,12,t*f/100,1,"rgba(0,229,204,0.6)");
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);read();
+})();
+
+// ════════════════════════════════════════════════════════════
+// PANEL: NPN BJT
+// ════════════════════════════════════════════════════════════
+(function() {
+  var cvs=el("c-npn"),ctx=cvs.getContext("2d");
+  var VCC=12,Ib=50,hfe=100,Rc=1000;
+  function read(){
+    VCC=parseFloat(el("npn-vcc").value);Ib=parseFloat(el("npn-ib").value);
+    hfe=parseFloat(el("npn-hfe").value);Rc=parseFloat(el("npn-rc").value);
+    el("npn-vcc-lbl").textContent=VCC+" V";el("npn-ib-lbl").textContent=Ib+" µA";
+    el("npn-hfe-lbl").textContent=hfe;el("npn-rc-lbl").textContent=fmtR(Rc); upd();
+  }
+  function upd(){
+    var Ic=Math.min(Ib*hfe/1000,VCC/Rc*1000);var VCE=VCC-Ic/1000*Rc;
+    var reg=Ib===0?"CUT-OFF":Ic>=(VCC/Rc*1000)*0.95?"JENUH":"AKTIF";
+    el("npn-mib").textContent=Ib;el("npn-mic").textContent=Ic.toFixed(2);
+    el("npn-vce").textContent=VCE.toFixed(2);el("npn-reg").textContent=reg;
+    el("npn-reg").style.color=reg==="AKTIF"?"var(--c1)":reg==="JENUH"?"var(--y)":"var(--r)";
+  }
+  ["npn-vcc","npn-ib","npn-hfe","npn-rc"].forEach(function(id){el(id).addEventListener("input",read);});
+  function draw(ts){
+    if(activePanel!=="npn"){requestAnimationFrame(draw);return;}
+    var W=cvs.width,H=cvs.height,t=ts/700;
+    ctx.clearRect(0,0,W,H);
+    var Ic=Math.min(Ib*hfe/1000,VCC/Rc*1000); var inorm=Math.min(Ic/(VCC/Rc*1000),1);
+    var tx=W/2+10,ty=H/2;
+    // BJT symbol
+    var s=28; var tcol=Ib>0?"#cc44ff":"#441166";
+    ctx.beginPath();ctx.arc(tx,ty,s,0,Math.PI*2);
+    ctx.fillStyle="#060f0d";ctx.strokeStyle=tcol;ctx.lineWidth=2;
+    if(Ib>0){ctx.shadowColor=tcol;ctx.shadowBlur=12;}ctx.fill();ctx.stroke();ctx.shadowBlur=0;
+    // Base
+    wire(ctx,tx-s,ty,tx-s*0.3,ty,tcol);
+    ctx.strokeStyle=tcol;ctx.lineWidth=2.5;
+    ctx.beginPath();ctx.moveTo(tx-s*0.3,ty-s*0.55);ctx.lineTo(tx-s*0.3,ty+s*0.55);ctx.stroke();
+    // Collector
+    wire(ctx,tx-s*0.3,ty-s*0.3,tx+s*0.75,ty-s*0.75,tcol);wire(ctx,tx+s*0.75,ty-s*0.75,tx+s*0.75,ty-s*1.1,tcol);
+    // Emitter + arrow
+    wire(ctx,tx-s*0.3,ty+s*0.3,tx+s*0.75,ty+s*0.75,tcol);wire(ctx,tx+s*0.75,ty+s*0.75,tx+s*0.75,ty+s*1.1,tcol);
+    ctx.fillStyle=tcol;var ang=Math.atan2(s*0.75-s*0.3,s*0.75+s*0.3);
+    ctx.save();ctx.translate(tx+s*0.3,ty+s*0.45);ctx.rotate(ang);
+    ctx.beginPath();ctx.moveTo(0,-4);ctx.lineTo(8,0);ctx.lineTo(0,4);ctx.closePath();ctx.fill();ctx.restore();
+    ctx.fillStyle="#664488";ctx.font="8px Share Tech Mono";ctx.textAlign="center";
+    ctx.fillText("B",tx-s-10,ty+4);ctx.fillText("C",tx+s*0.75+12,ty-s*1.1+4);ctx.fillText("E",tx+s*0.75+12,ty+s*1.1+4);
+    // VCC supply
+    wire(ctx,tx+s*0.75,ty-s*1.1,tx+s*0.75,35,tcol);
+    ctx.fillStyle=tcol;ctx.font="bold 9px Share Tech Mono";ctx.textAlign="center";ctx.fillText("VCC="+VCC+"V",tx+s*0.75,28);
+    // Rc
+    rr(ctx,tx+s*0.75-15,38,30,38,3);ctx.fillStyle="#0a1800";ctx.strokeStyle="#ff9933";ctx.lineWidth=2;ctx.fill();ctx.stroke();
+    ctx.fillStyle="#ff9933";ctx.font="8px Share Tech Mono";ctx.textAlign="center";ctx.fillText(fmtR(Rc).replace(" ",""),tx+s*0.75,38+52);
+    // Ground
+    wire(ctx,tx+s*0.75,ty+s*1.1,tx+s*0.75,H-20,tcol);
+    [16,10,5].forEach(function(w,i){ctx.beginPath();ctx.moveTo(tx+s*0.75-w,H-20+i*5);ctx.lineTo(tx+s*0.75+w,H-20+i*5);ctx.strokeStyle="#3a1800";ctx.lineWidth=1;ctx.stroke();});
+    // Base drive
+    var bx=55;
+    wire(ctx,bx,ty,tx-s,ty,"#0d3330");
+    ctx.beginPath();ctx.arc(bx,ty,16,0,Math.PI*2);
+    ctx.fillStyle="#060f0d";ctx.strokeStyle=Ib>0?"#cc44ff":"#221133";ctx.lineWidth=2;
+    if(Ib>0){ctx.shadowColor="#cc44ff";ctx.shadowBlur=8;}ctx.fill();ctx.stroke();ctx.shadowBlur=0;
+    ctx.fillStyle=Ib>0?"#cc44ff":"#443355";ctx.font="8px Share Tech Mono";ctx.textAlign="center";
+    ctx.fillText(Ib+"µA",bx,ty+4);
+    // Current bar
+    var bary=H-48,barw=W-80;
+    ctx.fillStyle="#040c0b";rr(ctx,40,bary,barw,12,3);ctx.fill();
+    ctx.fillStyle=tcol;ctx.shadowColor=tcol;ctx.shadowBlur=6;rr(ctx,40,bary,barw*inorm,12,3);ctx.fill();ctx.shadowBlur=0;
+    ctx.fillStyle="#fff";ctx.font="8px Share Tech Mono";ctx.textAlign="center";
+    ctx.fillText("Ic="+Ic.toFixed(2)+"mA  β="+hfe+"  β×Ib="+(Ib*hfe/1000).toFixed(2)+"mA",W/2,bary+24);
+    if(Ib>0){
+      var sp=0.3+inorm*0.7;
+      particles(ctx,[[bx+16,ty],[tx-s,ty]],t,0.3,"rgba(180,50,255,0.7)",1);
+      particles(ctx,[[tx+s*0.75,38+38],[tx+s*0.75,ty-s*1.1]],t,sp,"rgba(180,50,255,0.9)",2);
+    }
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);read();
+})();
+
+// ════════════════════════════════════════════════════════════
+// PANEL: PNP BJT
+// ════════════════════════════════════════════════════════════
+(function() {
+  var cvs=el("c-pnp"),ctx=cvs.getContext("2d");
+  var VEE=12,Ib=50,hfe=100;
+  function read(){
+    VEE=parseFloat(el("pnp-vee").value);Ib=parseFloat(el("pnp-ib").value);hfe=parseFloat(el("pnp-hfe").value);
+    el("pnp-vee-lbl").textContent=VEE+" V";el("pnp-ib-lbl").textContent=Ib+" µA";el("pnp-hfe-lbl").textContent=hfe; upd();
+  }
+  function upd(){
+    var Ic=Ib*hfe/1000; var VEC=VEE-Ic/1000*1000;
+    var reg=Ib===0?"CUT-OFF":VEC<0.2?"JENUH":"AKTIF";
+    el("pnp-mib").textContent=Ib;el("pnp-mic").textContent=Ic.toFixed(2);
+    el("pnp-vec").textContent=Math.max(0,VEC).toFixed(2);el("pnp-reg").textContent=reg;
+    el("pnp-reg").style.color=reg==="AKTIF"?"var(--c1)":reg==="JENUH"?"var(--y)":"var(--r)";
+  }
+  ["pnp-vee","pnp-ib","pnp-hfe"].forEach(function(id){el(id).addEventListener("input",read);});
+  function draw(ts){
+    if(activePanel!=="pnp"){requestAnimationFrame(draw);return;}
+    var W=cvs.width,H=cvs.height,t=ts/700;
+    ctx.clearRect(0,0,W,H);
+    var Ic=Ib*hfe/1000; var inorm=Math.min(Ic/12,1);
+    var tx=W/2,ty=H/2; var s=28; var col=Ib>0?"#ff9933":"#3a1800";
+    // PNP symbol
+    ctx.beginPath();ctx.arc(tx,ty,s,0,Math.PI*2);
+    ctx.fillStyle="#060f0d";ctx.strokeStyle=col;ctx.lineWidth=2;
+    if(Ib>0){ctx.shadowColor=col;ctx.shadowBlur=12;}ctx.fill();ctx.stroke();ctx.shadowBlur=0;
+    wire(ctx,tx-s,ty,tx-s*0.3,ty,col);
+    ctx.strokeStyle=col;ctx.lineWidth=2.5;
+    ctx.beginPath();ctx.moveTo(tx-s*0.3,ty-s*0.55);ctx.lineTo(tx-s*0.3,ty+s*0.55);ctx.stroke();
+    wire(ctx,tx-s*0.3,ty-s*0.3,tx+s*0.75,ty-s*0.75,col);wire(ctx,tx+s*0.75,ty-s*0.75,tx+s*0.75,ty-s*1.1,col);
+    wire(ctx,tx-s*0.3,ty+s*0.3,tx+s*0.75,ty+s*0.75,col);wire(ctx,tx+s*0.75,ty+s*0.75,tx+s*0.75,ty+s*1.1,col);
+    // PNP arrow (inward emitter)
+    ctx.fillStyle=col;var ang2=Math.atan2(s*0.3-s*0.75,s*0.3+s*0.75)+Math.PI;
+    ctx.save();ctx.translate(tx+s*0.15,ty+s*0.3);ctx.rotate(ang2);
+    ctx.beginPath();ctx.moveTo(0,-4);ctx.lineTo(8,0);ctx.lineTo(0,4);ctx.closePath();ctx.fill();ctx.restore();
+    ctx.fillStyle="#664433";ctx.font="8px Share Tech Mono";ctx.textAlign="center";
+    ctx.fillText("B",tx-s-10,ty+4);ctx.fillText("C",tx+s*0.75+12,ty-s*1.1+4);ctx.fillText("E",tx+s*0.75+12,ty+s*1.1+4);
+    // labels  
+    ctx.fillStyle=col;ctx.font="bold 9px Share Tech Mono";ctx.textAlign="center";ctx.shadowColor=col;ctx.shadowBlur=6;
+    ctx.fillText("PNP — Ic="+Ic.toFixed(2)+"mA",tx,H-20);ctx.shadowBlur=0;
+    if(Ib>0)particles(ctx,[[tx+s*0.75,ty-s*1.1],[tx+s*0.75,ty+s*1.1]],t,0.3+inorm*0.6,"rgba(255,153,51,0.8)",2);
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);read();
+})();
+
+// ════════════════════════════════════════════════════════════
+// PANEL: DARLINGTON
+// ════════════════════════════════════════════════════════════
+(function() {
+  var cvs=el("c-darlington"),ctx=cvs.getContext("2d");
+  var VCC=12,Ib=10,hfe=100;
+  function read(){
+    VCC=parseFloat(el("dl-vcc").value);Ib=parseFloat(el("dl-ib").value);hfe=parseFloat(el("dl-hfe").value);
+    el("dl-vcc-lbl").textContent=VCC+" V";el("dl-ib-lbl").textContent=Ib+" µA";el("dl-hfe-lbl").textContent=hfe;
+    var btot=hfe*hfe; var Ic=Math.min(Ib*btot/1000,VCC/100*1000);
+    el("dl-btot").textContent=btot; el("dl-mib").textContent=Ib; el("dl-mic").textContent=Ic.toFixed(0);
+  }
+  ["dl-vcc","dl-ib","dl-hfe"].forEach(function(id){el(id).addEventListener("input",read);});
+  function draw(ts){
+    if(activePanel!=="darlington"){requestAnimationFrame(draw);return;}
+    var W=cvs.width,H=cvs.height,t=ts/700;
+    ctx.clearRect(0,0,W,H);
+    var btot=hfe*hfe; var Ic=Ib*btot/1000; var inorm=Math.min(Ic/1000,1);
+    var cx2=W/2; var s=22; var col=Ib>0?"#cc44ff":"#441166";
+    // Q1
+    var q1x=cx2-30,q1y=H/2-20;
+    ctx.beginPath();ctx.arc(q1x,q1y,s,0,Math.PI*2);
+    ctx.fillStyle="#060f0d";ctx.strokeStyle=col;ctx.lineWidth=2;ctx.fill();ctx.stroke();
+    ctx.fillStyle=col;ctx.font="8px Share Tech Mono";ctx.textAlign="center";ctx.fillText("Q1",q1x,q1y+4);
+    // Q2
+    var q2x=cx2+25,q2y=H/2+10;
+    ctx.beginPath();ctx.arc(q2x,q2y,s,0,Math.PI*2);
+    ctx.fillStyle="#060f0d";ctx.strokeStyle=col;ctx.lineWidth=2;
+    if(Ib>0){ctx.shadowColor=col;ctx.shadowBlur=10;}ctx.fill();ctx.stroke();ctx.shadowBlur=0;
+    ctx.fillStyle=col;ctx.fillText("Q2",q2x,q2y+4);
+    // connections
+    wire(ctx,q1x-s-20,q1y,q1x-s,q1y,col);// Base
+    wire(ctx,q1x,q1y-s,q2x,q2y-s,col); // Q1 collector to Q2 base area
+    wire(ctx,q1x,q1y+s,q2x,q2y+s,col); // emitters tied
+    wire(ctx,q2x,q2y+s,q2x,H-20,col);  // output emitter
+    wire(ctx,q2x,q2y-s,q2x,35,col);     // collector up
+    ctx.fillStyle=col;ctx.font="bold 9px Share Tech Mono";ctx.textAlign="center";
+    ctx.fillText("VCC="+VCC+"V",q2x,28);
+    // βtotal label
+    ctx.fillStyle="#ffe044";ctx.font="bold 11px Share Tech Mono";ctx.textAlign="center";ctx.shadowColor="#ffe044";ctx.shadowBlur=8;
+    ctx.fillText("β_total = "+hfe+"² = "+btot,cx2,H-28);ctx.shadowBlur=0;
+    ctx.fillStyle="var(--dim)";ctx.font="9px Share Tech Mono";
+    ctx.fillText("Ib="+Ib+"µA → Ic≈"+(Ic>1000?(Ic/1000).toFixed(1)+"A":Ic.toFixed(0)+"mA"),cx2,H-14);
+    if(Ib>0)particles(ctx,[[q1x-s-20,q1y],[q1x-s,q1y]],t,0.3,"rgba(180,50,255,0.7)",1);
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);read();
+})();
+
+// ════════════════════════════════════════════════════════════
+// PANEL: N-MOSFET
+// ════════════════════════════════════════════════════════════
+(function() {
+  var cvs=el("c-nmos"),ctx=cvs.getContext("2d");
+  var VDD=12,VGS=0,VTH=2.5,RD=1000;
+  function read(){
+    VDD=parseFloat(el("nm-vdd").value);VGS=parseFloat(el("nm-vgs").value);
+    VTH=parseFloat(el("nm-vth").value);RD=parseFloat(el("nm-rd").value);
+    el("nm-vdd-lbl").textContent=VDD+" V";el("nm-vgs-lbl").textContent=VGS.toFixed(1)+" V";
+    el("nm-vth-lbl").textContent=VTH.toFixed(1)+" V";el("nm-rd-lbl").textContent=fmtR(RD); upd();
+  }
+  function upd(){
+    var on=VGS>=VTH; var Vov=VGS-VTH; var ID=on?Math.min(0.5*Vov*Vov,VDD/RD*1000):0;
+    var VDS=VDD-ID/1000*RD; var st=!on?"OFF":VDS<Vov?"LINEAR":"SATURASI";
+    el("nm-mvgs").textContent=VGS.toFixed(1);el("nm-mid").textContent=ID.toFixed(2);
+    el("nm-mvds").textContent=VDS.toFixed(2);el("nm-mst").textContent=st;
+    el("nm-mst").style.color=on?"var(--c1)":"var(--dim)";
+  }
+  ["nm-vdd","nm-vgs","nm-vth","nm-rd"].forEach(function(id){el(id).addEventListener("input",read);});
+  function draw(ts){
+    if(activePanel!=="nmos"){requestAnimationFrame(draw);return;}
+    var W=cvs.width,H=cvs.height,t=ts/700;
+    ctx.clearRect(0,0,W,H);
+    var on=VGS>=VTH;var Vov=VGS-VTH;var ID=on?Math.min(0.5*Vov*Vov,VDD/RD*1000):0;
+    var inorm=Math.min(ID/(VDD/RD*1000),1);
+    var mx=W/2,my=H/2;
+    drawMOSFET(ctx,mx,my,30,"#00e5cc",on&&inorm>0.05,true);
+    // VDD, Rd, GND
+    wire(ctx,mx+22,my-30,mx+22,30,"#0d3330");ctx.fillStyle="var(--c1)";ctx.font="9px Share Tech Mono";ctx.textAlign="center";ctx.fillText("VDD="+VDD+"V",mx+22,24);
+    rr(ctx,mx+22-13,32,26,34,3);ctx.fillStyle="#0a1800";ctx.strokeStyle="#ff9933";ctx.lineWidth=2;ctx.fill();ctx.stroke();
+    ctx.fillStyle="#ff9933";ctx.font="8px Share Tech Mono";ctx.textAlign="center";ctx.fillText(fmtR(RD).replace(" ",""),mx+22,32+48);
+    wire(ctx,mx+22,my+30,mx+22,H-20,"#0d3330");
+    [14,9,4].forEach(function(w,i){ctx.beginPath();ctx.moveTo(mx+22-w,H-20+i*5);ctx.lineTo(mx+22+w,H-20+i*5);ctx.strokeStyle="#224a44";ctx.lineWidth=1;ctx.stroke();});
+    // gate drive
+    var gx=mx-60-30;
+    wire(ctx,gx,my,mx-30,my,"#0d3330");
+    ctx.beginPath();ctx.arc(gx,my,18,0,Math.PI*2);
+    ctx.fillStyle="#060f0d";ctx.strokeStyle=on?"#00e5cc":"#0d3330";ctx.lineWidth=2;
+    if(on){ctx.shadowColor="#00e5cc";ctx.shadowBlur=8;}ctx.fill();ctx.stroke();ctx.shadowBlur=0;
+    ctx.fillStyle=on?"#00e5cc":"var(--dim)";ctx.font="bold 9px Share Tech Mono";ctx.textAlign="center";
+    ctx.fillText(VGS.toFixed(1)+"V",gx,my+4);
+    // VGS bar
+    var bx=25,bw=W-50,bby=H-32;
+    ctx.fillStyle="#040c0b";rr(ctx,bx,bby,bw,10,3);ctx.fill();
+    var vthX=bx+(VTH/12)*bw;
+    ctx.strokeStyle="#ffe044";ctx.lineWidth=2;ctx.setLineDash([3,3]);
+    ctx.beginPath();ctx.moveTo(vthX,bby-5);ctx.lineTo(vthX,bby+15);ctx.stroke();ctx.setLineDash([]);
+    ctx.fillStyle="#ffe044";ctx.font="8px Share Tech Mono";ctx.textAlign="center";ctx.fillText("Vth",vthX,bby-9);
+    if(VGS>0){
+      var vgsX=bx+Math.min(VGS/12,1)*bw;
+      ctx.fillStyle=on?"rgba(0,229,204,0.75)":"rgba(68,204,255,0.3)";rr(ctx,bx,bby,vgsX-bx,10,3);ctx.fill();
+    }
+    ctx.fillStyle=on?"var(--c1)":"var(--dim)";ctx.font="8px Share Tech Mono";ctx.textAlign="center";
+    ctx.fillText("VGS="+VGS.toFixed(1)+"V → "+(on?"CHANNEL TERBUKA":"CHANNEL TERTUTUP"),W/2,bby+22);
+    if(on&&inorm>0.05)particles(ctx,[[mx+22,32+34],[mx+22,my-30],[mx+22,my+30],[mx+22,H-20]],t,0.4+inorm*0.5,"rgba(0,229,204,0.85)",2);
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);read();
+})();
+
+// ════════════════════════════════════════════════════════════
+// PANEL: P-MOSFET (simplified)
+// ════════════════════════════════════════════════════════════
+(function() {
+  var cvs=el("c-pmos"),ctx=cvs.getContext("2d");
+  var VDD=12,VGS=0,VTP=2.5;
+  function read(){
+    VDD=parseFloat(el("pm-vdd").value);VGS=parseFloat(el("pm-vgs").value);VTP=parseFloat(el("pm-vth").value);
+    el("pm-vdd-lbl").textContent=VDD+" V";el("pm-vgs-lbl").textContent=VGS.toFixed(1)+" V";el("pm-vth-lbl").textContent=VTP.toFixed(1)+" V"; upd();
+  }
+  function upd(){
+    var on=VGS<=-VTP; var ID=on?0.5*Math.pow(-VGS-VTP,2)*1000:0; ID=Math.min(ID,VDD/100*1000);
+    var VSD=VDD-ID/1000*100;
+    el("pm-mvgs").textContent=VGS.toFixed(1);el("pm-mid").textContent=ID.toFixed(2);
+    el("pm-mvsd").textContent=Math.max(0,VSD).toFixed(2);el("pm-mst").textContent=on?"ON":"OFF";
+    el("pm-mst").style.color=on?"var(--g)":"var(--dim)";
+  }
+  ["pm-vdd","pm-vgs","pm-vth"].forEach(function(id){el(id).addEventListener("input",read);});
+  function draw(ts){
+    if(activePanel!=="pmos"){requestAnimationFrame(draw);return;}
+    var W=cvs.width,H=cvs.height,t=ts/700;
+    ctx.clearRect(0,0,W,H);
+    var on=VGS<=-VTP; var ID=on?0.5*Math.pow(-VGS-VTP,2)*1000:0; ID=Math.min(ID,VDD/100*1000);
+    var mx=W/2,my=H/2; var col=on?"#44ff88":"#0d3330";
+    drawMOSFET(ctx,mx,my,30,col,on,false);
+    ctx.fillStyle=col;ctx.font="bold 10px Share Tech Mono";ctx.textAlign="center";ctx.shadowColor=col;ctx.shadowBlur=on?8:0;
+    ctx.fillText("P-MOSFET  VGS="+VGS.toFixed(1)+"V  ID="+ID.toFixed(2)+"mA",mx,H-20);ctx.shadowBlur=0;
+    ctx.fillStyle="var(--dim)";ctx.font="9px Share Tech Mono";ctx.textAlign="center";
+    ctx.fillText("ON saat VGS < −|Vtp| = −"+VTP.toFixed(1)+"V",mx,H-8);
+    if(on)particles(ctx,[[mx+22,my-30],[mx+22,my+30]],t,0.4+Math.min(ID/200,0.5),"rgba(68,255,136,0.85)",2);
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);read();
+})();
+
+// ════════════════════════════════════════════════════════════
+// PANEL: JFET
+// ════════════════════════════════════════════════════════════
+(function() {
+  var cvs=el("c-jfet"),ctx=cvs.getContext("2d");
+  var VDD=12,VGS=0,IDSS=10,VP=-4;
+  function read(){
+    VDD=parseFloat(el("jf-vdd").value);VGS=parseFloat(el("jf-vgs").value);
+    IDSS=parseFloat(el("jf-idss").value);VP=parseFloat(el("jf-vp").value);
+    el("jf-vdd-lbl").textContent=VDD+" V";el("jf-vgs-lbl").textContent=VGS.toFixed(1)+" V";
+    el("jf-idss-lbl").textContent=IDSS+" mA";el("jf-vp-lbl").textContent=VP.toFixed(1)+" V"; upd();
+  }
+  function upd(){
+    var on=VGS>VP; var ID=on?IDSS*Math.pow(1-VGS/VP,2):0; var gm=on?2*IDSS/Math.abs(VP)*(1-VGS/VP):0;
+    var st=!on?"PINCH-OFF":VGS===0?"PENUH":"PARSIAL";
+    el("jf-mid").textContent=ID.toFixed(2);el("jf-gm").textContent=gm.toFixed(2);
+    el("jf-mvgs").textContent=VGS.toFixed(1);el("jf-mst").textContent=st;
+    el("jf-mst").style.color=st==="PENUH"?"var(--c1)":st==="PARSIAL"?"var(--y)":"var(--r)";
+  }
+  ["jf-vdd","jf-vgs","jf-idss","jf-vp"].forEach(function(id){el(id).addEventListener("input",read);});
+  function draw(ts){
+    if(activePanel!=="jfet"){requestAnimationFrame(draw);return;}
+    var W=cvs.width,H=cvs.height,t=ts/700;
+    ctx.clearRect(0,0,W,H);
+    var on=VGS>VP; var ID=on?IDSS*Math.pow(1-VGS/VP,2):0; var inorm=ID/IDSS;
+    var mx=W/2,my=H/2; var s=26; var col=on?"var(--b)":"#223344";
+    // JFET: similar body
+    ctx.beginPath();ctx.arc(mx,my,s,0,Math.PI*2);
+    ctx.fillStyle="#060f0d";ctx.strokeStyle=col;ctx.lineWidth=2;
+    if(on){ctx.shadowColor=col;ctx.shadowBlur=10;}ctx.fill();ctx.stroke();ctx.shadowBlur=0;
+    // Gate (P-junction arrow)
+    wire(ctx,mx-s-20,my,mx-s,my,col);
+    ctx.strokeStyle=col;ctx.lineWidth=2.5;
+    ctx.beginPath();ctx.moveTo(mx-s,my-s*0.6);ctx.lineTo(mx-s,my+s*0.6);ctx.stroke();
+    ctx.fillStyle=col;
+    ctx.save();ctx.translate(mx-s+4,my);ctx.beginPath();ctx.moveTo(-5,-4);ctx.lineTo(5,0);ctx.lineTo(-5,4);ctx.closePath();ctx.fill();ctx.restore();
+    // Drain/Source
+    wire(ctx,mx,my-s*0.4,mx+s*0.7,my-s*0.4,col);wire(ctx,mx+s*0.7,my-s*0.4,mx+s*0.7,my-s*1.1,col);
+    wire(ctx,mx,my+s*0.4,mx+s*0.7,my+s*0.4,col);wire(ctx,mx+s*0.7,my+s*0.4,mx+s*0.7,my+s*1.1,col);
+    ctx.fillStyle="#44aaff";ctx.font="8px Share Tech Mono";ctx.textAlign="center";
+    ctx.fillText("G",mx-s-22,my+4);ctx.fillText("D",mx+s*0.7+12,my-s*1.1+4);ctx.fillText("S",mx+s*0.7+12,my+s*1.1+4);
+    // channel visualization
+    var chW=s*0.2*(inorm); ctx.fillStyle="rgba(68,170,255,"+inorm*0.5+")";
+    ctx.fillRect(mx-chW/2,my-s*0.4,chW,s*0.8);
+    ctx.fillStyle=col;ctx.font="bold 9px Share Tech Mono";ctx.textAlign="center";ctx.shadowColor=col;ctx.shadowBlur=on?6:0;
+    ctx.fillText("JFET N-Ch  ID="+ID.toFixed(2)+"mA  VGS="+VGS.toFixed(1)+"V",mx,H-20);ctx.shadowBlur=0;
+    if(on&&inorm>0.05)particles(ctx,[[mx+s*0.7,my-s*1.1],[mx+s*0.7,my+s*1.1]],t,0.3+inorm*0.5,"rgba(68,170,255,0.8)",2);
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);read();
+})();
+
+// ════════════════════════════════════════════════════════════
+// PANEL: CMOS
+// ════════════════════════════════════════════════════════════
+(function() {
+  var cvs=el("c-cmos"),ctx=cvs.getContext("2d");
+  var VDD=5,VIN=0;
+  function read(){
+    VDD=parseFloat(el("cm-vdd").value);VIN=parseFloat(el("cm-vin").value);
+    el("cm-vdd-lbl").textContent=VDD+" V";el("cm-vin-lbl").textContent=VIN.toFixed(1)+" V"; upd();
+  }
+  function upd(){
+    var vth=VDD/2; var p_on=VIN<vth-0.3; var n_on=VIN>vth+0.3;
+    var Vout=p_on&&!n_on?VDD:!p_on&&n_on?0:VDD/2;
+    var P=Math.abs(Vout-VDD/2)<VDD*0.1?VDD*VDD/10000:0;
+    el("cm-mvin").textContent=VIN.toFixed(1);el("cm-mvout").textContent=Vout.toFixed(1);
+    el("cm-mp").textContent=(P*1e6).toFixed(0);el("cm-logic").textContent="NOT Gate";
+  }
+  ["cm-vdd","cm-vin"].forEach(function(id){el(id).addEventListener("input",read);});
+  function draw(ts){
+    if(activePanel!=="cmos"){requestAnimationFrame(draw);return;}
+    var W=cvs.width,H=cvs.height,t=ts/700;
+    ctx.clearRect(0,0,W,H);
+    var vth=VDD/2; var p_on=VIN<vth-0.3; var n_on=VIN>vth+0.3;
+    var Vout=p_on&&!n_on?VDD:!p_on&&n_on?0:VDD/2;
+    var cx2=W/2,cy=H/2;
+    // PMOS (top)
+    var pcol=p_on?"#44ff88":"#0d3330";
+    ctx.beginPath();ctx.arc(cx2,cy-36,20,0,Math.PI*2);
+    ctx.fillStyle="#060f0d";ctx.strokeStyle=pcol;ctx.lineWidth=2;
+    if(p_on){ctx.shadowColor=pcol;ctx.shadowBlur=10;}ctx.fill();ctx.stroke();ctx.shadowBlur=0;
+    ctx.fillStyle=pcol;ctx.font="8px Share Tech Mono";ctx.textAlign="center";ctx.fillText("PMOS",cx2,cy-36+4);
+    // NMOS (bottom)
+    var ncol=n_on?"#00e5cc":"#0d3330";
+    ctx.beginPath();ctx.arc(cx2,cy+36,20,0,Math.PI*2);
+    ctx.fillStyle="#060f0d";ctx.strokeStyle=ncol;ctx.lineWidth=2;
+    if(n_on){ctx.shadowColor=ncol;ctx.shadowBlur=10;}ctx.fill();ctx.stroke();ctx.shadowBlur=0;
+    ctx.fillStyle=ncol;ctx.font="8px Share Tech Mono";ctx.textAlign="center";ctx.fillText("NMOS",cx2,cy+36+4);
+    // connection point
+    wire(ctx,cx2,cy-16,cx2,cy+16,"#0d3330");
+    dot(ctx,cx2,cy,5,"#ffe044",12);
+    // VDD GND
+    wire(ctx,cx2,cy-56,cx2,24,"#0d3330");ctx.fillStyle="#00e5cc";ctx.font="9px Share Tech Mono";ctx.textAlign="center";ctx.fillText("VDD="+VDD+"V",cx2,18);
+    wire(ctx,cx2,cy+56,cx2,H-20,"#0d3330");[12,8,4].forEach(function(w,i){ctx.beginPath();ctx.moveTo(cx2-w,H-20+i*5);ctx.lineTo(cx2+w,H-20+i*5);ctx.strokeStyle="#224a44";ctx.lineWidth=1;ctx.stroke();});
+    // Input arrow
+    wire(ctx,cx2-80,cy,cx2-20,cy,"#0d3330");
+    ctx.fillStyle="#ffe044";ctx.font="bold 10px Share Tech Mono";ctx.textAlign="right";ctx.fillText("Vin="+VIN.toFixed(1)+"V",cx2-82,cy+4);
+    // Output
+    wire(ctx,cx2+20,cy,cx2+80,cy,"#0d3330");
+    var outcol=Vout>VDD*0.7?"#00ff88":Vout<VDD*0.3?"#ff3355":"#ffe044";
+    ctx.fillStyle=outcol;ctx.font="bold 10px Share Tech Mono";ctx.textAlign="left";ctx.shadowColor=outcol;ctx.shadowBlur=6;
+    ctx.fillText("Vout="+Vout.toFixed(1)+"V",cx2+82,cy+4);ctx.shadowBlur=0;
+    ctx.fillStyle="var(--dim)";ctx.font="9px Share Tech Mono";ctx.textAlign="center";
+    ctx.fillText(VIN<VDD/2?"P-ON / N-OFF → HIGH out":"P-OFF / N-ON → LOW out",cx2,H-20);
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);read();
+})();
+
+// ════════════════════════════════════════════════════════════
+// PANEL: SCR
+// ════════════════════════════════════════════════════════════
+(function() {
+  var cvs=el("c-scr"),ctx=cvs.getContext("2d");
+  var VAK=12,Ig=0,RL=100,latched=false;
+  function read(){
+    VAK=parseFloat(el("scr-vak").value);Ig=parseFloat(el("scr-ig").value);RL=parseFloat(el("scr-rl").value);
+    el("scr-vak-lbl").textContent=VAK.toFixed(1)+" V";el("scr-ig-lbl").textContent=Ig+" mA";el("scr-rl-lbl").textContent=fmtR(RL); upd();
+  }
+  function upd(){
+    if(VAK<=0)latched=false;
+    var on=latched; var IAK=on?(VAK-1.2)/RL*1000:0;
+    el("scr-status").textContent=on?"KONDUKSI":"BLOCKING";el("scr-status").style.color=on?"var(--g)":"var(--r)";
+    el("scr-iak").textContent=IAK.toFixed(2);el("scr-latch").textContent=on?"YA":"TIDAK";el("scr-latch").style.color=on?"var(--g)":"var(--dim)";
+  }
+  el("scr-fire").addEventListener("click",function(){if(VAK>0&&Ig>=10){latched=true;upd();}});
+  el("scr-reset").addEventListener("click",function(){latched=false;VAK=0;el("scr-vak").value=0;upd();read();});
+  ["scr-vak","scr-ig","scr-rl"].forEach(function(id){el(id).addEventListener("input",read);});
+  function draw(ts){
+    if(activePanel!=="scr"){requestAnimationFrame(draw);return;}
+    var W=cvs.width,H=cvs.height,t=ts/700;
+    ctx.clearRect(0,0,W,H);
+    var on=latched; var IAK=on?(VAK-1.2)/RL*1000:0; var inorm=Math.min(IAK/100,1);
+    var cx2=W/2,cy=H/2; var dcol=on?"var(--g)":"#224a44";
+    // SCR symbol
+    wire(ctx,cx2-80,cy,cx2-22,cy,"#0d3330");wire(ctx,cx2+22,cy,cx2+80,cy,"#0d3330");
+    if(on){ctx.shadowColor="var(--g)";ctx.shadowBlur=14;}
+    drawDiode(ctx,cx2,cy,20,dcol,on);ctx.shadowBlur=0;
+    // Gate lead
+    wire(ctx,cx2+20,cy+12,cx2+20,cy+50,"#ff9933");
+    ctx.fillStyle="#ff9933";ctx.font="9px Share Tech Mono";ctx.textAlign="center";ctx.fillText("G("+Ig+"mA)",cx2+20,cy+64);
+    // labels
+    ctx.fillStyle=on?"#00ff88":"var(--r)";ctx.font="bold 10px Share Tech Mono";ctx.textAlign="center";ctx.shadowColor=ctx.fillStyle;ctx.shadowBlur=on?10:0;
+    ctx.fillText(on?"✓ SCR KONDUKSI (LATCHED)":"✕ SCR BLOCKING",cx2,cy-38);ctx.shadowBlur=0;
+    ctx.fillStyle=on?"#00ff88":"#224a44";ctx.font="9px Share Tech Mono";
+    ctx.fillText(on?"IAK="+IAK.toFixed(2)+"mA (Dipicu Ig≥10mA)":"Trigger: Ig≥10mA saat VAK>0",cx2,cy+82);
+    if(on)particles(ctx,[[cx2-80,cy],[cx2-22,cy],[cx2+22,cy],[cx2+80,cy]],t,0.5+inorm*0.5,"rgba(0,255,136,0.85)",3);
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);read();
+})();
+
+// ════════════════════════════════════════════════════════════
+// PANEL: TRIAC
+// ════════════════════════════════════════════════════════════
+(function() {
+  var cvs=el("c-triac"),ctx=cvs.getContext("2d");
+  var VAC=220,ANGLE=90,RL=100;
+  function read(){
+    VAC=parseFloat(el("tr-vac").value);ANGLE=parseFloat(el("tr-angle").value);RL=parseFloat(el("tr-rl").value);
+    el("tr-vac-lbl").textContent=VAC+" V";el("tr-angle-lbl").textContent=ANGLE+"°";el("tr-rl-lbl").textContent=fmtR(RL); upd();
+  }
+  function upd(){
+    var af=ANGLE/180; var vrms=VAC*Math.sqrt((1-af+Math.sin(2*Math.PI*af)/(2*Math.PI))/2);
+    var P=vrms*vrms/RL; var ppct=P/(VAC/Math.SQRT2)/(VAC/Math.SQRT2)*RL*100;
+    el("tr-vrms").textContent=vrms.toFixed(1);el("tr-p").textContent=P.toFixed(1);
+    el("tr-ppct").textContent=Math.min(ppct,100).toFixed(0);el("tr-mangle").textContent=ANGLE;
+  }
+  ["tr-vac","tr-angle","tr-rl"].forEach(function(id){el(id).addEventListener("input",read);});
+  function draw(ts){
+    if(activePanel!=="triac"){requestAnimationFrame(draw);return;}
+    var W=cvs.width,H=cvs.height,t=ts/300;
+    ctx.clearRect(0,0,W,H);
+    var af=ANGLE/180;
+    // Waveforms
+    var wy=H/2,wl=24,wr=W-24,ww=wr-wl;
+    ctx.strokeStyle="#224a44";ctx.lineWidth=1;ctx.setLineDash([2,4]);
+    ctx.beginPath();ctx.moveTo(wl,wy);ctx.lineTo(wr,wy);ctx.stroke();ctx.setLineDash([]);
+    // Input
+    ctx.beginPath();ctx.strokeStyle="rgba(0,229,204,0.3)";ctx.lineWidth=1.5;
+    for(var i=0;i<=ww;i++){var y=wy-Math.sin((i/ww)*Math.PI*4-t)*(H/2-30);if(i===0)ctx.moveTo(wl+i,y);else ctx.lineTo(wl+i,y);}ctx.stroke();
+    // Output (phase controlled)
+    ctx.beginPath();ctx.strokeStyle="#00e5cc";ctx.lineWidth=2.5;ctx.shadowColor="#00e5cc";ctx.shadowBlur=5;
+    for(var i2=0;i2<=ww;i2++){
+      var nx=i2/ww; var phase=nx*4; var half=phase%2; var phmod=phase-Math.floor(phase/2)*2;
+      var fireOk=phmod>af;
+      var raw=Math.sin(nx*Math.PI*4-t);
+      var y2=fireOk?wy-raw*(H/2-30):wy;
+      if(i2===0)ctx.moveTo(wl+i2,y2);else ctx.lineTo(wl+i2,y2);
+    }ctx.stroke();ctx.shadowBlur=0;
+    // Fire angle line
+    var fxA=(af/4)*ww;
+    ctx.strokeStyle="#ffe044";ctx.lineWidth=1.5;ctx.setLineDash([4,4]);
+    ctx.beginPath();ctx.moveTo(wl+fxA,30);ctx.lineTo(wl+fxA,H-30);ctx.stroke();ctx.setLineDash([]);
+    ctx.fillStyle="#ffe044";ctx.font="8px Share Tech Mono";ctx.textAlign="center";ctx.fillText(ANGLE+"°",wl+fxA,26);
+    // Labels
+    ctx.fillStyle="rgba(0,229,204,0.4)";ctx.font="8px Share Tech Mono";ctx.textAlign="left";ctx.fillText("Vin AC",wl+2,38);
+    ctx.fillStyle="#00e5cc";ctx.fillText("Vout (phase-cut)",wl+2,H-24);
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);read();
+})();
+
+// ════════════════════════════════════════════════════════════
+// PANEL: DIAC
+// ════════════════════════════════════════════════════════════
+(function() {
+  var cvs=el("c-diac"),ctx=cvs.getContext("2d");
+  var DV=0,VBO=32;
+  function read(){
+    DV=parseFloat(el("dc-v").value);VBO=parseFloat(el("dc-vbo").value);
+    el("dc-v-lbl").textContent=DV+" V";el("dc-vbo-lbl").textContent=VBO+" V"; upd();
+  }
+  function upd(){
+    var on=Math.abs(DV)>=VBO; var I=on?50*(Math.abs(DV)-VBO+1):0;
+    el("dc-status").textContent=on?"KONDUKSI":"BLOCKING";el("dc-status").style.color=on?"var(--m)":"var(--dim)";
+    el("dc-i").textContent=I.toFixed(1);el("dc-vbo-m").textContent=VBO;
+    el("dc-dir").textContent=DV>0?"POSITIF":DV<0?"NEGATIF":"−";
+  }
+  ["dc-v","dc-vbo"].forEach(function(id){el(id).addEventListener("input",read);});
+  function draw(ts){
+    if(activePanel!=="diac"){requestAnimationFrame(draw);return;}
+    var W=cvs.width,H=cvs.height,t=ts/700;
+    ctx.clearRect(0,0,W,H);
+    var on=Math.abs(DV)>=VBO; var dcol=on?"#cc44ff":"#441166";
+    var cx2=W/2,cy=H/2;
+    // DIAC = two diodes back-to-back
+    wire(ctx,cx2-80,cy,cx2-24,cy,"#0d3330");wire(ctx,cx2+24,cy,cx2+80,cy,"#0d3330");
+    if(on){ctx.shadowColor=dcol;ctx.shadowBlur=14;}
+    // Two triangles
+    ctx.strokeStyle=dcol;ctx.fillStyle=on?dcol:"transparent";ctx.lineWidth=2;
+    ctx.beginPath();ctx.moveTo(cx2-20,cy-16);ctx.lineTo(cx2,cy);ctx.lineTo(cx2-20,cy+16);ctx.closePath();ctx.fill();ctx.stroke();
+    ctx.beginPath();ctx.moveTo(cx2+20,cy-16);ctx.lineTo(cx2,cy);ctx.lineTo(cx2+20,cy+16);ctx.closePath();ctx.fill();ctx.stroke();
+    ctx.shadowBlur=0;
+    ctx.fillStyle=dcol;ctx.font="9px Share Tech Mono";ctx.textAlign="center";
+    ctx.fillText("DIAC  VBO=±"+VBO+"V",cx2,cy+40);
+    ctx.fillStyle=on?"#cc44ff":"var(--dim)";ctx.font="bold 10px Share Tech Mono";ctx.textAlign="center";ctx.shadowColor=on?dcol:"transparent";ctx.shadowBlur=on?10:0;
+    ctx.fillText(on?"✓ KONDUKSI |V|="+Math.abs(DV)+"V ≥ "+VBO+"V":"✕ BLOCKING |V|="+Math.abs(DV)+"V < "+VBO+"V",cx2,cy-38);ctx.shadowBlur=0;
+    if(on)particles(ctx,[[cx2-80,cy],[cx2+80,cy]],t,0.6,"rgba(180,50,255,0.85)",3);
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);read();
+})();
+
+// ════════════════════════════════════════════════════════════
+// PANEL: IGBT
+// ════════════════════════════════════════════════════════════
+(function() {
+  var cvs=el("c-igbt"),ctx=cvs.getContext("2d");
+  var VCE=300,VGE=0,VTH=5,RL=10;
+  function read(){
+    VCE=parseFloat(el("ig-vce").value);VGE=parseFloat(el("ig-vge").value);
+    VTH=parseFloat(el("ig-vth").value);RL=parseFloat(el("ig-rl").value);
+    el("ig-vce-lbl").textContent=VCE+" V";el("ig-vge-lbl").textContent=VGE.toFixed(1)+" V";
+    el("ig-vth-lbl").textContent=VTH.toFixed(1)+" V";el("ig-rl-lbl").textContent=RL+" Ω"; upd();
+  }
+  function upd(){
+    var on=VGE>=VTH; var IC=on?VCE/RL:0; var Pd=on?IC*IC*RL:0;
+    el("ig-mvge").textContent=VGE.toFixed(1);el("ig-mic").textContent=IC.toFixed(2);
+    el("ig-mp").textContent=Pd.toFixed(2);el("ig-mst").textContent=on?"ON":"OFF";
+    el("ig-mst").style.color=on?"var(--g)":"var(--dim)";
+  }
+  ["ig-vce","ig-vge","ig-vth","ig-rl"].forEach(function(id){el(id).addEventListener("input",read);});
+  function draw(ts){
+    if(activePanel!=="igbt"){requestAnimationFrame(draw);return;}
+    var W=cvs.width,H=cvs.height,t=ts/700;
+    ctx.clearRect(0,0,W,H);
+    var on=VGE>=VTH; var IC=on?VCE/RL:0; var inorm=Math.min(IC/60,1);
+    var cx2=W/2,cy=H/2; var s=28; var col=on?"#44ff88":"#0d3330";
+    // IGBT = MOSFET gate + BJT output
+    ctx.beginPath();ctx.arc(cx2,cy,s,0,Math.PI*2);
+    ctx.fillStyle="#060f0d";ctx.strokeStyle=col;ctx.lineWidth=2;
+    if(on){ctx.shadowColor=col;ctx.shadowBlur=14;}ctx.fill();ctx.stroke();ctx.shadowBlur=0;
+    // Gate (MOSFET style)
+    wire(ctx,cx2-s-20,cy,cx2-s*0.4,cy,col);
+    ctx.strokeStyle=col;ctx.lineWidth=2.5;
+    ctx.beginPath();ctx.moveTo(cx2-s*0.4,cy-s*0.6);ctx.lineTo(cx2-s*0.4,cy+s*0.6);ctx.stroke();
+    ctx.strokeStyle=on?col:col+"55";ctx.lineWidth=3;
+    ctx.beginPath();ctx.moveTo(cx2-s*0.2,cy-s*0.6);ctx.lineTo(cx2-s*0.2,cy+s*0.6);ctx.stroke();
+    // Collector/Emitter (BJT style)
+    wire(ctx,cx2+s*0.6,cy-s*0.5,cx2+s*0.6,cy-s*1.1,col);
+    wire(ctx,cx2+s*0.6,cy+s*0.5,cx2+s*0.6,cy+s*1.1,col);
+    // Emitter arrow
+    ctx.fillStyle=col;ctx.save();ctx.translate(cx2+s*0.6,cy+s*0.7);ctx.rotate(Math.PI/2);
+    ctx.beginPath();ctx.moveTo(0,-4);ctx.lineTo(8,0);ctx.lineTo(0,4);ctx.closePath();ctx.fill();ctx.restore();
+    ctx.fillStyle="#446688";ctx.font="8px Share Tech Mono";ctx.textAlign="center";
+    ctx.fillText("G",cx2-s-22,cy+4);ctx.fillText("C",cx2+s*0.6+14,cy-s*1.1+4);ctx.fillText("E",cx2+s*0.6+14,cy+s*1.1+4);
+    // Info
+    ctx.fillStyle=col;ctx.font="bold 10px Share Tech Mono";ctx.textAlign="center";ctx.shadowColor=col;ctx.shadowBlur=on?8:0;
+    ctx.fillText("IGBT  VGE="+VGE.toFixed(1)+"V  IC="+IC.toFixed(1)+"A  P="+((IC*IC*RL).toFixed(1))+"W",cx2,H-20);ctx.shadowBlur=0;
+    if(on)particles(ctx,[[cx2+s*0.6,cy-s*1.1],[cx2+s*0.6,cy+s*1.1]],t,0.4+inorm*0.5,"rgba(68,255,136,0.85)",2);
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);read();
+})();
+
+// ════════════════════════════════════════════════════════════
+// PANEL: INVERTING OP-AMP
+// ════════════════════════════════════════════════════════════
+(function() {
+  var cvs=el("c-inv"),ctx=cvs.getContext("2d");
+  var VIN=100,Rf=10000,Rin=1000,VSAT=12;
+  function read(){
+    VIN=parseFloat(el("iv-vin").value);Rf=parseFloat(el("iv-rf").value);
+    Rin=parseFloat(el("iv-rin").value);VSAT=parseFloat(el("iv-vsat").value);
+    el("iv-vin-lbl").textContent=VIN+" mV";el("iv-rf-lbl").textContent=fmtR(Rf);
+    el("iv-rin-lbl").textContent=fmtR(Rin);el("iv-vsat-lbl").textContent="±"+VSAT+" V"; upd();
+  }
+  function upd(){
+    var Av=-Rf/Rin; var Vout_ideal=VIN/1000*Av; var Vout=Math.max(-VSAT,Math.min(VSAT,Vout_ideal));
+    var clip=Math.abs(Vout_ideal)>VSAT;
+    el("iv-gain").textContent=Av.toFixed(0);el("iv-vout").textContent=Vout.toFixed(2);
+    el("iv-clip").textContent=clip?"YA":"TIDAK";el("iv-clip").style.color=clip?"var(--r)":"var(--g)";
+  }
+  ["iv-vin","iv-rf","iv-rin","iv-vsat"].forEach(function(id){el(id).addEventListener("input",read);});
+  function draw(ts){
+    if(activePanel!=="inv"){requestAnimationFrame(draw);return;}
+    var W=cvs.width,H=cvs.height,t=ts/300;
+    ctx.clearRect(0,0,W,H);
+    var Av=-Rf/Rin; var Vout_ideal=VIN/1000*Av; var Vout=Math.max(-VSAT,Math.min(VSAT,Vout_ideal));
+    var clip=Math.abs(Vout_ideal)>VSAT;
+    var ox=W/2,oy=H/2;
+    drawOpAmp(ctx,ox,oy,34);
+    // Vin source
+    wire(ctx,40,oy-17,ox-34,oy-17,"#0d3330");
+    rr(ctx,22,oy-25,36,16,3);ctx.fillStyle="#0a1800";ctx.strokeStyle="#ff9933";ctx.lineWidth=2;ctx.fill();ctx.stroke();
+    ctx.fillStyle="#ff9933";ctx.font="8px Share Tech Mono";ctx.textAlign="center";ctx.fillText(VIN+"mV",40,oy-14);
+    // Rin
+    rr(ctx,58,oy-21,44,16,3);ctx.fillStyle="#0a1800";ctx.strokeStyle="#ff9933";ctx.lineWidth=2;ctx.fill();ctx.stroke();
+    ctx.fillStyle="#ff9933";ctx.font="8px Share Tech Mono";ctx.textAlign="center";ctx.fillText(fmtR(Rin).replace(" ",""),80,oy-10);
+    // Rf feedback
+    wire(ctx,ox-34,oy-17,ox-34,oy-70,"#0d3330");wire(ctx,ox-34,oy-70,ox+34,oy-70,"#0d3330");wire(ctx,ox+34,oy,ox+34,oy-70,"#0d3330");
+    rr(ctx,ox-34,oy-78,68,16,3);ctx.fillStyle="#0a1800";ctx.strokeStyle="#00e5cc";ctx.lineWidth=2;ctx.fill();ctx.stroke();
+    ctx.fillStyle="#00e5cc";ctx.font="8px Share Tech Mono";ctx.textAlign="center";ctx.fillText("Rf="+fmtR(Rf).replace(" ",""),ox,oy-68);
+    // V− GND
+    wire(ctx,ox-34,oy+17,30,oy+17,"#0d3330");[12,8,4].forEach(function(w,i){ctx.beginPath();ctx.moveTo(30-w,oy+17+i*5);ctx.lineTo(30+w,oy+17+i*5);ctx.strokeStyle="#224a44";ctx.lineWidth=1;ctx.stroke();});
+    // output
+    wire(ctx,ox+34,oy,W-30,oy,"#0d3330");
+    var oc=clip?"#ff3355":"#00e5cc";
+    ctx.fillStyle=oc;ctx.font="bold 10px Share Tech Mono";ctx.textAlign="center";ctx.shadowColor=oc;ctx.shadowBlur=8;
+    ctx.fillText("Vout="+Vout.toFixed(2)+"V",W-30,oy-8);ctx.shadowBlur=0;
+    // waveforms
+    var wy=H-40,wh=16;
+    sineWave(ctx,24,wy,120,wh,t,1,"rgba(255,153,51,0.8)");
+    sineWave(ctx,160,wy,120,wh*Math.min(Math.abs(Vout_ideal/VSAT),1)*1.2,t,1,clip?"#ff3355":"#00e5cc",Math.PI);
+    ctx.fillStyle="#ff9933";ctx.font="8px Share Tech Mono";ctx.textAlign="left";ctx.fillText("Vin",26,wy-wh-4);
+    ctx.fillStyle=oc;ctx.fillText("Vout"+(clip?" CLIPPING":""),(clip?"rgba":""),160,wy-wh-4);
+    ctx.fillStyle=clip?"#ff3355":"var(--dim)";ctx.font="8px Share Tech Mono";ctx.textAlign="center";ctx.fillText("Vout",160,wy-wh-4);
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);read();
+})();
+
+// ════════════════════════════════════════════════════════════
+// PANEL: NON-INVERTING OP-AMP
+// ════════════════════════════════════════════════════════════
+(function() {
+  var cvs=el("c-noninv"),ctx=cvs.getContext("2d");
+  var VIN=100,Rf=10000,R1=1000,VSAT=12;
+  function read(){
+    VIN=parseFloat(el("ni-vin").value);Rf=parseFloat(el("ni-rf").value);
+    R1=parseFloat(el("ni-r1").value);VSAT=parseFloat(el("ni-vsat").value);
+    el("ni-vin-lbl").textContent=VIN+" mV";el("ni-rf-lbl").textContent=fmtR(Rf);
+    el("ni-r1-lbl").textContent=fmtR(R1);el("ni-vsat-lbl").textContent="±"+VSAT+" V"; upd();
+  }
+  function upd(){
+    var Av=1+Rf/R1; var Vout_ideal=VIN/1000*Av; var Vout=Math.max(-VSAT,Math.min(VSAT,Vout_ideal));
+    var clip=Math.abs(Vout_ideal)>VSAT;
+    el("ni-gain").textContent=Av.toFixed(0);el("ni-vout").textContent=Vout.toFixed(2);
+    el("ni-clip").textContent=clip?"YA":"TIDAK";el("ni-clip").style.color=clip?"var(--r)":"var(--g)";
+  }
+  ["ni-vin","ni-rf","ni-r1","ni-vsat"].forEach(function(id){el(id).addEventListener("input",read);});
+  function draw(ts){
+    if(activePanel!=="noninv"){requestAnimationFrame(draw);return;}
+    var W=cvs.width,H=cvs.height,t=ts/300;
+    ctx.clearRect(0,0,W,H);
+    var Av=1+Rf/R1; var Vout_ideal=VIN/1000*Av; var Vout=Math.max(-VSAT,Math.min(VSAT,Vout_ideal));
+    var clip=Math.abs(Vout_ideal)>VSAT;
+    var ox=W/2,oy=H/2;
+    drawOpAmp(ctx,ox,oy,34);
+    // Vin to + input
+    wire(ctx,24,oy+17,ox-34,oy+17,"#0d3330");
+    ctx.fillStyle="#ff9933";ctx.font="8px Share Tech Mono";ctx.textAlign="center";ctx.fillText(VIN+"mV",28,oy+10);
+    // R1 from − to GND
+    wire(ctx,ox-34,oy-17,ox-34,oy-60,"#0d3330");
+    rr(ctx,ox-34-12,oy-60,24,28,3);ctx.fillStyle="#0a1800";ctx.strokeStyle="#ff9933";ctx.lineWidth=2;ctx.fill();ctx.stroke();
+    ctx.fillStyle="#ff9933";ctx.font="8px Share Tech Mono";ctx.textAlign="center";ctx.fillText(fmtR(R1).replace(" ",""),ox-34,oy-68);
+    wire(ctx,ox-34,oy-60-28,ox-34,oy-100,"#0d3330");[10,7,4].forEach(function(w,i){ctx.beginPath();ctx.moveTo(ox-34-w,oy-100+i*5);ctx.lineTo(ox-34+w,oy-100+i*5);ctx.strokeStyle="#224a44";ctx.lineWidth=1;ctx.stroke();});
+    // Rf feedback
+    wire(ctx,ox+34,oy,ox+34,oy-50,"#0d3330");wire(ctx,ox-34,oy-17,ox-34,oy-17,"#0d3330");
+    wire(ctx,ox+34,oy-50,ox-34,oy-50,"#0d3330");wire(ctx,ox-34,oy-50,ox-34,oy-17,"#0d3330");
+    rr(ctx,ox-8,oy-58,W/2-8,16,3);ctx.fillStyle="#0a1800";ctx.strokeStyle="#00e5cc";ctx.lineWidth=2;ctx.fill();ctx.stroke();
+    ctx.fillStyle="#00e5cc";ctx.font="8px Share Tech Mono";ctx.textAlign="center";ctx.fillText("Rf="+fmtR(Rf).replace(" ",""),ox+W/4-8,oy-48);
+    // output
+    wire(ctx,ox+34,oy,W-24,oy,"#0d3330");
+    var oc=clip?"#ff3355":"var(--g)";
+    ctx.fillStyle=oc;ctx.font="bold 10px Share Tech Mono";ctx.textAlign="center";ctx.shadowColor=oc;ctx.shadowBlur=8;
+    ctx.fillText("Vout="+Vout.toFixed(2)+"V",W-24,oy-8);ctx.shadowBlur=0;
+    sineWave(ctx,24,H-40,100,14,t,1,"rgba(255,153,51,0.8)");
+    sineWave(ctx,136,H-40,140,14*Math.min(Math.abs(Vout_ideal/VSAT),1)*1.2,t,1,clip?"#ff3355":"#00ff88",0);
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);read();
+})();
+
+// ════════════════════════════════════════════════════════════
+// PANEL: COMPARATOR
+// ════════════════════════════════════════════════════════════
+(function() {
+  var cvs=el("c-comp"),ctx=cvs.getContext("2d");
+  var VP=1,VN=0,VSAT=12,HYST=0;
+  function read(){
+    VP=parseFloat(el("cp-vp").value);VN=parseFloat(el("cp-vn").value);
+    VSAT=parseFloat(el("cp-vsat").value);HYST=parseFloat(el("cp-hyst").value);
+    el("cp-vp-lbl").textContent=VP.toFixed(1)+" V";el("cp-vn-lbl").textContent=VN.toFixed(1)+" V";
+    el("cp-vsat-lbl").textContent="±"+VSAT+" V";el("cp-hyst-lbl").textContent=HYST.toFixed(2)+" V"; upd();
+  }
+  function upd(){
+    var Vout=VP>VN+HYST/2?VSAT:VP<VN-HYST/2?-VSAT:null;
+    if(Vout===null)Vout=VP>VN?VSAT:-VSAT;
+    el("cp-mvp").textContent=VP.toFixed(2);el("cp-mvn").textContent=VN.toFixed(2);
+    el("cp-vout").textContent=(Vout>0?"+":"")+Vout.toFixed(0);
+    el("cp-out").textContent=Vout>0?"HIGH":"LOW";el("cp-out").style.color=Vout>0?"var(--g)":"var(--r)";
+  }
+  ["cp-vp","cp-vn","cp-vsat","cp-hyst"].forEach(function(id){el(id).addEventListener("input",read);});
+  function draw(ts){
+    if(activePanel!=="comp"){requestAnimationFrame(draw);return;}
+    var W=cvs.width,H=cvs.height,t=ts/400;
+    ctx.clearRect(0,0,W,H);
+    var Vout=VP>VN?VSAT:-VSAT;
+    var ox=W/2,oy=H/2;
+    drawOpAmp(ctx,ox,oy,34);
+    // V+ and V− labels
+    ctx.fillStyle=VP>VN?"#00ff88":"var(--dim)";ctx.font="bold 9px Share Tech Mono";ctx.textAlign="right";ctx.fillText("V+="+VP.toFixed(2)+"V",ox-38,oy+20);
+    ctx.fillStyle=VP<VN?"#ff3355":"var(--dim)";ctx.textAlign="right";ctx.fillText("V−="+VN.toFixed(2)+"V",ox-38,oy-14);
+    // output line
+    wire(ctx,ox+34,oy,W-24,oy,"#0d3330");
+    var oc=Vout>0?"#00ff88":"#ff3355";
+    ctx.beginPath();ctx.arc(W-24,oy,14,0,Math.PI*2);
+    ctx.fillStyle=oc;ctx.shadowColor=oc;ctx.shadowBlur=12;ctx.fill();ctx.shadowBlur=0;
+    ctx.fillStyle="#000";ctx.font="bold 8px Share Tech Mono";ctx.textAlign="center";ctx.fillText(Vout>0?"HI":"LO",W-24,oy+4);
+    // transfer characteristic
+    var gx=24,gy=20,gw=100,gh=60;
+    ctx.fillStyle="#040c0b";rr(ctx,gx,gy,gw,gh,4);ctx.fill();
+    ctx.strokeStyle="var(--dim)";ctx.lineWidth=1;ctx.setLineDash([2,3]);
+    ctx.beginPath();ctx.moveTo(gx,gy+gh/2);ctx.lineTo(gx+gw,gy+gh/2);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(gx+gw/2,gy);ctx.lineTo(gx+gw/2,gy+gh);ctx.stroke();ctx.setLineDash([]);
+    var thX=gx+(VN+5)/10*gw;
+    ctx.strokeStyle="#00e5cc";ctx.lineWidth=2;
+    ctx.beginPath();ctx.moveTo(gx,gy+gh);ctx.lineTo(thX,gy+gh);ctx.lineTo(thX,gy);ctx.lineTo(gx+gw,gy);ctx.stroke();
+    ctx.fillStyle="#ffe044";ctx.font="8px Share Tech Mono";ctx.textAlign="center";ctx.fillText("V−ref",thX,gy+gh+10);
+    // current vp dot
+    var vpX=gx+(VP+5)/10*gw; var vpY=Vout>0?gy:gy+gh;
+    dot(ctx,vpX,vpY,4,oc,10);
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);read();
+})();
+
+// ════════════════════════════════════════════════════════════
+// PANEL: DIFFERENTIAL OP-AMP
+// ════════════════════════════════════════════════════════════
+(function() {
+  var cvs=el("c-diff"),ctx=cvs.getContext("2d");
+  var V1=200,V2=100,RG=10000;
+  function read(){
+    V1=parseFloat(el("df-v1").value);V2=parseFloat(el("df-v2").value);RG=parseFloat(el("df-r").value);
+    el("df-v1-lbl").textContent=V1+" mV";el("df-v2-lbl").textContent=V2+" mV";el("df-r-lbl").textContent=fmtR(RG);
+    var Gain=RG/1000; var Vout=(V1-V2)/1000*Gain;
+    el("df-mv1").textContent=V1;el("df-mv2").textContent=V2;el("df-vout").textContent=Vout.toFixed(2);el("df-gain").textContent=Gain.toFixed(0);
+  }
+  ["df-v1","df-v2","df-r"].forEach(function(id){el(id).addEventListener("input",read);});
+  function draw(ts){
+    if(activePanel!=="diff"){requestAnimationFrame(draw);return;}
+    var W=cvs.width,H=cvs.height,t=ts/300;
+    ctx.clearRect(0,0,W,H);
+    var Gain=RG/1000; var Vout=(V1-V2)/1000*Gain;
+    var ox=W/2,oy=H/2;
+    drawOpAmp(ctx,ox,oy,34);
+    wire(ctx,24,oy-17,ox-34,oy-17,"#0d3330");ctx.fillStyle="#44aaff";ctx.font="8px Share Tech Mono";ctx.textAlign="center";ctx.fillText("V1="+V1+"mV",32,oy-22);
+    wire(ctx,24,oy+17,ox-34,oy+17,"#0d3330");ctx.fillStyle="#ff9933";ctx.fillText("V2="+V2+"mV",32,oy+28);
+    wire(ctx,ox+34,oy,W-24,oy,"#0d3330");
+    var vc=Vout>0?"#00ff88":Vout<0?"#ff3355":"var(--dim)";
+    ctx.fillStyle=vc;ctx.font="bold 10px Share Tech Mono";ctx.textAlign="center";ctx.shadowColor=vc;ctx.shadowBlur=8;
+    ctx.fillText("Vout="+Vout.toFixed(2)+"V",W-24,oy-8);ctx.shadowBlur=0;
+    ctx.fillStyle="var(--dim)";ctx.font="9px Share Tech Mono";ctx.textAlign="center";
+    ctx.fillText("Av = Rf/Rin = "+Gain.toFixed(0)+"  |  Vout = "+Gain.toFixed(0)+"×(V1−V2)",W/2,H-20);
+    sineWave(ctx,24,H-45,100,14,t,1,"rgba(68,170,255,0.8)");
+    sineWave(ctx,24,H-45,100,14*V2/V1,t,1,"rgba(255,153,51,0.6)");
+    sineWave(ctx,136,H-45,120,Math.min(Math.abs(Vout)/12,1)*18,t,1,vc);
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);read();
+})();
+
+// ════════════════════════════════════════════════════════════
+// PANEL: SOLAR CELL
+// ════════════════════════════════════════════════════════════
+(function() {
+  var cvs=el("c-solar"),ctx=cvs.getContext("2d");
+  var IRR=500,TEMP=25,RL=20;
+  function read(){
+    IRR=parseFloat(el("sl-irr").value);TEMP=parseFloat(el("sl-temp").value);RL=parseFloat(el("sl-rl").value);
+    el("sl-irr-lbl").textContent=IRR+" W/m²";el("sl-temp-lbl").textContent=TEMP+" °C";el("sl-rl-lbl").textContent=RL+" Ω"; upd();
+  }
+  function upd(){
+    var Isc=IRR/1000*5; var Voc=0.6*(1-(TEMP-25)*0.003); var n=0.225;
+    var area=0.01; var Pmax=IRR*area*n;
+    var eff=n*100;
+    el("sl-isc").textContent=Isc.toFixed(2);el("sl-voc").textContent=Voc.toFixed(2);
+    el("sl-pmax").textContent=Pmax.toFixed(2);el("sl-eff").textContent=eff.toFixed(1);
+  }
+  ["sl-irr","sl-temp","sl-rl"].forEach(function(id){el(id).addEventListener("input",read);});
+  function draw(ts){
+    if(activePanel!=="solar"){requestAnimationFrame(draw);return;}
+    var W=cvs.width,H=cvs.height,t=ts/400;
+    ctx.clearRect(0,0,W,H);
+    var Isc=IRR/1000*5; var inorm=Math.min(IRR/1000,1);
+    var cellW=160,cellH=80,cx2=W/2,cy=H/2-10;
+    // Sun
+    for(var i=0;i<8;i++){
+      var ang=i*Math.PI/4-t*0.4;
+      ctx.strokeStyle="rgba(255,220,50,"+(inorm*0.8)+")";ctx.lineWidth=2.5;
+      ctx.beginPath();ctx.moveTo(cx2-cellW/2-60+Math.cos(ang)*24,cy-20+Math.sin(ang)*24);
+      ctx.lineTo(cx2-cellW/2-60+Math.cos(ang)*36,cy-20+Math.sin(ang)*36);ctx.stroke();
+    }
+    ctx.beginPath();ctx.arc(cx2-cellW/2-60,cy-20,20,0,Math.PI*2);
+    ctx.fillStyle="rgba(255,220,50,"+(inorm*0.9)+")";ctx.shadowColor="#ffe044";ctx.shadowBlur=inorm*20;ctx.fill();ctx.shadowBlur=0;
+    ctx.fillStyle="#ffe044";ctx.font="8px Share Tech Mono";ctx.textAlign="center";ctx.fillText(IRR+"W/m²",cx2-cellW/2-60,cy-20+34);
+    // photon arrows
+    for(var j=0;j<5;j++){
+      var prog=((t*0.4+j*0.22)%1); var ax=cx2-cellW/2-40+prog*50; var ay=cy-20+j*4;
+      ctx.strokeStyle="rgba(255,220,50,"+(inorm*(1-prog)*0.8)+")";ctx.lineWidth=2;
+      ctx.beginPath();ctx.moveTo(ax,ay);ctx.lineTo(ax+12,ay+6);ctx.stroke();
+    }
+    // Solar cell body
+    var grad=ctx.createLinearGradient(cx2-cellW/2,cy-cellH/2,cx2+cellW/2,cy+cellH/2);
+    grad.addColorStop(0,"#001a2a");grad.addColorStop(0.5,"#002244");grad.addColorStop(1,"#001a2a");
+    ctx.fillStyle=grad;ctx.strokeStyle="rgba(0,100,200,0.6)";ctx.lineWidth=2;
+    rr(ctx,cx2-cellW/2,cy-cellH/2,cellW,cellH,6);ctx.fill();ctx.stroke();
+    // grid lines
+    ctx.strokeStyle="rgba(150,200,255,0.3)";ctx.lineWidth=1;
+    for(var k=1;k<5;k++){ctx.beginPath();ctx.moveTo(cx2-cellW/2+k*cellW/5,cy-cellH/2);ctx.lineTo(cx2-cellW/2+k*cellW/5,cy+cellH/2);ctx.stroke();}
+    for(var k2=1;k2<4;k2++){ctx.beginPath();ctx.moveTo(cx2-cellW/2,cy-cellH/2+k2*cellH/4);ctx.lineTo(cx2+cellW/2,cy-cellH/2+k2*cellH/4);ctx.stroke();}
+    // electron-hole generation
+    if(inorm>0.1){
+      for(var m=0;m<6;m++){
+        var ex=cx2-cellW/2+20+m*cellW/6; var ey=cy;
+        var off=Math.sin(t*3+m)*10;
+        dot(ctx,ex,ey+off,3,"rgba(0,229,204,0.7)");
+        dot(ctx,ex,ey-off,3,"rgba(255,100,100,0.5)");
+      }
+    }
+    ctx.fillStyle="#44aaff";ctx.font="bold 9px Share Tech Mono";ctx.textAlign="center";ctx.fillText("Silicon Solar Cell",cx2,cy+cellH/2+14);
+    // IV curve mini
+    var gx=cx2+cellW/2+10,gy2=cy-cellH/2,gw=80,gh2=cellH;
+    ctx.fillStyle="#040c0b";rr(ctx,gx,gy2,gw,gh2,4);ctx.fill();
+    ctx.strokeStyle="#0d3330";ctx.lineWidth=1;rr(ctx,gx,gy2,gw,gh2,4);ctx.stroke();
+    ctx.beginPath();ctx.strokeStyle="#00e5cc";ctx.lineWidth=2;
+    for(var p=0;p<=gw;p++){
+      var vp=p/gw*0.7; var ip=Math.max(0,Isc*(1-Math.exp((vp-0.6)/0.026)));
+      var px2=gx+p; var py=gy2+gh2-(ip/Isc)*gh2*0.9;
+      if(p===0)ctx.moveTo(px2,py);else ctx.lineTo(px2,py);
+    }ctx.stroke();
+    ctx.fillStyle="#44aaff";ctx.font="7px Share Tech Mono";ctx.textAlign="center";ctx.fillText("I-V",gx+gw/2,gy2+8);
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);read();
+})();
+
+// ════════════════════════════════════════════════════════════
+// PANEL: UJT
+// ════════════════════════════════════════════════════════════
+(function() {
+  var cvs=el("c-ujt"),ctx=cvs.getContext("2d");
+  var VBB=20,VE=0,ETA=0.63;
+  function read(){
+    VBB=parseFloat(el("uj-vbb").value);VE=parseFloat(el("uj-ve").value);ETA=parseFloat(el("uj-eta").value);
+    el("uj-vbb-lbl").textContent=VBB+" V";el("uj-ve-lbl").textContent=VE.toFixed(1)+" V";el("uj-eta-lbl").textContent=ETA.toFixed(2);
+    var VP=ETA*VBB+0.7; var on=VE>=VP; var IE=on?(VE-VP)*20:0;
+    el("uj-vp").textContent=VP.toFixed(1);el("uj-status").textContent=on?"KONDUKSI":"BLOCKING";
+    el("uj-status").style.color=on?"var(--m)":"var(--dim)";
+    el("uj-ie").textContent=IE.toFixed(2);el("uj-rbb").textContent="5.0";
+  }
+  ["uj-vbb","uj-ve","uj-eta"].forEach(function(id){el(id).addEventListener("input",read);});
+  function draw(ts){
+    if(activePanel!=="ujt"){requestAnimationFrame(draw);return;}
+    var W=cvs.width,H=cvs.height,t=ts/700;
+    ctx.clearRect(0,0,W,H);
+    var VP=ETA*VBB+0.7; var on=VE>=VP; var IE=on?(VE-VP)*20:0;
+    var inorm=Math.min(IE/100,1); var cx2=W/2,cy=H/2;
+    var s=30; var col=on?"#cc44ff":"#441166";
+    ctx.beginPath();ctx.arc(cx2,cy,s,0,Math.PI*2);
+    ctx.fillStyle="#060f0d";ctx.strokeStyle=col;ctx.lineWidth=2;
+    if(on){ctx.shadowColor=col;ctx.shadowBlur=14;}ctx.fill();ctx.stroke();ctx.shadowBlur=0;
+    // B1 B2
+    wire(ctx,cx2+s*0.5,cy-s*0.9,cx2+s*0.5,cy-s*1.4,col);wire(ctx,cx2+s*0.5,cy+s*0.9,cx2+s*0.5,cy+s*1.4,col);
+    // Emitter
+    wire(ctx,cx2-s-20,cy,cx2-s*0.4,cy,col);
+    ctx.fillStyle=col;ctx.save();ctx.translate(cx2-s*0.2,cy);
+    ctx.beginPath();ctx.moveTo(-6,-4);ctx.lineTo(4,0);ctx.lineTo(-6,4);ctx.closePath();ctx.fill();ctx.restore();
+    ctx.fillStyle="#664488";ctx.font="8px Share Tech Mono";ctx.textAlign="center";
+    ctx.fillText("E",cx2-s-24,cy+4);ctx.fillText("B2",cx2+s*0.5+14,cy-s*1.4+4);ctx.fillText("B1",cx2+s*0.5+14,cy+s*1.4+4);
+    ctx.fillStyle=col;ctx.font="9px Share Tech Mono";ctx.textAlign="center";
+    ctx.fillText("η="+ETA.toFixed(2)+"  VP="+VP.toFixed(1)+"V",cx2,cy+s+20);
+    ctx.fillStyle=on?"#cc44ff":"var(--dim)";ctx.font="bold 9px Share Tech Mono";ctx.textAlign="center";ctx.shadowColor=on?"#cc44ff":"transparent";ctx.shadowBlur=on?8:0;
+    ctx.fillText(on?"VE="+VE.toFixed(1)+"≥VP="+VP.toFixed(1)+"→ ON":"VE="+VE.toFixed(1)+"<VP="+VP.toFixed(1)+"→ OFF",cx2,H-20);ctx.shadowBlur=0;
+    if(on)particles(ctx,[[cx2-s-20,cy],[cx2-s*0.4,cy]],t,0.5+inorm*0.5,"rgba(180,50,255,0.8)",2);
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);read();
+})();
+
+// ════════════════════════════════════════════════════════════
+// PANEL: TUNNEL DIODE
+// ════════════════════════════════════════════════════════════
+(function() {
+  var cvs=el("c-tunnel"),ctx=cvs.getContext("2d");
+  var DV=100,IP=10;
+  function tunnelI(v,ip){
+    v=v/1000; if(v<0)return -0.001;
+    if(v<=0.08)return ip*Math.sin(v/0.08*Math.PI/2);
+    if(v<=0.35){var t=(v-0.08)/0.27;return ip*(Math.cos(t*Math.PI/2)*0.9+0.1);}
+    return ip*0.1*(1+Math.exp((v-0.5)/0.04));
+  }
+  function read(){
+    DV=parseFloat(el("tn-v").value);IP=parseFloat(el("tn-ip").value);
+    el("tn-v-lbl").textContent=DV+" mV";el("tn-ip-lbl").textContent=IP+" mA";
+    var I=tunnelI(DV,IP);
+    el("tn-i").textContent=Math.max(0,I).toFixed(1);
+    var reg=DV<80?"TUNNELING":DV<350?"NDR":DV<500?"VALLEY":"NORMAL";
+    el("tn-reg").textContent=reg;el("tn-reg").style.color=reg==="NDR"?"var(--r)":reg==="TUNNELING"?"var(--c1)":"var(--dim)";
+  }
+  ["tn-v","tn-ip"].forEach(function(id){el(id).addEventListener("input",read);});
+  function draw(ts){
+    if(activePanel!=="tunnel"){requestAnimationFrame(draw);return;}
+    var W=cvs.width,H=cvs.height,t=ts/700;
+    ctx.clearRect(0,0,W,H);
+    var I=Math.max(0,tunnelI(DV,IP)); var inorm=I/IP;
+    var gx=24,gy=15,gw=W-48,gh=H-50;
+    ctx.fillStyle="#040c0b";rr(ctx,gx,gy,gw,gh,4);ctx.fill();
+    ctx.strokeStyle="#0d3330";ctx.lineWidth=1;rr(ctx,gx,gy,gw,gh,4);ctx.stroke();
+    // Axes
+    ctx.strokeStyle="#224a44";ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(gx,gy+gh*0.85);ctx.lineTo(gx+gw,gy+gh*0.85);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(gx+30,gy);ctx.lineTo(gx+30,gy+gh);ctx.stroke();
+    ctx.fillStyle="var(--dim)";ctx.font="8px Share Tech Mono";ctx.textAlign="center";ctx.fillText("V (mV)",gx+gw/2,gy+gh+12);
+    ctx.save();ctx.translate(gx+10,gy+gh/2);ctx.rotate(-Math.PI/2);ctx.fillText("I (mA)",0,0);ctx.restore();
+    // NDR region shade
+    var x1=gx+30+(80/700)*gw; var x2=gx+30+(350/700)*gw;
+    ctx.fillStyle="rgba(255,50,50,0.07)";ctx.fillRect(x1,gy,x2-x1,gh-5);
+    ctx.fillStyle="rgba(255,50,50,0.4)";ctx.font="7px Share Tech Mono";ctx.textAlign="center";ctx.fillText("NDR",(x1+x2)/2,gy+10);
+    // I-V curve
+    ctx.beginPath();ctx.strokeStyle="#00e5cc";ctx.lineWidth=2.5;ctx.shadowColor="#00e5cc";ctx.shadowBlur=5;
+    for(var px=0;px<=gw-30;px++){
+      var v=px/gw*700-50; var ci=tunnelI(v,IP);
+      var sx=gx+30+px; var sy=gy+gh*0.85-(ci/IP)*gh*0.7;
+      sy=Math.max(gy+2,sy);
+      if(px===0)ctx.moveTo(sx,sy);else ctx.lineTo(sx,sy);
+    }ctx.stroke();ctx.shadowBlur=0;
+    // Test point
+    var ptx=gx+30+((DV+50)/700)*gw; var pty=gy+gh*0.85-(I/IP)*gh*0.7;
+    pty=Math.max(gy+5,pty);
+    dot(ctx,ptx,pty,6,"#ffe044",14);
+    ctx.setLineDash([2,3]);ctx.strokeStyle="rgba(255,220,50,0.4)";ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(ptx,gy+gh*0.85);ctx.lineTo(ptx,pty);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(gx+30,pty);ctx.lineTo(ptx,pty);ctx.stroke();ctx.setLineDash([]);
+    ctx.fillStyle="#ffe044";ctx.font="8px Share Tech Mono";ctx.textAlign="left";
+    ctx.fillText(DV+"mV/"+I.toFixed(1)+"mA",ptx+6,pty-4);
+    // V labels
+    [0,80,350,500].forEach(function(v,i){
+      var vx=gx+30+((v+50)/700)*gw;var lbl=["0","Vp=80","Vv=350","500"];
+      ctx.strokeStyle="rgba(100,100,100,0.3)";ctx.lineWidth=1;ctx.setLineDash([2,3]);
+      ctx.beginPath();ctx.moveTo(vx,gy+gh*0.85-2);ctx.lineTo(vx,gy+gh*0.85+8);ctx.stroke();ctx.setLineDash([]);
+      ctx.fillStyle="var(--dim)";ctx.font="7px Share Tech Mono";ctx.textAlign="center";ctx.fillText(lbl[i],vx,gy+gh*0.85+18);
+    });
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);read();
+})();
+</script>
+</body></html>

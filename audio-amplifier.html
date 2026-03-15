@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rangkaian Audio | FG Electronic Labs</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --a:#ff7700;--a2:#ffbb66;--ad:#2a1000;
+  --p:#cc44ff;--t:#00e5cc;--g:#00ff88;--r:#ff3355;--y:#ffe044;--b:#44aaff;
+  --bg:#090500;--card:#0f0800;--bdr:#3a2000;--dim:#7a5020;
+  --font:'Share Tech Mono',monospace;--head:'Orbitron',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:radial-gradient(ellipse 130% 55% at 50% 0%,#2a1400 0%,#090500 60%);min-height:100vh;font-family:var(--font);color:var(--a2);overflow-x:hidden;}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.07) 2px,rgba(0,0,0,.07) 4px);z-index:9999;}
+.wrap{max-width:540px;margin:0 auto;padding:18px 12px 48px;}
+header{text-align:center;margin-bottom:22px;}
+.back{display:inline-block;font-family:var(--font);font-size:10px;color:rgba(255,119,0,.4);text-decoration:none;margin-bottom:12px;letter-spacing:2px;transition:color .2s;}
+.back:hover{color:var(--a);}
+.sub{font-size:9px;letter-spacing:6px;color:#442200;margin-bottom:5px;}
+h1{font-family:var(--head);font-size:clamp(14px,4vw,21px);font-weight:900;color:var(--a);text-shadow:0 0 24px rgba(255,119,0,.5);letter-spacing:2px;margin-bottom:8px;}
+.divline{width:80px;height:2px;background:linear-gradient(to right,transparent,var(--a),transparent);margin:0 auto;}
+.tabs{display:flex;gap:4px;margin-bottom:14px;overflow-x:auto;padding-bottom:3px;scrollbar-width:none;}
+.tabs::-webkit-scrollbar{display:none;}
+.tab{flex:0 0 auto;padding:6px 11px;border:1px solid var(--bdr);border-radius:7px;background:var(--card);color:var(--dim);cursor:pointer;font-family:var(--font);font-size:9px;letter-spacing:.8px;transition:all .2s;white-space:nowrap;}
+.tab:hover{border-color:var(--a2);color:var(--a2);}
+.tab.on{border-color:var(--a);background:#1a0a00;color:var(--a);box-shadow:0 0 12px rgba(255,119,0,.2);}
+.card{background:var(--card);border:1px solid var(--bdr);border-radius:14px;padding:20px 16px;box-shadow:0 0 36px rgba(255,119,0,.04),inset 0 1px 0 #3a2000;}
+.scene{display:none;flex-direction:column;align-items:center;gap:16px;}
+.scene.on{display:flex;}
+.atitle{font-family:var(--head);font-size:10px;letter-spacing:2px;color:var(--a2);text-align:center;width:100%;}
+.ctrl{width:100%;background:#0a0600;border:1px solid var(--bdr);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;}
+.ctrl-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.ctrl-lbl{font-size:10px;color:var(--dim);min-width:90px;letter-spacing:.7px;}
+.sl{flex:1;min-width:90px;-webkit-appearance:none;height:4px;background:linear-gradient(to right,var(--a) var(--pct,50%),#3a2000 var(--pct,50%));border-radius:2px;outline:none;cursor:pointer;}
+.sl::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--a);box-shadow:0 0 6px rgba(255,119,0,.7);cursor:pointer;}
+.sl::-moz-range-thumb{width:14px;height:14px;border-radius:50%;border:none;background:var(--a);cursor:pointer;}
+.ctrl-val{font-size:11px;color:var(--a);min-width:68px;text-align:right;}
+.metrics{display:flex;gap:6px;width:100%;flex-wrap:wrap;}
+.metric{flex:1;min-width:70px;background:#0a0600;border:1px solid var(--bdr);border-radius:7px;padding:6px 8px;text-align:center;}
+.metric-lbl{font-size:8px;color:var(--dim);letter-spacing:1.5px;margin-bottom:2px;}
+.metric-val{font-size:13px;color:var(--a);font-weight:bold;}
+.metric-unit{font-size:8px;color:var(--dim);}
+.info{color:var(--dim);font-size:11px;text-align:center;line-height:1.75;width:100%;}
+.info span{color:var(--a);}.info .g{color:var(--g);}.info .r{color:var(--r);}.info .b{color:var(--b);}
+canvas{display:block;border-radius:7px;}
+canvas.brd{border:1px solid var(--bdr);background:#0a0600;}
+footer{text-align:center;margin-top:20px;font-size:9px;letter-spacing:3px;color:#2a1400;}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <a class="back" href="index.html">← FATAH GENDI ELECTRONIC LABS</a>
+  <div class="sub">◈ RANGKAIAN AUDIO ◈</div>
+  <h1>AUDIO AMPLIFIER &amp; SIGNAL</h1>
+  <div class="divline"></div>
+</header>
+<div class="tabs">
+  <button class="tab on" data-s="preamp">🎤 Pre-Amp</button>
+  <button class="tab" data-s="classA">🔊 Class A</button>
+  <button class="tab" data-s="classAB">📢 Class AB</button>
+  <button class="tab" data-s="classD">💡 Class D</button>
+  <button class="tab" data-s="tonecontrol">🎛 Tone Control</button>
+  <button class="tab" data-s="vumeter">📊 VU Meter</button>
+</div>
+<div class="card">
+
+<!-- PRE-AMP -->
+<div class="scene on" id="s-preamp">
+  <div class="atitle">MICROPHONE PRE-AMPLIFIER (Op-Amp)</div>
+  <canvas id="c-preamp" class="brd" width="460" height="210" style="width:100%"></canvas>
+  <div class="ctrl">
+    <div class="ctrl-row"><span class="ctrl-lbl">🎤 Vin mic (mV)</span><input type="range" class="sl" id="pa-vin" min="0.1" max="100" value="5" step="0.1"><span class="ctrl-val" id="pa-vin-v">5.0 mV</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">⚙ Rf gain</span><input type="range" class="sl" id="pa-rf" min="1000" max="200000" value="47000" step="1000"><span class="ctrl-val" id="pa-rf-v">47 kΩ</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">⚙ Rin</span><input type="range" class="sl" id="pa-rin" min="100" max="10000" value="1000" step="100"><span class="ctrl-val" id="pa-rin-v">1.0 kΩ</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">📶 Frekuensi</span><input type="range" class="sl" id="pa-f" min="20" max="20000" value="1000" step="10"><span class="ctrl-val" id="pa-f-v">1000 Hz</span></div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-lbl">GAIN (Av)</div><div class="metric-val" id="pa-gain">47</div><div class="metric-unit">×</div></div>
+    <div class="metric"><div class="metric-lbl">Gain (dB)</div><div class="metric-val" id="pa-gaindb">33.4</div><div class="metric-unit">dB</div></div>
+    <div class="metric"><div class="metric-lbl">Vout peak</div><div class="metric-val" id="pa-vout">235</div><div class="metric-unit">mV</div></div>
+    <div class="metric"><div class="metric-lbl">CLIP?</div><div class="metric-val" id="pa-clip" style="font-size:10px">TIDAK</div><div class="metric-unit"></div></div>
+  </div>
+  <div class="info">Non-inverting pre-amp: Av = 1 + Rf/Rin<br><span>SNR</span> tinggi → op-amp low-noise (NE5532, LT1028)<br>Gain 40–60dB untuk mic condenser/dynamic</div>
+</div>
+
+<!-- CLASS A -->
+<div class="scene" id="s-classA">
+  <div class="atitle">CLASS A AMPLIFIER — LINEAR TAPI BOROS</div>
+  <canvas id="c-classA" class="brd" width="460" height="210" style="width:100%"></canvas>
+  <div class="ctrl">
+    <div class="ctrl-row"><span class="ctrl-lbl">⚡ VCC</span><input type="range" class="sl" id="ca-vcc" min="5" max="30" value="15" step="0.5"><span class="ctrl-val" id="ca-vcc-v">15 V</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">📢 Vin peak (V)</span><input type="range" class="sl" id="ca-vin" min="0.1" max="5" value="0.5" step="0.05"><span class="ctrl-val" id="ca-vin-v">0.50 V</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">⚙ Rc (Ω)</span><input type="range" class="sl" id="ca-rc" min="100" max="10000" value="1000" step="100"><span class="ctrl-val" id="ca-rc-v">1.0 kΩ</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">⚙ β transistor</span><input type="range" class="sl" id="ca-hfe" min="50" max="500" value="150" step="10"><span class="ctrl-val" id="ca-hfe-v">150</span></div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-lbl">Icq (bias)</div><div class="metric-val" id="ca-icq">7.5</div><div class="metric-unit">mA</div></div>
+    <div class="metric"><div class="metric-lbl">GAIN (Av)</div><div class="metric-val" id="ca-gain">-288</div><div class="metric-unit">×</div></div>
+    <div class="metric"><div class="metric-lbl">EFISIENSI</div><div class="metric-val" id="ca-eff">25</div><div class="metric-unit">%max</div></div>
+    <div class="metric"><div class="metric-lbl">Pdis IC</div><div class="metric-val" id="ca-pdis">56</div><div class="metric-unit">mW</div></div>
+  </div>
+  <div class="info">Class A: transistor aktif <span>seluruh siklus</span> → distorsi sangat rendah<br>Efisiensi max 25% → banyak panas, digunakan untuk <span>amplifier hi-fi</span></div>
+</div>
+
+<!-- CLASS AB -->
+<div class="scene" id="s-classAB">
+  <div class="atitle">CLASS AB PUSH-PULL AMPLIFIER</div>
+  <canvas id="c-classAB" class="brd" width="460" height="210" style="width:100%"></canvas>
+  <div class="ctrl">
+    <div class="ctrl-row"><span class="ctrl-lbl">⚡ ±VCC</span><input type="range" class="sl" id="ab-vcc" min="5" max="30" value="15" step="0.5"><span class="ctrl-val" id="ab-vcc-v">±15 V</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">📢 Vin peak (V)</span><input type="range" class="sl" id="ab-vin" min="0.1" max="14" value="5" step="0.1"><span class="ctrl-val" id="ab-vin-v">5.0 V</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">⚙ R beban (Ω)</span><input type="range" class="sl" id="ab-rl" min="4" max="100" value="8" step="1"><span class="ctrl-val" id="ab-rl-v">8 Ω</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">📐 Bias Vbe</span><input type="range" class="sl" id="ab-vbe" min="0" max="1.4" value="0.7" step="0.05"><span class="ctrl-val" id="ab-vbe-v">0.70 V</span></div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-lbl">Vout peak</div><div class="metric-val" id="ab-vout">4.30</div><div class="metric-unit">V</div></div>
+    <div class="metric"><div class="metric-lbl">Pout</div><div class="metric-val" id="ab-pout">1.16</div><div class="metric-unit">W</div></div>
+    <div class="metric"><div class="metric-lbl">EFISIENSI</div><div class="metric-val" id="ab-eff">78.5</div><div class="metric-unit">%</div></div>
+    <div class="metric"><div class="metric-lbl">CROSSOVER</div><div class="metric-val" id="ab-cross" style="font-size:10px">KECIL</div><div class="metric-unit"></div></div>
+  </div>
+  <div class="info">NPN handles positive half, PNP handles negative half<br>Bias Vbe kecil = crossover distortion | Class AB: <span>efisiensi 70-80%</span><br>Digunakan pada <span>speaker amplifier, audio PA system</span></div>
+</div>
+
+<!-- CLASS D -->
+<div class="scene" id="s-classD">
+  <div class="atitle">CLASS D SWITCHING AMPLIFIER</div>
+  <canvas id="c-classD" class="brd" width="460" height="210" style="width:100%"></canvas>
+  <div class="ctrl">
+    <div class="ctrl-row"><span class="ctrl-lbl">⚡ VCC</span><input type="range" class="sl" id="cd-vcc" min="5" max="30" value="12" step="0.5"><span class="ctrl-val" id="cd-vcc-v">12 V</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">📢 Vin (mV peak)</span><input type="range" class="sl" id="cd-vin" min="10" max="1000" value="200" step="10"><span class="ctrl-val" id="cd-vin-v">200 mV</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">📶 Fsw (kHz)</span><input type="range" class="sl" id="cd-fsw" min="100" max="1000" value="400" step="10"><span class="ctrl-val" id="cd-fsw-v">400 kHz</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">⚙ R beban</span><input type="range" class="sl" id="cd-rl" min="4" max="100" value="8" step="1"><span class="ctrl-val" id="cd-rl-v">8 Ω</span></div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-lbl">DUTY CYCLE</div><div class="metric-val" id="cd-duty">58.3</div><div class="metric-unit">%</div></div>
+    <div class="metric"><div class="metric-lbl">Vout avg</div><div class="metric-val" id="cd-vout">3.00</div><div class="metric-unit">V</div></div>
+    <div class="metric"><div class="metric-lbl">EFISIENSI</div><div class="metric-val" id="cd-eff">90+</div><div class="metric-unit">%</div></div>
+    <div class="metric"><div class="metric-lbl">THD</div><div class="metric-val" id="cd-thd">&lt;0.1</div><div class="metric-unit">%</div></div>
+  </div>
+  <div class="info">Class D: sinyal audio → PWM → MOSFET switch → LC filter → speaker<br>Efisiensi 90–98% → <span>paling efisien</span> → sedikit panas<br>Digunakan: speaker Bluetooth, subwoofer, amplifier car audio</div>
+</div>
+
+<!-- TONE CONTROL -->
+<div class="scene" id="s-tonecontrol">
+  <div class="atitle">TONE CONTROL — BASS, MID, TREBLE</div>
+  <canvas id="c-tonecontrol" class="brd" width="460" height="210" style="width:100%"></canvas>
+  <div class="ctrl">
+    <div class="ctrl-row"><span class="ctrl-lbl">🔉 BASS (dB)</span><input type="range" class="sl" id="tc-bass" min="-12" max="12" value="0" step="0.5"><span class="ctrl-val" id="tc-bass-v">0.0 dB</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">🔊 MID (dB)</span><input type="range" class="sl" id="tc-mid" min="-12" max="12" value="0" step="0.5"><span class="ctrl-val" id="tc-mid-v">0.0 dB</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">🎵 TREBLE (dB)</span><input type="range" class="sl" id="tc-treble" min="-12" max="12" value="0" step="0.5"><span class="ctrl-val" id="tc-treble-v">0.0 dB</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">🔈 VOLUME</span><input type="range" class="sl" id="tc-vol" min="0" max="100" value="80" step="1"><span class="ctrl-val" id="tc-vol-v">80 %</span></div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-lbl">BASS</div><div class="metric-val" id="tc-mbass">0.0</div><div class="metric-unit">dB</div></div>
+    <div class="metric"><div class="metric-lbl">MID</div><div class="metric-val" id="tc-mmid">0.0</div><div class="metric-unit">dB</div></div>
+    <div class="metric"><div class="metric-lbl">TREBLE</div><div class="metric-val" id="tc-mtreble">0.0</div><div class="metric-unit">dB</div></div>
+    <div class="metric"><div class="metric-lbl">VOLUME</div><div class="metric-val" id="tc-mvol">80</div><div class="metric-unit">%</div></div>
+  </div>
+  <div class="info">Equalizer 3-band: Bass (&lt;300Hz) | Mid (300–3kHz) | Treble (&gt;3kHz)<br>Tiap band ±12dB → <span>shelving atau peaking filter</span></div>
+</div>
+
+<!-- VU METER -->
+<div class="scene" id="s-vumeter">
+  <div class="atitle">VU METER — LEVEL AUDIO VISUALIZER</div>
+  <canvas id="c-vumeter" class="brd" width="460" height="210" style="width:100%"></canvas>
+  <div class="ctrl">
+    <div class="ctrl-row"><span class="ctrl-lbl">📢 Level input</span><input type="range" class="sl" id="vu-level" min="0" max="100" value="60" step="1"><span class="ctrl-val" id="vu-level-v">60 %</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">📶 Frekuensi</span><input type="range" class="sl" id="vu-f" min="20" max="5000" value="440" step="10"><span class="ctrl-val" id="vu-f-v">440 Hz</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">🌊 Tipe sinyal</span><input type="range" class="sl" id="vu-type" min="0" max="2" value="0" step="1"><span class="ctrl-val" id="vu-type-v">Sinus</span></div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-lbl">LEVEL</div><div class="metric-val" id="vu-mlevel">60</div><div class="metric-unit">%</div></div>
+    <div class="metric"><div class="metric-lbl">dBFS</div><div class="metric-val" id="vu-dbfs">-4.4</div><div class="metric-unit">dBFS</div></div>
+    <div class="metric"><div class="metric-lbl">Vpeak</div><div class="metric-val" id="vu-vp">0.60</div><div class="metric-unit">V</div></div>
+    <div class="metric"><div class="metric-lbl">Vrms</div><div class="metric-val" id="vu-vrms">0.42</div><div class="metric-unit">V</div></div>
+  </div>
+  <div class="info">VU Meter: mengukur level RMS audio dengan attack/decay<br>0 dBVU = 0.775 Vrms | dBFS = full-scale digital<br>Digunakan pada <span>mixing console, DAW, audio interface</span></div>
+</div>
+
+</div>
+<footer>◈ FATAH GENDI ELECTRONIC LABS — AUDIO CIRCUITS ◈</footer>
+</div>
+<script>
+"use strict";
+var activeS="preamp";
+function el(id){return document.getElementById(id);}
+
+document.querySelectorAll(".sl").forEach(function(s){function u(){s.style.setProperty("--pct",((s.value-s.min)/(s.max-s.min)*100).toFixed(1)+"%");}u();s.addEventListener("input",u);});
+document.querySelectorAll(".tab").forEach(function(t){t.addEventListener("click",function(){document.querySelectorAll(".tab").forEach(function(x){x.classList.remove("on");});document.querySelectorAll(".scene").forEach(function(x){x.classList.remove("on");});t.classList.add("on");activeS=t.dataset.s;el("s-"+activeS).classList.add("on");});});
+
+function rr(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.arcTo(x+w,y,x+w,y+r,r);ctx.lineTo(x+w,y+h-r);ctx.arcTo(x+w,y+h,x+w-r,y+h,r);ctx.lineTo(x+r,y+h);ctx.arcTo(x,y+h,x,y+h-r,r);ctx.lineTo(x,y+r);ctx.arcTo(x,y,x+r,y,r);ctx.closePath();}
+function wl(ctx,x1,y1,x2,y2,col,w){ctx.strokeStyle=col||"#3a2000";ctx.lineWidth=w||2;ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();}
+function dot(ctx,x,y,r,col,glow){ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fillStyle=col;if(glow){ctx.shadowColor=col;ctx.shadowBlur=glow;}ctx.fill();ctx.shadowBlur=0;}
+
+function sineWave(ctx,x,y,w,h,t,freq,col,amp){amp=amp||1;ctx.beginPath();ctx.strokeStyle=col;ctx.lineWidth=2;ctx.shadowColor=col;ctx.shadowBlur=4;for(var i=0;i<=w;i++){var sy=y-Math.sin((i/w)*Math.PI*4*freq-t)*h*amp;if(i===0)ctx.moveTo(x+i,sy);else ctx.lineTo(x+i,sy);}ctx.stroke();ctx.shadowBlur=0;}
+
+function drawOpAmp(ctx,cx,cy,col){col=col||"#ff7700";ctx.fillStyle="#0f0800";ctx.strokeStyle=col;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(cx-22,cy-18);ctx.lineTo(cx-22,cy+18);ctx.lineTo(cx+22,cy);ctx.closePath();ctx.fill();ctx.stroke();}
+
+// ═══ PRE-AMP ═══
+(function(){
+  var cvs=el("c-preamp"),ctx=cvs.getContext("2d");
+  var VIN=5,RF=47000,RIN=1000,F=1000;
+  function read(){VIN=parseFloat(el("pa-vin").value);RF=parseFloat(el("pa-rf").value);RIN=parseFloat(el("pa-rin").value);F=parseFloat(el("pa-f").value);el("pa-vin-v").textContent=VIN.toFixed(1)+" mV";el("pa-rf-v").textContent=(RF>=1000?(RF/1000).toFixed(0)+" kΩ":RF+" Ω");el("pa-rin-v").textContent=(RIN>=1000?(RIN/1000).toFixed(1)+" kΩ":RIN+" Ω");el("pa-f-v").textContent=F+" Hz";upd();}
+  function upd(){var Av=1+RF/RIN;var Vout=VIN/1000*Av*1000;var clip=Vout>12000;var adb=20*Math.log10(Av);el("pa-gain").textContent=Av.toFixed(0);el("pa-gaindb").textContent=adb.toFixed(1);el("pa-vout").textContent=clip?"CLIP":Vout.toFixed(0);el("pa-clip").textContent=clip?"CLIP!":"TIDAK";el("pa-clip").style.color=clip?"var(--r)":"var(--g)";}
+  ["pa-vin","pa-rf","pa-rin","pa-f"].forEach(function(id){el(id).addEventListener("input",read);});
+  function draw(ts){if(activeS!=="preamp"){requestAnimationFrame(draw);return;}var W=cvs.width,H=cvs.height,t=ts/300;ctx.clearRect(0,0,W,H);
+    var Av=1+RF/RIN;var Vout_mV=Math.min(VIN*Av,12000);var clip=VIN/1000*Av>12;var spd=F/440;var cy=H/2;
+    // Mic
+    ctx.beginPath();ctx.arc(24,cy,16,0,Math.PI*2);ctx.fillStyle="#0f0800";ctx.strokeStyle="#ff7700";ctx.lineWidth=2;ctx.fill();ctx.stroke();ctx.fillStyle="#ff7700";ctx.font="10px serif";ctx.textAlign="center";ctx.fillText("🎤",24,cy+5);
+    ctx.fillStyle="#ff7700";ctx.font="7px Share Tech Mono";ctx.textAlign="center";ctx.fillText(VIN.toFixed(1)+"mV",24,cy+24);
+    wl(ctx,40,cy,80,cy,"#ff7700");
+    // Input wave (small)
+    ctx.fillStyle="#0f0800";rr(ctx,80,cy-22,70,44,3);ctx.fill();ctx.strokeStyle="#3a2000";ctx.lineWidth=1;rr(ctx,80,cy-22,70,44,3);ctx.stroke();
+    sineWave(ctx,80,cy,70,16,t*spd,1,"#ff7700",0.7);
+    wl(ctx,150,cy,190,cy,"#ff7700");
+    // Op-amp
+    drawOpAmp(ctx,220,cy,"#ff7700");
+    // Rf feedback
+    wl(ctx,198,cy-18,198,cy-50,"#ff7700");wl(ctx,198,cy-50,242,cy-50,"#ff7700");wl(ctx,242,cy,242,cy-50,"#ff7700");
+    rr(ctx,198,cy-54,44,12,3);ctx.fillStyle="#0f0800";ctx.strokeStyle="#ff9933";ctx.lineWidth=1.5;ctx.fill();ctx.stroke();ctx.fillStyle="#ff9933";ctx.font="7px Share Tech Mono";ctx.textAlign="center";ctx.fillText("Rf="+( RF/1000).toFixed(0)+"k",220,cy-46);
+    // Rin
+    rr(ctx,158,cy-5,28,10,3);ctx.fillStyle="#0f0800";ctx.strokeStyle="#ff9933";ctx.lineWidth=1.5;ctx.fill();ctx.stroke();ctx.fillStyle="#ff9933";ctx.font="7px Share Tech Mono";ctx.textAlign="center";ctx.fillText("Rin",172,cy-8);
+    // Output
+    wl(ctx,242,cy,290,cy,clip?"#ff3355":"#ff7700");
+    ctx.fillStyle="#0f0800";rr(ctx,290,cy-24,100,48,3);ctx.fill();ctx.strokeStyle="#3a2000";ctx.lineWidth=1;rr(ctx,290,cy-24,100,48,3);ctx.stroke();
+    var outAmp=Math.min(Vout_mV/12000,1);sineWave(ctx,290,cy,100,20,t*spd,1,clip?"#ff3355":"#00ff88",outAmp);
+    ctx.fillStyle=clip?"#ff3355":"#00ff88";ctx.font="7px Share Tech Mono";ctx.textAlign="center";ctx.shadowColor=ctx.fillStyle;ctx.shadowBlur=outAmp*8;ctx.fillText(clip?"CLIP":Vout_mV.toFixed(0)+"mV",340,cy+32);ctx.shadowBlur=0;
+    // Gain label
+    ctx.fillStyle="#ff7700";ctx.font="bold 9px Share Tech Mono";ctx.textAlign="center";ctx.fillText("Av = 1+Rf/Rin = "+Av.toFixed(0)+"× ("+( 20*Math.log10(Av)).toFixed(1)+"dB)",W/2,H-10);
+    requestAnimationFrame(draw);}
+  requestAnimationFrame(draw);read();
+})();
+
+// ═══ CLASS A ═══
+(function(){
+  var cvs=el("c-classA"),ctx=cvs.getContext("2d");
+  var VCC=15,VIN=0.5,RC=1000,HFE=150;
+  function read(){VCC=parseFloat(el("ca-vcc").value);VIN=parseFloat(el("ca-vin").value);RC=parseFloat(el("ca-rc").value);HFE=parseFloat(el("ca-hfe").value);el("ca-vcc-v").textContent=VCC+" V";el("ca-vin-v").textContent=VIN.toFixed(2)+" V";el("ca-rc-v").textContent=(RC>=1000?(RC/1000).toFixed(1)+" kΩ":RC+" Ω");el("ca-hfe-v").textContent=HFE;upd();}
+  function upd(){var Icq=VCC/(2*RC)*1000;var re=26/Icq;var Av=-(HFE*RC)/((HFE+1)*re);var Pdis=VCC*Icq/1000;el("ca-icq").textContent=Icq.toFixed(1);el("ca-gain").textContent=Av.toFixed(0);el("ca-eff").textContent="25";el("ca-pdis").textContent=(VIN*Math.abs(Av)*Icq/100).toFixed(0);}
+  ["ca-vcc","ca-vin","ca-rc","ca-hfe"].forEach(function(id){el(id).addEventListener("input",read);});
+  function draw(ts){if(activeS!=="classA"){requestAnimationFrame(draw);return;}var W=cvs.width,H=cvs.height,t=ts/300;ctx.clearRect(0,0,W,H);
+    var Icq=VCC/(2*RC)*1000;var re=26/Icq;var Av=-(HFE*RC)/((HFE+1)*re);var Vout=Math.min(Math.abs(VIN*Av),VCC/2);var clip=Math.abs(VIN*Av)>VCC*0.45;
+    var gx=14,gy=12,gw=W-28,gh=H-28;ctx.fillStyle="#0f0800";rr(ctx,gx,gy,gw,gh,4);ctx.fill();
+    ctx.strokeStyle="#1a1000";ctx.lineWidth=1;ctx.setLineDash([2,5]);ctx.beginPath();ctx.moveTo(gx,gy+gh/2);ctx.lineTo(gx+gw,gy+gh/2);ctx.stroke();ctx.setLineDash([]);
+    // Input
+    sineWave(ctx,gx,gy+gh/2,gw,Math.min(VIN/VCC*gh*2,gh*0.4),t,1,"rgba(255,119,0,0.5)");
+    // Output (inverted, amplified)
+    sineWave(ctx,gx,gy+gh/2,gw,Math.min(Vout/VCC*gh*1.5,gh*0.44),t,1,clip?"#ff3355":"#ff7700",-1);
+    ctx.fillStyle="rgba(255,119,0,0.4)";ctx.font="8px Share Tech Mono";ctx.textAlign="left";ctx.fillText("Vin="+VIN.toFixed(2)+"V",gx+2,gy+10);
+    ctx.fillStyle=clip?"#ff3355":"#ff7700";ctx.fillText("Vout="+Vout.toFixed(2)+"V (inv) Icq="+Icq.toFixed(1)+"mA Av="+Av.toFixed(0),gx+2,gy+20);
+    // Operating point marker
+    ctx.fillStyle="#ffe044";ctx.font="9px Share Tech Mono";ctx.textAlign="center";ctx.shadowColor="#ffe044";ctx.shadowBlur=8;ctx.fillText("Class A: seluruh siklus aktif → efisiensi max 25%",W/2,H-10);ctx.shadowBlur=0;
+    requestAnimationFrame(draw);}
+  requestAnimationFrame(draw);read();
+})();
+
+// ═══ CLASS AB ═══
+(function(){
+  var cvs=el("c-classAB"),ctx=cvs.getContext("2d");
+  var VCC=15,VIN=5,RL=8,VBE=0.7;
+  function read(){VCC=parseFloat(el("ab-vcc").value);VIN=parseFloat(el("ab-vin").value);RL=parseFloat(el("ab-rl").value);VBE=parseFloat(el("ab-vbe").value);el("ab-vcc-v").textContent="±"+VCC+" V";el("ab-vin-v").textContent=VIN.toFixed(1)+" V";el("ab-rl-v").textContent=RL+" Ω";el("ab-vbe-v").textContent=VBE.toFixed(2)+" V";upd();}
+  function upd(){var Vout=Math.max(0,VIN-VBE);var Pout=Vout*Vout/(2*RL);var Pin=VCC*Vout/(Math.PI*RL)*2;var eff=Pin>0?Pout/Pin*100:0;var crossover=VBE<0.3?"BESAR":"KECIL";el("ab-vout").textContent=Vout.toFixed(2);el("ab-pout").textContent=Pout.toFixed(2);el("ab-eff").textContent=(Math.PI/4*Vout/VCC*100).toFixed(1);el("ab-cross").textContent=crossover;el("ab-cross").style.color=crossover==="KECIL"?"var(--g)":"var(--r)";}
+  ["ab-vcc","ab-vin","ab-rl","ab-vbe"].forEach(function(id){el(id).addEventListener("input",read);});
+  function draw(ts){if(activeS!=="classAB"){requestAnimationFrame(draw);return;}var W=cvs.width,H=cvs.height,t=ts/300;ctx.clearRect(0,0,W,H);
+    var Vout_pk=Math.max(0,VIN-VBE);var gx=14,gy=14,gw=W-28,gh=H-28,cy2=gy+gh/2;
+    ctx.fillStyle="#0f0800";rr(ctx,gx,gy,gw,gh,4);ctx.fill();
+    ctx.strokeStyle="#1a1000";ctx.lineWidth=1;ctx.setLineDash([2,5]);ctx.beginPath();ctx.moveTo(gx,cy2);ctx.lineTo(gx+gw,cy2);ctx.stroke();ctx.setLineDash([]);
+    // Input
+    sineWave(ctx,gx,cy2,gw,(VIN/VCC)*gh*0.42,t,1,"rgba(255,119,0,0.4)");
+    // Output - NPN pos half
+    ctx.beginPath();ctx.strokeStyle="#ff7700";ctx.lineWidth=2;ctx.shadowColor="#ff7700";ctx.shadowBlur=5;
+    for(var px=0;px<=gw;px++){var v=Math.sin((px/gw)*Math.PI*4-t)*Vout_pk;var clp=Math.min(v,VCC*0.9);var y2=cy2-clp/(VCC)*gh*0.42;if(px===0)ctx.moveTo(gx+px,y2);else ctx.lineTo(gx+px,y2);}ctx.stroke();ctx.shadowBlur=0;
+    // Crossover zone
+    if(VBE>0){var xw=VBE/VCC*gw*0.42*3;ctx.fillStyle="rgba(255,51,85,0.12)";ctx.fillRect(gx,cy2-10,gw,20);}
+    ctx.fillStyle="#ff7700";ctx.font="7px Share Tech Mono";ctx.textAlign="left";ctx.fillText("Vin: ±"+VIN.toFixed(1)+"V",gx+2,gy+10);
+    ctx.fillText("Vout: ±"+Vout_pk.toFixed(2)+"V (Vdrop="+VBE.toFixed(2)+"V per transistor)",gx+2,gy+20);
+    ctx.fillStyle="var(--dim)";ctx.font="8px Share Tech Mono";ctx.textAlign="center";ctx.fillText("NPN handle +half | PNP handle −half | Efisiensi≈"+(Math.PI/4*Vout_pk/VCC*100).toFixed(0)+"%",W/2,H-10);
+    requestAnimationFrame(draw);}
+  requestAnimationFrame(draw);read();
+})();
+
+// ═══ CLASS D ═══
+(function(){
+  var cvs=el("c-classD"),ctx=cvs.getContext("2d");
+  var VCC=12,VIN_MV=200,FSW=400,RL=8;
+  function read(){VCC=parseFloat(el("cd-vcc").value);VIN_MV=parseFloat(el("cd-vin").value);FSW=parseFloat(el("cd-fsw").value);RL=parseFloat(el("cd-rl").value);el("cd-vcc-v").textContent=VCC+" V";el("cd-vin-v").textContent=VIN_MV+" mV";el("cd-fsw-v").textContent=FSW+" kHz";el("cd-rl-v").textContent=RL+" Ω";upd();}
+  function upd(){var D=0.5+VIN_MV/1000/(VCC*2);var Vout=VCC*(2*D-1)/2;el("cd-duty").textContent=(D*100).toFixed(1);el("cd-vout").textContent=Vout.toFixed(2);el("cd-eff").textContent="90+";el("cd-thd").textContent="<0.1";}
+  ["cd-vcc","cd-vin","cd-fsw","cd-rl"].forEach(function(id){el(id).addEventListener("input",read);});
+  function draw(ts){if(activeS!=="classD"){requestAnimationFrame(draw);return;}var W=cvs.width,H=cvs.height,t=ts/300;ctx.clearRect(0,0,W,H);
+    var D=0.5+VIN_MV/1000/(VCC*2);var spd=FSW/100;var audSpd=440/440;
+    // Top: audio input
+    var wy1=H/4,wh1=H/4-8;ctx.strokeStyle="#3a2000";ctx.lineWidth=1;ctx.setLineDash([2,4]);ctx.beginPath();ctx.moveTo(14,wy1);ctx.lineTo(W-14,wy1);ctx.stroke();ctx.setLineDash([]);
+    sineWave(ctx,14,wy1,W-28,wh1*0.7,t*audSpd,1,"rgba(255,119,0,0.6)");
+    ctx.fillStyle="rgba(255,119,0,0.6)";ctx.font="7px Share Tech Mono";ctx.textAlign="left";ctx.fillText("Audio In "+VIN_MV+"mV",16,wy1-wh1-4);
+    // Middle: PWM
+    var wy2=H/2,wh2=H/4-8;ctx.strokeStyle="#3a2000";ctx.lineWidth=1;ctx.setLineDash([2,4]);ctx.beginPath();ctx.moveTo(14,wy2);ctx.lineTo(W-14,wy2);ctx.stroke();ctx.setLineDash([]);
+    ctx.beginPath();ctx.strokeStyle="#44aaff";ctx.lineWidth=2;
+    var ww=W-28;
+    for(var px=0;px<=ww;px++){var audioV=Math.sin((px/ww)*Math.PI*4-t*audSpd);var duty2=0.5+audioV*VIN_MV/1000/(VCC*2);var ph=((px/ww*spd*8+t*spd)%1);var high=ph<duty2;var y2=wy2-(high?1:-1)*wh2*0.8;if(px===0)ctx.moveTo(14+px,y2);else{var pp2=((( px-1)/ww*spd*8+t*spd)%1);var prevHigh=pp2<duty2;if(high!==prevHigh){ctx.lineTo(14+px,prevHigh?wy2-wh2*0.8:wy2+wh2*0.8);}ctx.lineTo(14+px,y2);}}ctx.stroke();
+    ctx.fillStyle="#44aaff";ctx.font="7px Share Tech Mono";ctx.textAlign="left";ctx.fillText("PWM "+FSW+"kHz",16,wy2-wh2-4);
+    // Bottom: filtered output
+    var wy3=H*3/4,wh3=H/4-12;ctx.strokeStyle="#3a2000";ctx.lineWidth=1;ctx.setLineDash([2,4]);ctx.beginPath();ctx.moveTo(14,wy3);ctx.lineTo(W-14,wy3);ctx.stroke();ctx.setLineDash([]);
+    var Vout=(2*D-1)*VCC/2;sineWave(ctx,14,wy3,W-28,Math.abs(Vout)/VCC*wh3*1.5,t*audSpd,1,"#00ff88");
+    ctx.fillStyle="#00ff88";ctx.font="7px Share Tech Mono";ctx.textAlign="left";ctx.fillText("Output (after LC filter) "+Vout.toFixed(2)+"V",16,wy3-wh3-4);
+    requestAnimationFrame(draw);}
+  requestAnimationFrame(draw);read();
+})();
+
+// ═══ TONE CONTROL ═══
+(function(){
+  var cvs=el("c-tonecontrol"),ctx=cvs.getContext("2d");
+  var BASS=0,MID=0,TREBLE=0,VOL=80;
+  function read(){BASS=parseFloat(el("tc-bass").value);MID=parseFloat(el("tc-mid").value);TREBLE=parseFloat(el("tc-treble").value);VOL=parseFloat(el("tc-vol").value);el("tc-bass-v").textContent=(BASS>=0?"+":"")+BASS.toFixed(1)+" dB";el("tc-mid-v").textContent=(MID>=0?"+":"")+MID.toFixed(1)+" dB";el("tc-treble-v").textContent=(TREBLE>=0?"+":"")+TREBLE.toFixed(1)+" dB";el("tc-vol-v").textContent=VOL+" %";el("tc-mbass").textContent=(BASS>=0?"+":"")+BASS.toFixed(1);el("tc-mmid").textContent=(MID>=0?"+":"")+MID.toFixed(1);el("tc-mtreble").textContent=(TREBLE>=0?"+":"")+TREBLE.toFixed(1);el("tc-mvol").textContent=VOL;}
+  ["tc-bass","tc-mid","tc-treble","tc-vol"].forEach(function(id){el(id).addEventListener("input",read);});
+  function eqGain(f){
+    var bassG=Math.pow(10,BASS/20)/Math.sqrt(1+Math.pow(f/300,2));
+    var midG=Math.pow(10,MID/20)*Math.exp(-Math.pow(Math.log10(f)-Math.log10(1000),2)/0.4);
+    var trebleG=Math.pow(10,TREBLE/20)*(1-1/Math.sqrt(1+Math.pow(f/3000,2)));
+    var flat=1/Math.sqrt(1+Math.pow(f/300,2))*(1-Math.exp(-Math.pow(Math.log10(f)-Math.log10(1000),2)/0.4))*(1/Math.sqrt(1+Math.pow(3000/f,2)));
+    return (bassG+midG+trebleG)*VOL/100;
+  }
+  function draw(){if(activeS!=="tonecontrol"){requestAnimationFrame(draw);return;}var W=cvs.width,H=cvs.height;ctx.clearRect(0,0,W,H);
+    var gx=44,gy=14,gw=W-60,gh=H-40;ctx.fillStyle="#0f0800";rr(ctx,gx,gy,gw,gh,4);ctx.fill();
+    // Grid
+    ctx.strokeStyle="#1a0e00";ctx.lineWidth=1;ctx.setLineDash([2,5]);
+    [0.25,0.5,0.75,1].forEach(function(f){ctx.beginPath();ctx.moveTo(gx,gy+gh*f);ctx.lineTo(gx+gw,gy+gh*f);ctx.stroke();});
+    [20,100,300,1000,3000,10000,20000].forEach(function(f){var x=gx+(Math.log10(f/20)/Math.log10(20000/20))*gw;ctx.beginPath();ctx.moveTo(x,gy);ctx.lineTo(x,gy+gh);ctx.stroke();ctx.fillStyle="#3a2000";ctx.font="7px Share Tech Mono";ctx.textAlign="center";ctx.fillText(f>=1000?(f/1000)+"k":f,x,gy+gh+12);});
+    ctx.setLineDash([]);
+    // 0dB reference
+    ctx.strokeStyle="rgba(255,119,0,0.3)";ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(gx,gy+gh/2);ctx.lineTo(gx+gw,gy+gh/2);ctx.stroke();
+    ctx.fillStyle="rgba(255,119,0,0.4)";ctx.font="7px Share Tech Mono";ctx.textAlign="right";ctx.fillText("0dB",gx-3,gy+gh/2+4);ctx.fillText("+12",gx-3,gy+6);ctx.fillText("-12",gx-3,gy+gh-2);
+    // EQ curve
+    ctx.beginPath();ctx.strokeStyle="#ff7700";ctx.lineWidth=2.5;ctx.shadowColor="#ff7700";ctx.shadowBlur=5;
+    for(var px=0;px<=gw;px++){var f=20*Math.pow(20000/20,px/gw);var g=eqGain(f);var gdb=20*Math.log10(Math.max(g,0.001));var gclamp=Math.max(-18,Math.min(18,gdb));var py=gy+gh*(1-(gclamp+18)/36);if(px===0)ctx.moveTo(gx+px,py);else ctx.lineTo(gx+px,py);}ctx.stroke();ctx.shadowBlur=0;
+    // Band markers
+    [[300,"BASS",BASS,"#44aaff"],[1000,"MID",MID,"#00e5cc"],[5000,"TREBLE",TREBLE,"#ff7700"]].forEach(function(b){var fx=gx+(Math.log10(b[0]/20)/Math.log10(20000/20))*gw;var col=b[3];ctx.strokeStyle=col;ctx.lineWidth=1;ctx.setLineDash([3,4]);ctx.beginPath();ctx.moveTo(fx,gy);ctx.lineTo(fx,gy+gh);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle=col;ctx.font="7px Share Tech Mono";ctx.textAlign="center";ctx.fillText(b[1]+":"+(b[2]>=0?"+":"")+b[2].toFixed(0)+"dB",fx,gy+gh+22);});
+    requestAnimationFrame(draw);}
+  requestAnimationFrame(draw);read();
+})();
+
+// ═══ VU METER ═══
+(function(){
+  var cvs=el("c-vumeter"),ctx=cvs.getContext("2d");
+  var LEVEL=60,F=440,WTYPE=0;
+  var peaks=new Array(20).fill(0),peakHold=new Array(20).fill(0),peakTimer=new Array(20).fill(0);
+  var TYPES=["Sinus","Kotak","Noise"];
+  function read(){LEVEL=parseFloat(el("vu-level").value);F=parseFloat(el("vu-f").value);WTYPE=parseInt(el("vu-type").value);el("vu-level-v").textContent=LEVEL+" %";el("vu-f-v").textContent=F+" Hz";el("vu-type-v").textContent=TYPES[WTYPE];el("vu-mlevel").textContent=LEVEL;var dBFS=20*Math.log10(Math.max(LEVEL/100,0.001));el("vu-dbfs").textContent=dBFS.toFixed(1);el("vu-vp").textContent=(LEVEL/100).toFixed(2);el("vu-vrms").textContent=(LEVEL/100/Math.SQRT2).toFixed(2);}
+  ["vu-level","vu-f","vu-type"].forEach(function(id){el(id).addEventListener("input",read);});
+  var animLevel=0;
+  function draw(ts){if(activeS!=="vumeter"){requestAnimationFrame(draw);return;}var W=cvs.width,H=cvs.height,t=ts/300;ctx.clearRect(0,0,W,H);
+    var spd=F/440;var sig;
+    if(WTYPE===0) sig=Math.abs(Math.sin(t*spd))*LEVEL/100;
+    else if(WTYPE===1) sig=(Math.sin(t*spd)>0?1:0)*LEVEL/100;
+    else sig=Math.random()*LEVEL/100;
+    animLevel+=(sig-animLevel)*0.15;
+    // Waveform strip
+    var wy=H/2,wh=H/2-20,wx=14,ww=W-28;ctx.fillStyle="#0f0800";rr(ctx,wx,wy-wh,ww,wh*2,4);ctx.fill();ctx.strokeStyle="#1a1000";ctx.lineWidth=1;ctx.setLineDash([2,5]);ctx.beginPath();ctx.moveTo(wx,wy);ctx.lineTo(wx+ww,wy);ctx.stroke();ctx.setLineDash([]);
+    ctx.beginPath();ctx.strokeStyle="#ff7700";ctx.lineWidth=2;ctx.shadowColor="#ff7700";ctx.shadowBlur=4;
+    for(var px=0;px<=ww;px++){var ph2=px/ww*4;var v;if(WTYPE===0)v=Math.sin((ph2-t*spd)*Math.PI*2)*LEVEL/100;else if(WTYPE===1)v=(Math.sin((ph2-t*spd)*Math.PI*2)>0?1:-1)*LEVEL/100;else v=(Math.random()*2-1)*LEVEL/100;var y2=wy-v*wh*0.85;if(px===0)ctx.moveTo(wx+px,y2);else ctx.lineTo(wx+px,y2);}ctx.stroke();ctx.shadowBlur=0;
+    // VU Bars
+    var nbars=20,bw=(W-28)/nbars-2,bh=H/2-8;
+    for(var i=0;i<nbars;i++){
+      var bx2=14+i*(bw+2);var barLev=Math.max(0,(animLevel-(i/nbars))*nbars);barLev=Math.min(barLev,1);
+      var col2=i>16?"#ff3355":i>12?"#ff9933":"#ff7700";
+      ctx.fillStyle="#0f0800";rr(ctx,bx2,12,bw,bh,2);ctx.fill();
+      if(barLev>0){ctx.fillStyle=col2;ctx.shadowColor=col2;ctx.shadowBlur=barLev*6;rr(ctx,bx2,12+(1-barLev)*bh,bw,barLev*bh,2);ctx.fill();ctx.shadowBlur=0;}
+      if(barLev>peakHold[i]){peakHold[i]=barLev;peakTimer[i]=60;}
+      if(peakTimer[i]>0){peakTimer[i]--;ctx.fillStyle="rgba(255,220,50,0.8)";ctx.fillRect(bx2,12+(1-peakHold[i])*bh,bw,2);}
+      else if(peakHold[i]>0.01){peakHold[i]-=0.01;}
+    }
+    // dB scale
+    [-18,-12,-9,-6,-3,0].forEach(function(db){var lev=Math.pow(10,db/20);var lx2=14+lev*((W-28));ctx.strokeStyle="rgba(255,119,0,0.2)";ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(lx2,8);ctx.lineTo(lx2,12);ctx.stroke();ctx.fillStyle="rgba(255,119,0,0.4)";ctx.font="6px Share Tech Mono";ctx.textAlign="center";ctx.fillText(db,lx2,7);});
+    requestAnimationFrame(draw);}
+  requestAnimationFrame(draw);read();
+})();
+</script>
+</body>
+</html>

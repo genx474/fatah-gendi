@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rangkaian Pengaman Elektronik</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --g:#00ff88;--g2:#88ffcc;--gd:#003320;
+  --r:#ff3355;--r2:#ff8899;--y:#ffe044;--o:#ff9933;
+  --b:#44aaff;--p:#cc44ff;--t:#00e5cc;
+  --bg:#030806;--card:#060d09;--bdr:#0d3320;--dim:#2a7050;
+  --font:'Share Tech Mono',monospace;--head:'Orbitron',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  background:radial-gradient(ellipse 140% 55% at 50% 0%,#082a14 0%,#030806 60%);
+  min-height:100vh;font-family:var(--font);color:var(--g2);overflow-x:hidden;
+}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.07) 2px,rgba(0,0,0,.07) 4px);z-index:9999;}
+.wrap{max-width:560px;margin:0 auto;padding:18px 12px 48px;}
+
+header{text-align:center;margin-bottom:22px;}
+.sub{font-size:9px;letter-spacing:6px;color:#0a3320;margin-bottom:5px;}
+h1{font-family:var(--head);font-size:clamp(13px,4vw,20px);font-weight:900;
+   color:var(--g);text-shadow:0 0 24px rgba(0,255,136,.5);letter-spacing:2px;margin-bottom:8px;}
+.divline{width:80px;height:2px;background:linear-gradient(to right,transparent,var(--g),transparent);margin:0 auto;}
+
+.tabs{display:flex;gap:4px;margin-bottom:14px;overflow-x:auto;padding-bottom:3px;scrollbar-width:none;}
+.tabs::-webkit-scrollbar{display:none;}
+.tab{flex:0 0 auto;padding:6px 10px;border:1px solid var(--bdr);border-radius:7px;
+     background:var(--card);color:var(--dim);cursor:pointer;font-family:var(--font);
+     font-size:9px;letter-spacing:.8px;transition:all .2s;white-space:nowrap;}
+.tab:hover{border-color:var(--g2);color:var(--g2);}
+.tab.on{border-color:var(--g);background:#082014;color:var(--g);box-shadow:0 0 12px rgba(0,255,136,.2);}
+
+.card{background:var(--card);border:1px solid var(--bdr);border-radius:14px;
+      padding:20px 16px;box-shadow:0 0 36px rgba(0,255,136,.04),inset 0 1px 0 #0d3320;}
+
+.scene{display:none;flex-direction:column;align-items:center;gap:16px;}
+.scene.on{display:flex;}
+
+.ctrl{width:100%;background:#040c07;border:1px solid var(--bdr);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;}
+.ctrl-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.ctrl-lbl{font-size:10px;color:var(--dim);min-width:92px;letter-spacing:.7px;}
+.sl{flex:1;min-width:90px;-webkit-appearance:none;height:4px;
+    background:linear-gradient(to right,var(--g) var(--pct,50%),#0d3320 var(--pct,50%));
+    border-radius:2px;outline:none;cursor:pointer;}
+.sl::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--g);box-shadow:0 0 6px rgba(0,255,136,.7);cursor:pointer;}
+.sl::-moz-range-thumb{width:14px;height:14px;border-radius:50%;border:none;background:var(--g);cursor:pointer;}
+.ctrl-val{font-size:11px;color:var(--g);min-width:68px;text-align:right;}
+
+.metrics{display:flex;gap:6px;width:100%;flex-wrap:wrap;}
+.metric{flex:1;min-width:70px;background:#040c07;border:1px solid var(--bdr);border-radius:7px;padding:6px 8px;text-align:center;}
+.metric-lbl{font-size:8px;color:var(--dim);letter-spacing:1.5px;margin-bottom:2px;}
+.metric-val{font-size:13px;color:var(--g);font-weight:bold;}
+.metric-unit{font-size:8px;color:var(--dim);}
+
+.btns{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;}
+.btn{padding:7px 16px;border:2px solid var(--g);border-radius:7px;background:#082014;
+     color:var(--g);cursor:pointer;font-family:var(--font);font-size:11px;
+     box-shadow:0 0 8px rgba(0,255,136,.12);transition:all .15s;}
+.btn:hover{background:#0d2a1a;box-shadow:0 0 14px rgba(0,255,136,.25);}
+.btn.danger{border-color:var(--r);background:#1a0008;color:var(--r);}
+.btn.danger:hover{background:#2a000f;box-shadow:0 0 14px rgba(255,51,85,.25);}
+.btn.warn{border-color:var(--y);background:#1a1400;color:var(--y);}
+.btn.warn:hover{background:#2a1e00;}
+.btn.off{border-color:#0d3320;background:#040c07;color:#2a5040;box-shadow:none;}
+
+.badge{padding:6px 18px;border-radius:28px;font-size:11px;letter-spacing:2px;transition:all .3s;text-align:center;border:1px solid;}
+.info{color:var(--dim);font-size:11px;text-align:center;line-height:1.75;width:100%;}
+.info span{color:var(--g);}.info .o{color:var(--o);}.info .r{color:var(--r);}.info .y{color:var(--y);}.info .b{color:var(--b);}
+.app-title{font-family:var(--head);font-size:10px;letter-spacing:2px;color:var(--g2);text-align:center;width:100%;}
+
+canvas{display:block;border-radius:7px;}
+canvas.brd{border:1px solid var(--bdr);background:#040c07;}
+footer{text-align:center;margin-top:20px;font-size:9px;letter-spacing:3px;color:#0a2614;}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="sub">◈ PROTEKSI &amp; KESELAMATAN ◈</div>
+  <h1>RANGKAIAN PENGAMAN ELEKTRONIK</h1>
+  <div class="divline"></div>
+</header>
+
+<div class="tabs">
+  <button class="tab on" data-s="fuse">🔥 Fuse/PTC</button>
+  <button class="tab" data-s="overvolt">⚡ OVP</button>
+  <button class="tab" data-s="overcurrent">🔒 OCP</button>
+  <button class="tab" data-s="polarity">🔄 Polarity</button>
+  <button class="tab" data-s="esd">⚡ ESD/TVS</button>
+  <button class="tab" data-s="crowbar">👑 Crowbar</button>
+  <button class="tab" data-s="uvlo">📉 UVLO</button>
+  <button class="tab" data-s="thermal">🌡 Thermal</button>
+</div>
+
+<div class="card">
+
+<!-- ═══ FUSE & PTC ═══ -->
+<div class="scene on" id="s-fuse">
+  <div class="app-title">FUSE &amp; PTC RESETTABLE FUSE</div>
+  <canvas id="c-fuse" class="brd" width="460" height="210" style="width:100%"></canvas>
+  <div class="ctrl">
+    <div class="ctrl-row"><span class="ctrl-lbl">⚡ Tegangan</span><input type="range" class="sl" id="fs-v" min="1" max="24" value="12" step="0.5"><span class="ctrl-val" id="fs-v-v">12 V</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">⚙ R beban</span><input type="range" class="sl" id="fs-rl" min="1" max="1000" value="100" step="1"><span class="ctrl-val" id="fs-rl-v">100 Ω</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">🔥 Rating fuse</span><input type="range" class="sl" id="fs-rating" min="50" max="5000" value="500" step="50"><span class="ctrl-val" id="fs-rating-v">500 mA</span></div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-lbl">ARUS</div><div class="metric-val" id="fs-i">120</div><div class="metric-unit">mA</div></div>
+    <div class="metric"><div class="metric-lbl">RATING</div><div class="metric-val" id="fs-mrating">500</div><div class="metric-unit">mA</div></div>
+    <div class="metric"><div class="metric-lbl">BEBAN %</div><div class="metric-val" id="fs-pct">24</div><div class="metric-unit">%</div></div>
+    <div class="metric"><div class="metric-lbl">STATUS</div><div class="metric-val" id="fs-status" style="font-size:10px">AMAN</div><div class="metric-unit"></div></div>
+  </div>
+  <div class="btns">
+    <button class="btn danger" id="fs-fault">⚠ SIMULASI SHORT</button>
+    <button class="btn off" id="fs-reset">↺ RESET</button>
+  </div>
+  <div class="badge" id="fs-badge" style="background:#082014;border-color:var(--g);color:var(--g)">✓ FUSE NORMAL</div>
+  <div class="info">Fuse: satu kali pakai, putus saat <span>I &gt; Irating</span><br>PTC Resettable: hambatan naik saat panas, <span>reset sendiri</span> setelah dingin</div>
+</div>
+
+<!-- ═══ OVERVOLTAGE PROTECTION ═══ -->
+<div class="scene" id="s-overvolt">
+  <div class="app-title">OVERVOLTAGE PROTECTION (OVP)</div>
+  <canvas id="c-overvolt" class="brd" width="460" height="210" style="width:100%"></canvas>
+  <div class="ctrl">
+    <div class="ctrl-row"><span class="ctrl-lbl">⚡ Vin</span><input type="range" class="sl" id="ov-vin" min="1" max="40" value="12" step="0.5"><span class="ctrl-val" id="ov-vin-v">12 V</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">🔒 Vthreshold</span><input type="range" class="sl" id="ov-vth" min="5" max="30" value="15" step="0.5"><span class="ctrl-val" id="ov-vth-v">15 V</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">⚙ R divider R1</span><input type="range" class="sl" id="ov-r1" min="1000" max="100000" value="10000" step="1000"><span class="ctrl-val" id="ov-r1-v">10 kΩ</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">⚙ R divider R2</span><input type="range" class="sl" id="ov-r2" min="1000" max="100000" value="10000" step="1000"><span class="ctrl-val" id="ov-r2-v">10 kΩ</span></div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-lbl">Vin</div><div class="metric-val" id="ov-mvin">12.0</div><div class="metric-unit">V</div></div>
+    <div class="metric"><div class="metric-lbl">Vsense</div><div class="metric-val" id="ov-vsense">6.00</div><div class="metric-unit">V</div></div>
+    <div class="metric"><div class="metric-lbl">Vref</div><div class="metric-val" id="ov-vref">2.50</div><div class="metric-unit">V</div></div>
+    <div class="metric"><div class="metric-lbl">STATUS</div><div class="metric-val" id="ov-status" style="font-size:10px">NORMAL</div><div class="metric-unit"></div></div>
+  </div>
+  <div class="badge" id="ov-badge" style="background:#082014;border-color:var(--g);color:var(--g)">✓ TEGANGAN NORMAL</div>
+  <div class="info">Pembagi tegangan → Komparator → <span>matikan output saat Vin &gt; Vth</span><br>Melindungi komponen dari tegangan berlebih</div>
+</div>
+
+<!-- ═══ OVERCURRENT PROTECTION ═══ -->
+<div class="scene" id="s-overcurrent">
+  <div class="app-title">OVERCURRENT PROTECTION (OCP) — CURRENT LIMITING</div>
+  <canvas id="c-overcurrent" class="brd" width="460" height="210" style="width:100%"></canvas>
+  <div class="ctrl">
+    <div class="ctrl-row"><span class="ctrl-lbl">⚡ Vin</span><input type="range" class="sl" id="oc-vin" min="3" max="24" value="12" step="0.5"><span class="ctrl-val" id="oc-vin-v">12 V</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">⚙ R sense</span><input type="range" class="sl" id="oc-rs" min="0.1" max="5" value="0.5" step="0.1"><span class="ctrl-val" id="oc-rs-v">0.5 Ω</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">🔒 I limit</span><input type="range" class="sl" id="oc-ilim" min="100" max="5000" value="1000" step="50"><span class="ctrl-val" id="oc-ilim-v">1.0 A</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">⚙ R beban</span><input type="range" class="sl" id="oc-rl" min="1" max="1000" value="20" step="1"><span class="ctrl-val" id="oc-rl-v">20 Ω</span></div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-lbl">I beban</div><div class="metric-val" id="oc-il">600</div><div class="metric-unit">mA</div></div>
+    <div class="metric"><div class="metric-lbl">Vsense</div><div class="metric-val" id="oc-vs">0.30</div><div class="metric-unit">V</div></div>
+    <div class="metric"><div class="metric-lbl">I limit</div><div class="metric-val" id="oc-mlim">1.0</div><div class="metric-unit">A</div></div>
+    <div class="metric"><div class="metric-lbl">STATUS</div><div class="metric-val" id="oc-status" style="font-size:10px">NORMAL</div><div class="metric-unit"></div></div>
+  </div>
+  <div class="badge" id="oc-badge" style="background:#082014;border-color:var(--g);color:var(--g)">✓ ARUS NORMAL</div>
+  <div class="info">R sense mengukur arus → Komparator → <span>batasi arus saat I &gt; Ilimit</span><br>Vsense = I × Rs &nbsp;|&nbsp; Ilimit = <span>Vref / Rs</span></div>
+</div>
+
+<!-- ═══ POLARITY PROTECTION ═══ -->
+<div class="scene" id="s-polarity">
+  <div class="app-title">PROTEKSI POLARITAS TERBALIK</div>
+  <canvas id="c-polarity" class="brd" width="460" height="210" style="width:100%"></canvas>
+  <div class="ctrl">
+    <div class="ctrl-row"><span class="ctrl-lbl">⚡ |Vin|</span><input type="range" class="sl" id="pl-v" min="1" max="24" value="12" step="0.5"><span class="ctrl-val" id="pl-v-v">12 V</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">🔄 Polaritas</span><input type="range" class="sl" id="pl-pol" min="0" max="1" value="1" step="1"><span class="ctrl-val" id="pl-pol-v">BENAR (+)</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">🔘 Metode</span><input type="range" class="sl" id="pl-method" min="0" max="2" value="0" step="1"><span class="ctrl-val" id="pl-method-v">Dioda Seri</span></div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-lbl">Vin</div><div class="metric-val" id="pl-mvin">+12.0</div><div class="metric-unit">V</div></div>
+    <div class="metric"><div class="metric-lbl">Vout</div><div class="metric-val" id="pl-mvout">11.3</div><div class="metric-unit">V</div></div>
+    <div class="metric"><div class="metric-lbl">Vdrop</div><div class="metric-val" id="pl-vdrop">0.7</div><div class="metric-unit">V</div></div>
+    <div class="metric"><div class="metric-lbl">STATUS</div><div class="metric-val" id="pl-status" style="font-size:10px">DILINDUNGI</div><div class="metric-unit"></div></div>
+  </div>
+  <div class="badge" id="pl-badge" style="background:#082014;border-color:var(--g);color:var(--g)">✓ POLARITAS BENAR</div>
+  <div class="info">3 metode: <span>Dioda seri</span> (Vdrop 0.7V) | <span>MOSFET P-ch</span> (Vdrop &lt;0.1V) | <span>Bridge dioda</span></div>
+</div>
+
+<!-- ═══ ESD / TVS ═══ -->
+<div class="scene" id="s-esd">
+  <div class="app-title">ESD PROTECTION — TVS DIODA &amp; MOV</div>
+  <canvas id="c-esd" class="brd" width="460" height="210" style="width:100%"></canvas>
+  <div class="ctrl">
+    <div class="ctrl-row"><span class="ctrl-lbl">⚡ Vnormal</span><input type="range" class="sl" id="es-vn" min="3" max="24" value="5" step="0.5"><span class="ctrl-val" id="es-vn-v">5.0 V</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">💥 Vspike</span><input type="range" class="sl" id="es-vs" min="5" max="1000" value="50" step="5"><span class="ctrl-val" id="es-vs-v">50 V</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">🔒 Vclamping</span><input type="range" class="sl" id="es-vc" min="5" max="50" value="8" step="0.5"><span class="ctrl-val" id="es-vc-v">8.0 V</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">⚙ R series</span><input type="range" class="sl" id="es-r" min="10" max="1000" value="100" step="10"><span class="ctrl-val" id="es-r-v">100 Ω</span></div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-lbl">Vspike</div><div class="metric-val" id="es-mvs">50</div><div class="metric-unit">V</div></div>
+    <div class="metric"><div class="metric-lbl">Vclamped</div><div class="metric-val" id="es-mvc">8.0</div><div class="metric-unit">V</div></div>
+    <div class="metric"><div class="metric-lbl">Energi ESD</div><div class="metric-val" id="es-e">2.50</div><div class="metric-unit">µJ</div></div>
+    <div class="metric"><div class="metric-lbl">REDUKSI</div><div class="metric-val" id="es-red">84</div><div class="metric-unit">%</div></div>
+  </div>
+  <div class="btns">
+    <button class="btn danger" id="es-fire">💥 KIRIM ESD SPIKE</button>
+    <button class="btn off" id="es-reset">↺ RESET</button>
+  </div>
+  <div class="info">TVS Dioda: clamp tegangan spike ke <span>Vclamping</span> dalam &lt;1 ps<br>MOV: clamp tegangan tinggi (AC protection) | <span>Reduksi 84%+</span></div>
+</div>
+
+<!-- ═══ CROWBAR PROTECTION ═══ -->
+<div class="scene" id="s-crowbar">
+  <div class="app-title">CROWBAR OVERVOLTAGE PROTECTION</div>
+  <canvas id="c-crowbar" class="brd" width="460" height="210" style="width:100%"></canvas>
+  <div class="ctrl">
+    <div class="ctrl-row"><span class="ctrl-lbl">⚡ Vin (PSU)</span><input type="range" class="sl" id="cb-vin" min="1" max="30" value="12" step="0.5"><span class="ctrl-val" id="cb-vin-v">12 V</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">🔒 Vtrip (Zener)</span><input type="range" class="sl" id="cb-vz" min="3" max="20" value="14" step="0.5"><span class="ctrl-val" id="cb-vz-v">14 V</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">⚙ R Gate (kΩ)</span><input type="range" class="sl" id="cb-rg" min="100" max="10000" value="1000" step="100"><span class="ctrl-val" id="cb-rg-v">1.0 kΩ</span></div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-lbl">Vin</div><div class="metric-val" id="cb-mvin">12.0</div><div class="metric-unit">V</div></div>
+    <div class="metric"><div class="metric-lbl">Vtrip</div><div class="metric-val" id="cb-mvtrip">14.0</div><div class="metric-unit">V</div></div>
+    <div class="metric"><div class="metric-lbl">SCR</div><div class="metric-val" id="cb-scr" style="font-size:10px">OFF</div><div class="metric-unit"></div></div>
+    <div class="metric"><div class="metric-lbl">FUSE</div><div class="metric-val" id="cb-fuse" style="font-size:10px">UTUH</div><div class="metric-unit"></div></div>
+  </div>
+  <div class="btns">
+    <button class="btn danger" id="cb-spike">⚡ NAIKKAN TEGANGAN</button>
+    <button class="btn off" id="cb-reset">↺ RESET</button>
+  </div>
+  <div class="badge" id="cb-badge" style="background:#082014;border-color:var(--g);color:var(--g)">✓ SISTEM NORMAL</div>
+  <div class="info">Zener detect → trigger SCR → <span>short ke ground</span> → fuse putus<br>Melindungi beban dari tegangan PSU yang terlalu tinggi (runaway)</div>
+</div>
+
+<!-- ═══ UVLO ═══ -->
+<div class="scene" id="s-uvlo">
+  <div class="app-title">UNDERVOLTAGE LOCKOUT (UVLO)</div>
+  <canvas id="c-uvlo" class="brd" width="460" height="210" style="width:100%"></canvas>
+  <div class="ctrl">
+    <div class="ctrl-row"><span class="ctrl-lbl">⚡ Vin</span><input type="range" class="sl" id="uv-vin" min="0" max="20" value="8" step="0.1"><span class="ctrl-val" id="uv-vin-v">8.0 V</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">🔒 Vturn-on</span><input type="range" class="sl" id="uv-von" min="3" max="18" value="8" step="0.1"><span class="ctrl-val" id="uv-von-v">8.0 V</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">📐 Histeresis</span><input type="range" class="sl" id="uv-hyst" min="0" max="3" value="0.5" step="0.1"><span class="ctrl-val" id="uv-hyst-v">0.5 V</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">🔌 C decoupling</span><input type="range" class="sl" id="uv-c" min="10" max="10000" value="100" step="10"><span class="ctrl-val" id="uv-c-v">100 µF</span></div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-lbl">Vin</div><div class="metric-val" id="uv-mvin">8.0</div><div class="metric-unit">V</div></div>
+    <div class="metric"><div class="metric-lbl">Vturn-on</div><div class="metric-val" id="uv-mvon">8.0</div><div class="metric-unit">V</div></div>
+    <div class="metric"><div class="metric-lbl">Vturn-off</div><div class="metric-val" id="uv-mvoff">7.5</div><div class="metric-unit">V</div></div>
+    <div class="metric"><div class="metric-lbl">OUTPUT</div><div class="metric-val" id="uv-out" style="font-size:10px">ENABLE</div><div class="metric-unit"></div></div>
+  </div>
+  <div class="badge" id="uv-badge" style="background:#082014;border-color:var(--g);color:var(--g)">✓ TEGANGAN CUKUP — OUTPUT ON</div>
+  <div class="info">UVLO matikan sistem saat Vin <span>terlalu rendah</span> (baterai lemah/PSU drop)<br>Histeresis mencegah <span>osilasi on/off</span> di batas tegangan</div>
+</div>
+
+<!-- ═══ THERMAL PROTECTION ═══ -->
+<div class="scene" id="s-thermal">
+  <div class="app-title">THERMAL SHUTDOWN — PROTEKSI SUHU</div>
+  <canvas id="c-thermal" class="brd" width="460" height="210" style="width:100%"></canvas>
+  <div class="ctrl">
+    <div class="ctrl-row"><span class="ctrl-lbl">🌡 Suhu ambient</span><input type="range" class="sl" id="th-tamb" min="0" max="60" value="25" step="1"><span class="ctrl-val" id="th-tamb-v">25 °C</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">💥 Daya disipasi</span><input type="range" class="sl" id="th-pd" min="0" max="10" value="2" step="0.1"><span class="ctrl-val" id="th-pd-v">2.0 W</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">🔩 Rth heatsink</span><input type="range" class="sl" id="th-rth" min="1" max="50" value="20" step="1"><span class="ctrl-val" id="th-rth-v">20 °C/W</span></div>
+    <div class="ctrl-row"><span class="ctrl-lbl">🌡 T shutdown</span><input type="range" class="sl" id="th-tsd" min="80" max="175" value="150" step="5"><span class="ctrl-val" id="th-tsd-v">150 °C</span></div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-lbl">Tjunction</div><div class="metric-val" id="th-tj">65</div><div class="metric-unit">°C</div></div>
+    <div class="metric"><div class="metric-lbl">Tamb</div><div class="metric-val" id="th-tamb2">25</div><div class="metric-unit">°C</div></div>
+    <div class="metric"><div class="metric-lbl">Margin</div><div class="metric-val" id="th-margin">85</div><div class="metric-unit">°C</div></div>
+    <div class="metric"><div class="metric-lbl">STATUS</div><div class="metric-val" id="th-status" style="font-size:10px">AMAN</div><div class="metric-unit"></div></div>
+  </div>
+  <div class="badge" id="th-badge" style="background:#082014;border-color:var(--g);color:var(--g)">✓ SUHU NORMAL</div>
+  <div class="info">Tj = Tamb + Pd × Rth &nbsp;|&nbsp; Shutdown saat <span>Tj &gt; Tsd</span><br>Heatsink kecilkan Rth → <span>Tj lebih rendah</span> | Hysteresis ~15°C</div>
+</div>
+
+</div><!-- /card -->
+<footer>◈ RANGKAIAN PENGAMAN ELEKTRONIK LENGKAP ◈</footer>
+</div>
+
+<script>
+"use strict";
+var activeS = "fuse";
+
+function el(id){ return document.getElementById(id); }
+function fmtR(v){ if(v>=1e6)return(v/1e6).toFixed(2)+" MΩ"; if(v>=1e3)return(v/1e3).toFixed(1)+" kΩ"; return v.toFixed(1)+" Ω"; }
+
+// Slider gradient
+document.querySelectorAll(".sl").forEach(function(s){
+  function u(){ s.style.setProperty("--pct",((s.value-s.min)/(s.max-s.min)*100).toFixed(1)+"%"); }
+  u(); s.addEventListener("input",u);
+});
+// Tabs
+document.querySelectorAll(".tab").forEach(function(t){
+  t.addEventListener("click",function(){
+    document.querySelectorAll(".tab").forEach(function(x){x.classList.remove("on");});
+    document.querySelectorAll(".scene").forEach(function(x){x.classList.remove("on");});
+    t.classList.add("on"); activeS=t.dataset.s; el("s-"+activeS).classList.add("on");
+  });
+});
+
+// ── DRAW UTILS ──────────────────────────────────────────────
+function rr(ctx,x,y,w,h,r){
+  ctx.beginPath(); ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y); ctx.arcTo(x+w,y,x+w,y+r,r);
+  ctx.lineTo(x+w,y+h-r); ctx.arcTo(x+w,y+h,x+w-r,y+h,r); ctx.lineTo(x+r,y+h);
+  ctx.arcTo(x,y+h,x,y+h-r,r); ctx.lineTo(x,y+r); ctx.arcTo(x,y,x+r,y,r); ctx.closePath();
+}
+function W(ctx,x1,y1,x2,y2,col,lw){
+  ctx.strokeStyle=col||"#0d3320"; ctx.lineWidth=lw||2;
+  ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+}
+function dot(ctx,x,y,r,col,glow){
+  ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2);
+  ctx.fillStyle=col; if(glow){ctx.shadowColor=col;ctx.shadowBlur=glow;} ctx.fill(); ctx.shadowBlur=0;
+}
+function pars(ctx,pts,t,spd,col,n){
+  for(var s=0;s<pts.length-1;s++){
+    var x1=pts[s][0],y1=pts[s][1],x2=pts[s+1][0],y2=pts[s+1][1];
+    for(var i=0;i<n;i++){
+      var f=((t*spd+s*0.25+i/n)%1+1)%1;
+      var px=x1+f*(x2-x1),py=y1+f*(y2-y1);
+      if(px<Math.min(x1,x2)-2||px>Math.max(x1,x2)+2)continue;
+      if(py<Math.min(y1,y2)-2||py>Math.max(y1,y2)+2)continue;
+      dot(ctx,px,py,3,col,7);
+    }
+  }
+}
+function drawRes(ctx,x,y,w,h,col){
+  col=col||"#ff9933"; ctx.fillStyle="#060d09"; ctx.strokeStyle=col; ctx.lineWidth=2;
+  rr(ctx,x,y,w,h,3); ctx.fill(); ctx.stroke();
+  ctx.strokeStyle=col; ctx.lineWidth=1.3; ctx.beginPath();
+  var zx=x+4; ctx.moveTo(zx,y+h/2);
+  for(var i=0;i<=6;i++) ctx.lineTo(zx+i*(w-8)/6,y+h/2+(i%2===0?-(h/2-2):(h/2-2)));
+  ctx.lineTo(x+w-4,y+h/2); ctx.stroke();
+}
+function drawFuse(ctx,cx,cy,blown,col){
+  col=col||"#00ff88";
+  W(ctx,cx-30,cy,cx-16,cy,col); W(ctx,cx+16,cy,cx+30,cy,col);
+  rr(ctx,cx-16,cy-8,32,16,4); ctx.fillStyle="#060d09"; ctx.strokeStyle=col; ctx.lineWidth=2; ctx.fill(); ctx.stroke();
+  if(blown){
+    ctx.strokeStyle="#ff3355"; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(cx-10,cy-4); ctx.lineTo(cx-3,cy+2); ctx.lineTo(cx+3,cy-2); ctx.lineTo(cx+10,cy+4); ctx.stroke();
+    ctx.fillStyle="#ff3355"; ctx.font="8px Share Tech Mono"; ctx.textAlign="center"; ctx.fillText("PUTUS",cx,cy+18);
+  } else {
+    ctx.strokeStyle=col; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(cx-10,cy); ctx.lineTo(cx+10,cy); ctx.stroke();
+  }
+}
+function drawBatt(ctx,cx,cy,v,col){
+  col=col||"#00ff88";
+  rr(ctx,cx-14,cy-26,28,52,3); ctx.fillStyle="#060d09"; ctx.strokeStyle=col; ctx.lineWidth=2; ctx.fill(); ctx.stroke();
+  var h=Math.min(Math.abs(v)/24*44,44);
+  var bg=ctx.createLinearGradient(0,cy+22,0,cy-22);
+  bg.addColorStop(0,"rgba(0,255,136,0)"); bg.addColorStop(1,col);
+  ctx.fillStyle=bg; ctx.globalAlpha=0.7; ctx.fillRect(cx-12,cy+22-h,24,h); ctx.globalAlpha=1;
+  ctx.fillStyle=col; ctx.font="8px Share Tech Mono"; ctx.textAlign="center"; ctx.fillText(v+"V",cx,cy+38);
+}
+function drawMOSFET_simple(ctx,cx,cy,on,col){
+  col=col||"#00ff88";
+  ctx.beginPath(); ctx.arc(cx,cy,18,0,Math.PI*2);
+  ctx.fillStyle="#060d09"; ctx.strokeStyle=col; ctx.lineWidth=2;
+  if(on){ctx.shadowColor=col;ctx.shadowBlur=10;} ctx.fill(); ctx.stroke(); ctx.shadowBlur=0;
+  ctx.fillStyle=col; ctx.font="7px Share Tech Mono"; ctx.textAlign="center";
+  ctx.fillText(on?"ON":"OFF",cx,cy+3);
+}
+function drawZener(ctx,cx,cy,sz,col){
+  sz=sz||14; col=col||"#cc44ff";
+  ctx.strokeStyle=col; ctx.fillStyle="transparent"; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(cx-sz,cy-sz); ctx.lineTo(cx+sz,cy); ctx.lineTo(cx-sz,cy+sz); ctx.closePath(); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx+sz,cy-sz-4); ctx.lineTo(cx+sz,cy-sz); ctx.lineTo(cx+sz,cy+sz); ctx.lineTo(cx+sz,cy+sz+4); ctx.stroke();
+}
+function drawSCR(ctx,cx,cy,on,col){
+  col=col||"#ff9933";
+  ctx.strokeStyle=col; ctx.fillStyle=on?col:"transparent"; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(cx-14,cy-14); ctx.lineTo(cx+14,cy); ctx.lineTo(cx-14,cy+14); ctx.closePath(); ctx.fill(); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx+14,cy-16); ctx.lineTo(cx+14,cy+16); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx+14,cy+6); ctx.lineTo(cx+14+12,cy+6+12); ctx.stroke();
+  ctx.fillStyle=col; ctx.font="7px Share Tech Mono"; ctx.textAlign="center";
+  ctx.fillText(on?"ON":"OFF",cx,cy+28);
+}
+function statusBadge(id,ok,okText,failText){
+  var b=el(id);
+  if(ok){ b.textContent="✓ "+okText; b.style.borderColor="var(--g)"; b.style.color="var(--g)"; b.style.background="#082014"; }
+  else { b.textContent="⚠ "+failText; b.style.borderColor="var(--r)"; b.style.color="var(--r)"; b.style.background="#1a0008"; }
+}
+function tempColor(t){ if(t<60)return"#00ff88"; if(t<100)return"#ffe044"; if(t<130)return"#ff9933"; return"#ff3355"; }
+
+// ══════════════════════════════════════════════════════════════
+// SCENE 1: FUSE & PTC
+// ══════════════════════════════════════════════════════════════
+(function(){
+  var cvs=el("c-fuse"),ctx=cvs.getContext("2d");
+  var V=12,RL=100,RATING=500,blown=false,ptcTripped=false;
+  var sparks=[]; for(var i=0;i<20;i++) sparks.push({x:0,y:0,vx:0,vy:0,life:0});
+
+  function read(){
+    V=parseFloat(el("fs-v").value); RL=parseFloat(el("fs-rl").value); RATING=parseFloat(el("fs-rating").value);
+    el("fs-v-v").textContent=V+" V"; el("fs-rl-v").textContent=RL+" Ω"; el("fs-rating-v").textContent=RATING+" mA";
+    upd();
+  }
+  function upd(){
+    var I=blown?0:Math.min(V/RL*1000, RATING*1.5); var pct=I/RATING*100;
+    el("fs-i").textContent=I.toFixed(0);
+    el("fs-mrating").textContent=RATING;
+    el("fs-pct").textContent=pct.toFixed(0);
+    el("fs-pct").style.color=pct>100?"var(--r)":pct>80?"var(--y)":"var(--g)";
+    var st=blown?"PUTUS":ptcTripped?"PTC TRIP":pct>100?"OVER!":pct>80?"WASPADA":"AMAN";
+    el("fs-status").textContent=st;
+    el("fs-status").style.color=blown||pct>100?"var(--r)":pct>80?"var(--y)":"var(--g)";
+    statusBadge("fs-badge",!blown&&pct<=100,"FUSE NORMAL","FUSE PUTUS — RANGKAIAN TERBUKA");
+  }
+  ["fs-v","fs-rl","fs-rating"].forEach(function(id){el(id).addEventListener("input",read);});
+
+  el("fs-fault").addEventListener("click",function(){
+    var I=V/RL*1000; if(I>RATING){blown=true;spawnSparks();}
+    upd();
+  });
+  el("fs-reset").addEventListener("click",function(){ blown=false; ptcTripped=false; upd(); });
+
+  function spawnSparks(){
+    sparks.forEach(function(p){
+      var W2=460,cy=80;
+      p.x=W2/2+(-20+Math.random()*40); p.y=cy;
+      p.vx=(-3+Math.random()*6); p.vy=(-4+Math.random()*2);
+      p.life=20+Math.random()*20;
+    });
+  }
+
+  function draw(ts){
+    if(activeS!=="fuse"){requestAnimationFrame(draw);return;}
+    var W2=cvs.width,H=cvs.height,t=ts/700;
+    ctx.clearRect(0,0,W2,H);
+    var I=blown?0:V/RL*1000; var inorm=Math.min(I/RATING,1);
+
+    // ── TOP: CONVENTIONAL FUSE ──
+    var fcx=W2/2-90, fcy=80;
+    ctx.fillStyle="var(--g2)"; ctx.font="8px Share Tech Mono"; ctx.textAlign="center";
+    ctx.fillText("FUSE BIASA",fcx,fcy-30);
+    W(ctx,fcx-80,fcy,fcx-30,fcy,blown?"#0d3320":"#00ff88");
+    drawFuse(ctx,fcx,fcy,blown,blown?"#ff3355":"#00ff88");
+    W(ctx,fcx+30,fcy,fcx+80,fcy,blown?"#0d3320":"#00ff88");
+    // Beban
+    drawRes(ctx,fcx+60,fcy-10,28,20,"#ff9933");
+    W(ctx,fcx+80,fcy,fcx+88,fcy,"#0d3320"); W(ctx,fcx+88,fcy,fcx+88,fcy+50,"#0d3320");
+    W(ctx,fcx-80,fcy,fcx-80,fcy+50,"#0d3320"); W(ctx,fcx-80,fcy+50,fcx+88,fcy+50,"#0d3320");
+    drawBatt(ctx,fcx-80,fcy+20,V,"#00ff88");
+    // I label
+    ctx.fillStyle=blown?"#ff3355":"#00ff88"; ctx.font="8px Share Tech Mono"; ctx.textAlign="center";
+    ctx.fillText(I.toFixed(0)+"mA / "+RATING+"mA",fcx,fcy+18);
+    // sparks
+    sparks.forEach(function(p){
+      if(p.life<=0)return; p.x+=p.vx; p.y+=p.vy; p.vy+=0.3; p.life--;
+      var a=p.life/30; ctx.beginPath(); ctx.arc(p.x,p.y,2,0,Math.PI*2);
+      ctx.fillStyle="rgba(255,220,50,"+a+")"; ctx.shadowColor="#ffe044"; ctx.shadowBlur=4; ctx.fill(); ctx.shadowBlur=0;
+    });
+
+    // ── BOTTOM: PTC RESETTABLE ──
+    var pcx=W2/2+90, pcy=80;
+    ctx.fillStyle="var(--g2)"; ctx.font="8px Share Tech Mono"; ctx.textAlign="center";
+    ctx.fillText("PTC RESETTABLE",pcx,pcy-30);
+    var ptcI=V/RL*1000; var ptcTrip=ptcI>RATING;
+    var ptcR=ptcTrip?100000:5; // PTC resistance high when tripped
+    var ptcCol=ptcTrip?"#ff9933":"#00ff88";
+    W(ctx,pcx-80,pcy,pcx-20,pcy,ptcTrip?"#3a2000":"#ff9933");
+    // PTC symbol
+    rr(ctx,pcx-20,pcy-10,40,20,3); ctx.fillStyle="#060d09"; ctx.strokeStyle=ptcCol; ctx.lineWidth=2; ctx.fill(); ctx.stroke();
+    ctx.strokeStyle=ptcCol; ctx.lineWidth=1.5; ctx.beginPath();
+    for(var i2=0;i2<=4;i2++) ctx.lineTo(pcx-14+i2*7,pcy+(i2%2===0?-6:6));
+    ctx.moveTo(pcx-14,pcy); for(var i3=0;i3<=4;i3++) ctx.lineTo(pcx-14+i3*7,pcy+(i3%2===0?-6:6));
+    ctx.stroke();
+    // NTC thermometer icon
+    if(ptcTrip){ ctx.fillStyle="#ff9933"; ctx.font="10px sans-serif"; ctx.textAlign="center"; ctx.fillText("🌡",pcx,pcy+3); }
+    W(ctx,pcx+20,pcy,pcx+80,pcy,ptcTrip?"#3a2000":"#ff9933");
+    drawRes(ctx,pcx+52,pcy-10,28,20,"#ff9933");
+    W(ctx,pcx+80,pcy,pcx+88,pcy,"#0d3320"); W(ctx,pcx+88,pcy,pcx+88,pcy+50,"#0d3320");
+    W(ctx,pcx-80,pcy,pcx-80,pcy+50,"#0d3320"); W(ctx,pcx-80,pcy+50,pcx+88,pcy+50,"#0d3320");
+    drawBatt(ctx,pcx-80,pcy+20,V,"#00ff88");
+    ctx.fillStyle=ptcTrip?"#ff9933":"#00ff88"; ctx.font="8px Share Tech Mono"; ctx.textAlign="center";
+    ctx.fillText(ptcTrip?"TRIPPED — high R":"Normal "+ptcI.toFixed(0)+"mA",pcx,pcy+18);
+
+    // Comparison label at bottom
+    ctx.fillStyle="var(--dim)"; ctx.font="8px Share Tech Mono"; ctx.textAlign="center";
+    ctx.fillText("Fuse: 1× pakai  |  PTC: reset otomatis setelah dingin",W2/2,H-8);
+
+    if(!blown) pars(ctx,[[fcx-80,fcy],[fcx-30,fcy],[fcx+30,fcy],[fcx+80,fcy],[fcx+88,fcy+50],[fcx-80,fcy+50]],t,0.3+inorm*0.6,"rgba(0,255,136,0.85)",2);
+    if(!ptcTrip) pars(ctx,[[pcx-80,pcy],[pcx-20,pcy],[pcx+20,pcy],[pcx+80,pcy],[pcx+88,pcy+50],[pcx-80,pcy+50]],t,0.3+inorm*0.6,"rgba(255,153,51,0.8)",2);
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw); read();
+})();
+
+// ══════════════════════════════════════════════════════════════
+// SCENE 2: OVP
+// ══════════════════════════════════════════════════════════════
+(function(){
+  var cvs=el("c-overvolt"),ctx=cvs.getContext("2d");
+  var VIN=12,VTH=15,R1=10000,R2=10000;
+  function read(){
+    VIN=parseFloat(el("ov-vin").value); VTH=parseFloat(el("ov-vth").value);
+    R1=parseFloat(el("ov-r1").value); R2=parseFloat(el("ov-r2").value);
+    el("ov-vin-v").textContent=VIN.toFixed(1)+" V"; el("ov-vth-v").textContent=VTH.toFixed(1)+" V";
+    el("ov-r1-v").textContent=fmtR(R1); el("ov-r2-v").textContent=fmtR(R2); upd();
+  }
+  function upd(){
+    var Vsense=VIN*R2/(R1+R2); var Vref=2.5;
+    var tripV=Vref*(R1+R2)/R2; var over=VIN>tripV;
+    el("ov-mvin").textContent=VIN.toFixed(1); el("ov-vsense").textContent=Vsense.toFixed(2);
+    el("ov-vref").textContent=Vref.toFixed(2); el("ov-status").textContent=over?"OVP TRIP!":"NORMAL";
+    el("ov-status").style.color=over?"var(--r)":"var(--g)";
+    statusBadge("ov-badge",!over,"TEGANGAN NORMAL","OVERVOLTAGE TERDETEKSI — OUTPUT DIMATIKAN");
+  }
+  ["ov-vin","ov-vth","ov-r1","ov-r2"].forEach(function(id){el(id).addEventListener("input",read);});
+
+  function draw(ts){
+    if(activeS!=="overvolt"){requestAnimationFrame(draw);return;}
+    var W2=cvs.width,H=cvs.height,t=ts/700;
+    ctx.clearRect(0,0,W2,H);
+    var Vsense=VIN*R2/(R1+R2); var Vref=2.5; var tripV=Vref*(R1+R2)/R2; var over=VIN>tripV;
+    var cx=W2/2, cy=H/2;
+
+    // Input source
+    drawBatt(ctx,30,cy,VIN.toFixed(1),"#00ff88");
+    W(ctx,44,cy,80,cy,over?"#ff3355":"#00ff88");
+
+    // Resistor divider (vertical)
+    var dvx=100, dvy=cy-44;
+    W(ctx,80,cy,dvx,cy,over?"#ff3355":"#00ff88");
+    W(ctx,dvx,cy-44,dvx,cy-24,"#ff9933"); drawRes(ctx,dvx-10,cy-24,20,28,"#ff9933");
+    W(ctx,dvx,cy+4,dvx,cy+44,"#ff9933"); drawRes(ctx,dvx-10,cy+4,20,28,"#ff9933");
+    W(ctx,dvx,cy+44,dvx,cy+60,"#0d3320"); // GND
+    [8,5,3].forEach(function(w,i){ctx.beginPath();ctx.moveTo(dvx-w,cy+60+i*4);ctx.lineTo(dvx+w,cy+60+i*4);ctx.strokeStyle="#224a3a";ctx.lineWidth=1;ctx.stroke();});
+    ctx.fillStyle="#ff9933"; ctx.font="7px Share Tech Mono"; ctx.textAlign="center";
+    ctx.fillText("R1",dvx+16,cy-16); ctx.fillText("R2",dvx+16,cy+18);
+    // Sense node dot
+    dot(ctx,dvx,cy,5,"#ffe044",12);
+    ctx.fillStyle="#ffe044"; ctx.font="8px Share Tech Mono"; ctx.textAlign="left"; ctx.fillText(Vsense.toFixed(2)+"V",dvx+8,cy-6);
+
+    // Comparator
+    var compx=cx, compy=cy;
+    ctx.fillStyle="#0a1a10"; ctx.strokeStyle=over?"#ff3355":"#00e5cc"; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(compx-28,compy-22); ctx.lineTo(compx-28,compy+22); ctx.lineTo(compx+28,compy); ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.fillStyle=over?"#ff3355":"#00e5cc"; ctx.font="8px Share Tech Mono"; ctx.textAlign="center";
+    ctx.fillText("−",compx-22,compy-8); ctx.fillText("+",compx-22,compy+14);
+    ctx.fillText("COMP",compx,compy+4);
+    // Vref
+    W(ctx,dvx,cy,compx-28,cy,"#ffe044");
+    W(ctx,compx-40,compy+14,compx-28,compy+14,"#44aaff");
+    ctx.fillStyle="#44aaff"; ctx.font="7px Share Tech Mono"; ctx.textAlign="right"; ctx.fillText("Vref="+Vref+"V",compx-42,compy+18);
+
+    // Output MOSFET switch
+    var mfx=cx+70, mfy=cy;
+    W(ctx,compx+28,cy,mfx-18,cy,over?"#ff3355":"#00ff88");
+    drawMOSFET_simple(ctx,mfx,mfy,!over,over?"#ff3355":"#00ff88");
+    W(ctx,mfx+18,cy,W2-40,cy,over?"#0d3320":"#00ff88");
+    // Load
+    if(!over){
+      drawRes(ctx,W2-56,cy-14,24,28,"#44aaff");
+      ctx.fillStyle="#44aaff"; ctx.font="7px Share Tech Mono"; ctx.textAlign="center"; ctx.fillText("BEBAN",W2-44,cy+28);
+    }
+
+    // Status arrow/cross
+    ctx.fillStyle=over?"#ff3355":"#00ff88"; ctx.font="bold 11px Share Tech Mono"; ctx.textAlign="center";
+    ctx.shadowColor=ctx.fillStyle; ctx.shadowBlur=over?12:6;
+    ctx.fillText(over?"✕ OUTPUT OFF (Vin="+VIN.toFixed(1)+"V > "+tripV.toFixed(1)+"V)":"✓ OUTPUT ON (Vin="+VIN.toFixed(1)+"V < "+tripV.toFixed(1)+"V)",cx,H-10);
+    ctx.shadowBlur=0;
+
+    if(!over) pars(ctx,[[44,cy],[80,cy],[dvx,cy],[compx-28,cy],[mfx+18,cy],[W2-56,cy]],t,0.4,"rgba(0,255,136,0.85)",2);
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw); read();
+})();
+
+// ══════════════════════════════════════════════════════════════
+// SCENE 3: OCP
+// ══════════════════════════════════════════════════════════════
+(function(){
+  var cvs=el("c-overcurrent"),ctx=cvs.getContext("2d");
+  var VIN=12,RS=0.5,ILIM=1000,RL=20;
+  function read(){
+    VIN=parseFloat(el("oc-vin").value); RS=parseFloat(el("oc-rs").value);
+    ILIM=parseFloat(el("oc-ilim").value); RL=parseFloat(el("oc-rl").value);
+    el("oc-vin-v").textContent=VIN+" V"; el("oc-rs-v").textContent=RS.toFixed(1)+" Ω";
+    el("oc-ilim-v").textContent=(ILIM>=1000?(ILIM/1000).toFixed(1)+" A":ILIM+" mA");
+    el("oc-rl-v").textContent=RL+" Ω"; upd();
+  }
+  function upd(){
+    var I=VIN/(RL+RS)*1000; var limited=I>ILIM; var Iout=limited?ILIM:I;
+    var Vs=Iout/1000*RS;
+    el("oc-il").textContent=I.toFixed(0); el("oc-vs").textContent=Vs.toFixed(3);
+    el("oc-mlim").textContent=(ILIM>=1000?(ILIM/1000).toFixed(1):ILIM);
+    el("oc-mlim").nextElementSibling.textContent=ILIM>=1000?"A":"mA";
+    el("oc-status").textContent=limited?"LIMITING":"NORMAL";
+    el("oc-status").style.color=limited?"var(--y)":"var(--g)";
+    statusBadge("oc-badge",!limited,"ARUS NORMAL","ARUS BERLEBIH — LIMITING AKTIF");
+  }
+  ["oc-vin","oc-rs","oc-ilim","oc-rl"].forEach(function(id){el(id).addEventListener("input",read);});
+
+  function draw(ts){
+    if(activeS!=="overcurrent"){requestAnimationFrame(draw);return;}
+    var W2=cvs.width,H=cvs.height,t=ts/700;
+    ctx.clearRect(0,0,W2,H);
+    var I=VIN/(RL+RS)*1000; var limited=I>ILIM; var Iout=limited?ILIM:I;
+    var inorm=Math.min(Iout/(ILIM*1.5),1); var cy=H/2;
+
+    drawBatt(ctx,30,cy,VIN,"#00ff88");
+    W(ctx,44,cy,70,cy,limited?"#ff9933":"#00ff88");
+
+    // Rsense (top)
+    drawRes(ctx,70,cy-10,36,20,limited?"#ff3355":"#ff9933");
+    ctx.fillStyle=limited?"#ff3355":"#ff9933"; ctx.font="7px Share Tech Mono"; ctx.textAlign="center";
+    ctx.fillText("Rs="+RS+"Ω",88,cy-14); ctx.fillText((I/1000*RS).toFixed(3)+"V",88,cy+22);
+    W(ctx,106,cy,140,cy,limited?"#ff9933":"#00ff88");
+
+    // Amplifier / comparator block
+    var ampx=170,ampy=cy;
+    ctx.fillStyle="#0a1a10"; ctx.strokeStyle=limited?"#ffe044":"#00e5cc"; ctx.lineWidth=2;
+    rr(ctx,ampx-20,ampy-22,40,44,4); ctx.fill(); ctx.stroke();
+    ctx.fillStyle=limited?"#ffe044":"#00e5cc"; ctx.font="7px Share Tech Mono"; ctx.textAlign="center";
+    ctx.fillText("AMP",ampx,ampy-4); ctx.fillText("COMP",ampx,ampy+7);
+    W(ctx,88,cy,88,ampy-36,"#ff9933"); W(ctx,88,ampy-36,ampx-20,ampy-36,"#ff9933"); W(ctx,ampx-20,ampy-36,ampx-20,ampy-22,"#ff9933");
+    ctx.fillStyle="#ff9933"; ctx.font="7px Share Tech Mono"; ctx.textAlign="center"; ctx.fillText("Vsense",ampx,ampy-32);
+    W(ctx,ampx-20,ampy+8,ampx-38,ampy+8,"#44aaff"); W(ctx,ampx-38,ampy+8,ampx-38,ampy+44,"#44aaff");
+    ctx.fillStyle="#44aaff"; ctx.fillText("Vref="+( ILIM/1000*RS).toFixed(3)+"V",ampx-38,ampy+58);
+
+    // Gate drive to MOSFET
+    var mfx=240,mfy=cy;
+    W(ctx,ampx+20,cy,mfx-18,cy,limited?"#ff9933":"#00ff88");
+    drawMOSFET_simple(ctx,mfx,mfy,!limited||(Iout<ILIM),limited?"#ffe044":"#00ff88");
+    W(ctx,mfx+18,cy,mfx+18+40,cy,limited?"#ff9933":"#00ff88");
+
+    // Current meter
+    var amx=mfx+18+50,amy=cy;
+    ctx.beginPath(); ctx.arc(amx,amy,16,0,Math.PI*2);
+    ctx.fillStyle="#060d09"; ctx.strokeStyle=limited?"#ffe044":"#00ff88"; ctx.lineWidth=2; ctx.fill(); ctx.stroke();
+    ctx.fillStyle=limited?"#ffe044":"#00ff88"; ctx.font="7px Share Tech Mono"; ctx.textAlign="center";
+    ctx.fillText("A",amx,amy-3); ctx.fillText((Iout/1000).toFixed(2),amx,amy+7);
+    W(ctx,amx+16,cy,amx+50,cy,"#0d3320");
+    drawRes(ctx,amx+36,cy-12,26,24,"#44aaff");
+    W(ctx,amx+36+26,cy,W2-20,cy,"#0d3320");
+    W(ctx,W2-20,cy,W2-20,cy+54,"#0d3320"); W(ctx,30,cy+54,W2-20,cy+54,"#0d3320"); W(ctx,30,cy,30,cy+54,"#0d3320");
+    ctx.fillStyle="#44aaff"; ctx.font="7px Share Tech Mono"; ctx.textAlign="center"; ctx.fillText("RL="+RL+"Ω",amx+36+13,cy+24);
+
+    // Current bar
+    var bx=20,bw=W2-40,by=H-26,bh=10;
+    ctx.fillStyle="#040c07"; rr(ctx,bx,by,bw,bh,3); ctx.fill();
+    var limitX=bx+(ILIM/(ILIM*1.5))*bw;
+    ctx.strokeStyle="#ff3355"; ctx.lineWidth=2; ctx.setLineDash([3,4]);
+    ctx.beginPath(); ctx.moveTo(limitX,by-4); ctx.lineTo(limitX,by+bh+4); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle="#ff3355"; ctx.font="7px Share Tech Mono"; ctx.textAlign="center"; ctx.fillText("LIMIT",limitX,by-8);
+    ctx.fillStyle=limited?"#ffe044":"#00ff88"; ctx.shadowColor=ctx.fillStyle; ctx.shadowBlur=5;
+    rr(ctx,bx,by,Math.min(inorm*bw,bw),bh,3); ctx.fill(); ctx.shadowBlur=0;
+    ctx.fillStyle=limited?"#ffe044":"#00ff88"; ctx.font="7px Share Tech Mono"; ctx.textAlign="center";
+    ctx.fillText(I.toFixed(0)+"mA → limited to "+Iout.toFixed(0)+"mA",W2/2,by+20);
+
+    if(!limited) pars(ctx,[[44,cy],[106,cy],[mfx+18,cy],[amx+16,cy],[W2-20,cy+54],[30,cy+54]],t,0.4+inorm*0.4,"rgba(0,255,136,0.85)",2);
+    else pars(ctx,[[44,cy],[106,cy],[mfx+18,cy],[amx+16,cy]],t,0.3,"rgba(255,220,50,0.8)",2);
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw); read();
+})();
+
+// ══════════════════════════════════════════════════════════════
+// SCENE 4: POLARITY PROTECTION
+// ══════════════════════════════════════════════════════════════
+(function(){
+  var cvs=el("c-polarity"),ctx=cvs.getContext("2d");
+  var V=12,polarity=1,method=0;
+  var METHODS=[{name:"Dioda Seri",drop:0.7},{name:"P-MOSFET",drop:0.05},{name:"Bridge Dioda",drop:1.4}];
+  function read(){
+    V=parseFloat(el("pl-v").value); polarity=parseInt(el("pl-pol").value); method=parseInt(el("pl-method").value);
+    el("pl-v-v").textContent=V+" V"; el("pl-pol-v").textContent=polarity===1?"BENAR (+)":"TERBALIK (−)";
+    el("pl-method-v").textContent=METHODS[method].name; upd();
+  }
+  function upd(){
+    var m=METHODS[method]; var ok=polarity===1; var Vout=ok?V-m.drop:0;
+    el("pl-mvin").textContent=(polarity===1?"+":"-")+V.toFixed(1);
+    el("pl-mvout").textContent=Vout.toFixed(2); el("pl-vdrop").textContent=m.drop.toFixed(2);
+    el("pl-status").textContent=ok?"DILINDUNGI":"BLOKIR!"; el("pl-status").style.color=ok?"var(--g)":"var(--r)";
+    statusBadge("pl-badge",ok,"POLARITAS BENAR — VOUT = "+(V-m.drop).toFixed(1)+"V","POLARITAS TERBALIK — VOUT = 0V (TERLINDUNGI)");
+  }
+  ["pl-v","pl-pol","pl-method"].forEach(function(id){el(id).addEventListener("input",read);});
+
+  function draw(ts){
+    if(activeS!=="polarity"){requestAnimationFrame(draw);return;}
+    var W2=cvs.width,H=cvs.height,t=ts/700;
+    ctx.clearRect(0,0,W2,H);
+    var m=METHODS[method]; var ok=polarity===1; var Vout=ok?V-m.drop:0;
+    var cy=H/2-10;
+
+    // Battery (possibly reversed)
+    var bCol=ok?"#00ff88":"#ff3355";
+    drawBatt(ctx,32,cy,ok?"+"+V:"-"+V,bCol);
+    // Polarity indicator
+    ctx.fillStyle=ok?"#ff3355":"#44aaff"; ctx.font="11px Share Tech Mono"; ctx.textAlign="center"; ctx.shadowColor=ctx.fillStyle; ctx.shadowBlur=8;
+    ctx.fillText(ok?"+":"-",32,cy-32); ctx.shadowBlur=0;
+    ctx.fillStyle=ok?"#44aaff":"#ff3355"; ctx.font="11px Share Tech Mono"; ctx.shadowColor=ctx.fillStyle; ctx.shadowBlur=8;
+    ctx.fillText(ok?"-":"+",32,cy+38); ctx.shadowBlur=0;
+
+    W(ctx,46,cy,90,cy,ok?"#00ff88":"#ff3355",2);
+
+    // Protection element
+    if(method===0){
+      // Series diode
+      ctx.strokeStyle=ok?"#00ff88":"#ff3355"; ctx.fillStyle=ok?"#00ff88":"transparent"; ctx.lineWidth=2;
+      ctx.beginPath(); ctx.moveTo(90,cy-14); ctx.lineTo(118,cy); ctx.lineTo(90,cy+14); ctx.closePath(); ctx.fill(); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(118,cy-16); ctx.lineTo(118,cy+16); ctx.stroke();
+      ctx.fillStyle="#00ff88"; ctx.font="7px Share Tech Mono"; ctx.textAlign="center"; ctx.fillText("Vf="+m.drop+"V",104,cy+26);
+      W(ctx,118,cy,160,cy,ok?"#00ff88":"#0d3320",2);
+    } else if(method===1){
+      // P-MOSFET
+      drawMOSFET_simple(ctx,110,cy,ok,"#00ff88");
+      W(ctx,90,cy,92,cy,ok?"#00ff88":"#ff3355",2);
+      W(ctx,128,cy,160,cy,ok?"#00ff88":"#0d3320",2);
+      ctx.fillStyle="#00ff88"; ctx.font="7px Share Tech Mono"; ctx.textAlign="center"; ctx.fillText("P-MOS",110,cy+26);
+    } else {
+      // Bridge diodes
+      var bx=100,by2=cy-20;
+      ["NE","SE","SW","NW"].forEach(function(dir,i){
+        var dx=bx+(i<2?10:-10), dy=cy+(i===1||i===2?14:-14);
+        ctx.strokeStyle=ok?"#00ff88":"#ff3355"; ctx.lineWidth=1.5;
+        ctx.beginPath(); if(i%2===0){ctx.moveTo(dx-6,dy-6);ctx.lineTo(dx+6,dy);ctx.lineTo(dx-6,dy+6);}
+        else{ctx.moveTo(dx+6,dy-6);ctx.lineTo(dx-6,dy);ctx.lineTo(dx+6,dy+6);}
+        ctx.closePath(); ctx.stroke();
+      });
+      W(ctx,90,cy,160,cy,ok?"#00ff88":"#0d3320",2);
+    }
+
+    // Output side
+    if(ok){
+      W(ctx,160,cy,W2-60,cy,"#00ff88");
+      drawRes(ctx,W2-72,cy-14,26,28,"#44aaff");
+      W(ctx,W2-46,cy,W2-30,cy,"#00ff88"); W(ctx,W2-30,cy,W2-30,cy+54,"#00ff88");
+      W(ctx,46,cy+54,W2-30,cy+54,"#00ff88"); W(ctx,46,cy,46,cy+54,"#00ff88");
+      ctx.fillStyle="#44aaff"; ctx.font="8px Share Tech Mono"; ctx.textAlign="center"; ctx.fillText("BEBAN",W2-59,cy+28);
+      ctx.fillStyle="#00ff88"; ctx.font="bold 9px Share Tech Mono"; ctx.textAlign="center"; ctx.shadowColor="#00ff88"; ctx.shadowBlur=8;
+      ctx.fillText("Vout = "+Vout.toFixed(2)+"V",W2/2+40,cy-20); ctx.shadowBlur=0;
+      pars(ctx,[[46,cy],[90,cy],[160,cy],[W2-60,cy],[W2-30,cy+54],[46,cy+54]],t,0.4,"rgba(0,255,136,0.85)",2);
+    } else {
+      ctx.fillStyle="#ff3355"; ctx.font="bold 10px Share Tech Mono"; ctx.textAlign="center"; ctx.shadowColor="#ff3355"; ctx.shadowBlur=10;
+      ctx.fillText("✕ TERBALIK — DIBLOKIR",W2/2+60,cy);
+      ctx.fillText("Vout = 0V",W2/2+60,cy+16); ctx.shadowBlur=0;
+    }
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw); read();
+})();
+
+// ══════════════════════════════════════════════════════════════
+// SCENE 5: ESD / TVS
+// ══════════════════════════════════════════════════════════════
+(function(){
+  var cvs=el("c-esd"),ctx=cvs.getContext("2d");
+  var VN=5,VS=50,VC=8,RS=100,spikeActive=false,spikeLevel=0,spikeTs=null;
+  function read(){
+    VN=parseFloat(el("es-vn").value); VS=parseFloat(el("es-vs").value);
+    VC=parseFloat(el("es-vc").value); RS=parseFloat(el("es-r").value);
+    el("es-vn-v").textContent=VN.toFixed(1)+" V"; el("es-vs-v").textContent=VS+" V";
+    el("es-vc-v").textContent=VC.toFixed(1)+" V"; el("es-r-v").textContent=RS+" Ω";
+    var red=(1-VC/VS)*100;
+    el("es-mvs").textContent=VS; el("es-mvc").textContent=VC.toFixed(1);
+    el("es-e").textContent=(0.5*100e-12*VS*VS*1e6).toFixed(2);
+    el("es-red").textContent=red.toFixed(0);
+  }
+  ["es-vn","es-vs","es-vc","es-r"].forEach(function(id){el(id).addEventListener("input",read);});
+
+  el("es-fire").addEventListener("click",function(){ spikeActive=true; spikeLevel=0; spikeTs=null; });
+  el("es-reset").addEventListener("click",function(){ spikeActive=false; spikeLevel=0; spikeTs=null; });
+
+  var lightnings=[]; for(var i=0;i<8;i++) lightnings.push({x:0,y:0,life:0,pts:[]});
+  function spawnLightning(cx,cy){
+    var p=lightnings.find(function(l){return l.life<=0;}); if(!p)return;
+    p.x=cx; p.y=cy; p.life=25;
+    p.pts=[[cx,cy-60],[cx+(-5+Math.random()*10),cy-40],[cx+(-8+Math.random()*16),cy-20],[cx,cy]];
+  }
+
+  function draw(ts){
+    if(activeS!=="esd"){requestAnimationFrame(draw);return;}
+    var W2=cvs.width,H=cvs.height,t=ts/700;
+    ctx.clearRect(0,0,W2,H);
+
+    if(spikeActive){
+      if(!spikeTs)spikeTs=ts;
+      spikeLevel=Math.max(0,1-((ts-spikeTs)/1000));
+      if(spikeTs&&ts-spikeTs<100&&Math.random()<0.4) spawnLightning(W2/2,H/2-20);
+      if(spikeLevel<=0) spikeActive=false;
+    }
+
+    var Vinst=spikeActive?VN+(VS-VN)*spikeLevel:VN;
+    var clamped=Vinst>VC; var Vline=clamped?VC:Vinst;
+    var cy=H/2-10;
+
+    // Source
+    drawBatt(ctx,30,cy,VN.toFixed(0),"#00ff88");
+    // Spike animation
+    if(spikeActive&&spikeLevel>0.1){
+      ctx.fillStyle="rgba(255,220,50,"+(spikeLevel*0.8)+")";ctx.font="bold 12px Share Tech Mono";ctx.textAlign="center";ctx.shadowColor="#ffe044";ctx.shadowBlur=14;
+      ctx.fillText("⚡"+VS+"V",30,cy-42);ctx.shadowBlur=0;
+    }
+
+    W(ctx,44,cy,90,cy,spikeActive?"#ffe044":"#00ff88",2);
+
+    // R series
+    drawRes(ctx,90,cy-9,30,18,"#ff9933");
+    W(ctx,120,cy,150,cy,"#0d3320",2);
+
+    // TVS diode to GND
+    var tvsx=150,tvsy=cy;
+    dot(ctx,tvsx,tvsy,5,"#cc44ff",clamped?14:6);
+    W(ctx,tvsx,tvsy+5,tvsx,tvsy+40,"#cc44ff",2);
+    drawZener(ctx,tvsx,tvsy+50,12,"#cc44ff");
+    W(ctx,tvsx,tvsy+62,tvsx,tvsy+80,"#cc44ff",2);
+    [10,7,4].forEach(function(w,i){ctx.beginPath();ctx.moveTo(tvsx-w,tvsy+80+i*4);ctx.lineTo(tvsx+w,tvsy+80+i*4);ctx.strokeStyle="#224a3a";ctx.lineWidth=1;ctx.stroke();});
+    ctx.fillStyle="#cc44ff"; ctx.font="7px Share Tech Mono"; ctx.textAlign="center";
+    ctx.fillText("TVS",tvsx,tvsy+96); ctx.fillText("Vc="+VC+"V",tvsx,tvsy+106);
+    if(clamped){ctx.fillStyle="#ffe044";ctx.font="bold 8px Share Tech Mono";ctx.textAlign="center";ctx.shadowColor="#ffe044";ctx.shadowBlur=8;ctx.fillText("CLAMPING!",tvsx,tvsy-14);ctx.shadowBlur=0;}
+
+    W(ctx,150,cy,210,cy,clamped?"#ff9933":"#00ff88",2);
+
+    // IC/Load protected
+    var icx=240,icy=cy;
+    rr(ctx,icx-24,icy-20,48,40,4); ctx.fillStyle="#0a1a10"; ctx.strokeStyle=clamped?"#ff9933":"#00ff88"; ctx.lineWidth=2; ctx.fill(); ctx.stroke();
+    ctx.fillStyle=clamped?"#ff9933":"#00ff88"; ctx.font="8px Share Tech Mono"; ctx.textAlign="center";
+    ctx.fillText("IC",icx,icy-4); ctx.fillText(clamped?"⚠ "+VC+"V":"✓ "+Vline.toFixed(1)+"V",icx,icy+9);
+
+    // Voltage comparison bar
+    var bx=20,bby=H-32,bw=W2-40,bh=12;
+    ctx.fillStyle="#040c07"; rr(ctx,bx,bby,bw,bh,3); ctx.fill();
+    // Spike level
+    if(spikeActive){
+      var spW=(VS/VS)*bw*spikeLevel; ctx.fillStyle="rgba(255,220,50,0.4)"; rr(ctx,bx,bby,spW*bw/bw,bh,3); ctx.fill();
+    }
+    // Clamped level
+    var clampW=(VC/VS)*bw;
+    ctx.fillStyle="#cc44ff"; ctx.shadowColor="#cc44ff"; ctx.shadowBlur=6;
+    rr(ctx,bx,bby,clampW,bh,3); ctx.fill(); ctx.shadowBlur=0;
+    ctx.strokeStyle="#ffe044"; ctx.lineWidth=2; ctx.setLineDash([3,4]);
+    ctx.beginPath(); ctx.moveTo(bx+clampW,bby-4); ctx.lineTo(bx+clampW,bby+bh+4); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle="#ffe044"; ctx.font="7px Share Tech Mono"; ctx.textAlign="center"; ctx.fillText("Vc="+VC+"V",bx+clampW,bby-8);
+    ctx.fillStyle="var(--dim)"; ctx.fillText("0",bx+5,bby+20); ctx.fillText(VS+"V",bx+bw-10,bby+20);
+
+    // Lightning bolts
+    lightnings.forEach(function(p){
+      if(p.life<=0)return; p.life--;
+      ctx.strokeStyle="rgba(255,220,50,"+(p.life/25)+")"; ctx.lineWidth=2;
+      ctx.beginPath(); p.pts.forEach(function(pt,i){if(i===0)ctx.moveTo(pt[0],pt[1]);else ctx.lineTo(pt[0],pt[1]);}); ctx.stroke();
+    });
+
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw); read();
+})();
+
+// ══════════════════════════════════════════════════════════════
+// SCENE 6: CROWBAR
+// ══════════════════════════════════════════════════════════════
+(function(){
+  var cvs=el("c-crowbar"),ctx=cvs.getContext("2d");
+  var VIN=12,VZ=14,RG=1000,scrFired=false,fuseBlown=false;
+  function read(){
+    VIN=parseFloat(el("cb-vin").value); VZ=parseFloat(el("cb-vz").value); RG=parseFloat(el("cb-rg").value);
+    el("cb-vin-v").textContent=VIN.toFixed(1)+" V"; el("cb-vz-v").textContent=VZ.toFixed(1)+" V"; el("cb-rg-v").textContent=fmtR(RG);
+    var Iz=VIN>VZ?(VIN-VZ)/RG*1000:0; if(Iz>5&&!scrFired) scrFired=false;
+    el("cb-mvin").textContent=VIN.toFixed(1); el("cb-mvtrip").textContent=VZ.toFixed(1);
+    el("cb-scr").textContent=scrFired?"FIRED":"OFF"; el("cb-scr").style.color=scrFired?"var(--r)":"var(--g)";
+    el("cb-fuse").textContent=fuseBlown?"PUTUS":"UTUH"; el("cb-fuse").style.color=fuseBlown?"var(--r)":"var(--g)";
+    statusBadge("cb-badge",!scrFired&&!fuseBlown,"SISTEM NORMAL","CROWBAR AKTIF — SCR FIRED — FUSE PUTUS");
+  }
+  ["cb-vin","cb-vz","cb-rg"].forEach(function(id){el(id).addEventListener("input",read);});
+
+  el("cb-spike").addEventListener("click",function(){
+    if(VIN>VZ){ scrFired=true; setTimeout(function(){ fuseBlown=true; upd2(); },600); }
+    upd2();
+  });
+  el("cb-reset").addEventListener("click",function(){ scrFired=false; fuseBlown=false; upd2(); });
+  function upd2(){
+    el("cb-scr").textContent=scrFired?"FIRED":"OFF"; el("cb-scr").style.color=scrFired?"var(--r)":"var(--g)";
+    el("cb-fuse").textContent=fuseBlown?"PUTUS":"UTUH"; el("cb-fuse").style.color=fuseBlown?"var(--r)":"var(--g)";
+    statusBadge("cb-badge",!scrFired&&!fuseBlown,"SISTEM NORMAL","CROWBAR AKTIF — SCR FIRED — FUSE PUTUS");
+  }
+
+  function draw(ts){
+    if(activeS!=="crowbar"){requestAnimationFrame(draw);return;}
+    var W2=cvs.width,H=cvs.height,t=ts/700;
+    ctx.clearRect(0,0,W2,H);
+    var cy=H/2-10, normal=!scrFired&&!fuseBlown;
+
+    // PSU
+    drawBatt(ctx,30,cy,VIN.toFixed(1)+"V","#00ff88");
+    W(ctx,44,cy,80,cy,fuseBlown?"#0d3320":"#00ff88",2);
+
+    // Fuse
+    drawFuse(ctx,108,cy,fuseBlown,fuseBlown?"#ff3355":"#00ff88");
+    W(ctx,138,cy,170,cy,fuseBlown?"#0d3320":"#00ff88",2);
+
+    // Zener detector (to gate of SCR)
+    dot(ctx,170,cy,5,"#ffe044",normal?8:12);
+    W(ctx,170,cy+5,170,cy+44,"#cc44ff",2);
+    drawZener(ctx,170,cy+55,12,"#cc44ff");
+    W(ctx,170,cy+67,170,cy+90,"#cc44ff",2);
+    [8,5,3].forEach(function(w,i){ctx.beginPath();ctx.moveTo(170-w,cy+90+i*4);ctx.lineTo(170+w,cy+90+i*4);ctx.strokeStyle="#224a3a";ctx.lineWidth=1;ctx.stroke();});
+    ctx.fillStyle="#cc44ff"; ctx.font="7px Share Tech Mono"; ctx.textAlign="center";
+    ctx.fillText("Dz="+VZ+"V",170,cy+106); ctx.fillText("Gate",170,cy+40);
+    W(ctx,170,cy+44,190,cy+44,"#cc44ff",2); // Gate wire to SCR
+
+    // SCR
+    var scrx=230,scry=cy;
+    W(ctx,170,cy,scrx-18,cy,fuseBlown?"#0d3320":"#00ff88",2);
+    drawSCR(ctx,scrx,scry,scrFired,"#ff9933");
+    // SCR bottom to GND
+    W(ctx,scrx,scry+14,scrx,cy+70,"#0d3320",2); W(ctx,scrx,cy+70,240,cy+70,"#0d3320",2);
+    [8,5,3].forEach(function(w,i){ctx.beginPath();ctx.moveTo(240-w,cy+70+i*4);ctx.lineTo(240+w,cy+70+i*4);ctx.strokeStyle="#224a3a";ctx.lineWidth=1;ctx.stroke();});
+    ctx.fillStyle="#0d3320"; ctx.font="7px Share Tech Mono"; ctx.textAlign="center"; ctx.fillText("GND",240,cy+86);
+
+    W(ctx,scrx+18,cy,W2-50,cy,scrFired?"#ff3355":normal?"#00ff88":"#0d3320",2);
+
+    // Load
+    if(!fuseBlown){
+      drawRes(ctx,W2-62,cy-14,24,28,"#44aaff");
+      ctx.fillStyle="#44aaff"; ctx.font="7px Share Tech Mono"; ctx.textAlign="center"; ctx.fillText("BEBAN",W2-50,cy+24);
+      W(ctx,W2-62+24,cy,W2-20,cy,"#0d3320",2); W(ctx,W2-20,cy,W2-20,cy+50,"#0d3320",2);
+      W(ctx,30,cy+50,W2-20,cy+50,"#0d3320",2); W(ctx,30,cy,30,cy+50,"#0d3320",2);
+    }
+
+    // Status label
+    ctx.fillStyle=normal?"#00ff88":scrFired?"#ff3355":"#ffe044"; ctx.font="bold 9px Share Tech Mono"; ctx.textAlign="center";
+    ctx.shadowColor=ctx.fillStyle; ctx.shadowBlur=normal?6:12;
+    if(scrFired&&fuseBlown) ctx.fillText("CROWBAR AKTIF → SCR short GND → FUSE PUTUS → BEBAN SELAMAT",W2/2,H-8);
+    else if(scrFired) ctx.fillText("SCR FIRE → shorting GND... fuse akan putus",W2/2,H-8);
+    else ctx.fillText("Vin="+VIN+"V < Vtrip="+VZ+"V → Normal",W2/2,H-8);
+    ctx.shadowBlur=0;
+
+    if(normal) pars(ctx,[[44,cy],[80,cy],[138,cy],[170,cy],[scrx+18,cy],[W2-62,cy]],t,0.4,"rgba(0,255,136,0.85)",2);
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw); read();
+})();
+
+// ══════════════════════════════════════════════════════════════
+// SCENE 7: UVLO
+// ══════════════════════════════════════════════════════════════
+(function(){
+  var cvs=el("c-uvlo"),ctx=cvs.getContext("2d");
+  var VIN=8,VON=8,HYST=0.5,C=100;
+  var prevOut=true;
+  function read(){
+    VIN=parseFloat(el("uv-vin").value); VON=parseFloat(el("uv-von").value);
+    HYST=parseFloat(el("uv-hyst").value); C=parseFloat(el("uv-c").value);
+    el("uv-vin-v").textContent=VIN.toFixed(1)+" V"; el("uv-von-v").textContent=VON.toFixed(1)+" V";
+    el("uv-hyst-v").textContent=HYST.toFixed(1)+" V"; el("uv-c-v").textContent=C+" µF";
+    var VOFF=VON-HYST; var enabled=VIN>=VON||(prevOut&&VIN>VOFF); prevOut=enabled;
+    el("uv-mvon").textContent=VON.toFixed(1); el("uv-mvoff").textContent=VOFF.toFixed(1);
+    el("uv-mvin").textContent=VIN.toFixed(1); el("uv-out").textContent=enabled?"ENABLE":"DISABLE";
+    el("uv-out").style.color=enabled?"var(--g)":"var(--r)";
+    statusBadge("uv-badge",enabled,"TEGANGAN CUKUP — OUTPUT ON","UNDERVOLTAGE — OUTPUT OFF (LOCKOUT)");
+  }
+  ["uv-vin","uv-von","uv-hyst","uv-c"].forEach(function(id){el(id).addEventListener("input",read);});
+
+  function draw(ts){
+    if(activeS!=="uvlo"){requestAnimationFrame(draw);return;}
+    var W2=cvs.width,H=cvs.height,t=ts/400;
+    ctx.clearRect(0,0,W2,H);
+    var VOFF=VON-HYST; var enabled=VIN>=VON||(prevOut&&VIN>VOFF);
+    var cy=H/2-8;
+
+    // Input source
+    drawBatt(ctx,30,cy,VIN.toFixed(1),"#00ff88");
+    W(ctx,44,cy,90,cy,enabled?"#00ff88":"#ff3355",2);
+
+    // UVLO block
+    var ux=160,uy=cy;
+    rr(ctx,ux-36,uy-28,72,56,5); ctx.fillStyle="#0a1a10"; ctx.strokeStyle=enabled?"#00ff88":"#ff3355"; ctx.lineWidth=2; ctx.fill(); ctx.stroke();
+    ctx.fillStyle=enabled?"#00ff88":"#ff3355"; ctx.font="7px Share Tech Mono"; ctx.textAlign="center";
+    ctx.fillText("UVLO",ux,uy-14); ctx.fillText("Vth="+VON.toFixed(1)+"V",ux,uy-3);
+    ctx.fillText("Hyst="+HYST.toFixed(1)+"V",ux,uy+9); ctx.fillText(enabled?"EN":"DIS",ux,uy+21);
+    W(ctx,90,cy,ux-36,cy,enabled?"#00ff88":"#ff3355",2);
+
+    // Output gate
+    W(ctx,ux+36,cy,ux+60,cy,enabled?"#00ff88":"#0d3320",2);
+    var gx=ux+80,gy=uy;
+    drawMOSFET_simple(ctx,gx,gy,enabled,"#00ff88");
+    W(ctx,gx+18,cy,gx+60,cy,enabled?"#00ff88":"#0d3320",2);
+
+    // Decoupling cap
+    var cx2=gx+30,cy2=cy;
+    W(ctx,cx2,cy2,cx2,cy2+24,"#44aaff",2);
+    W(ctx,cx2-12,cy2+24,cx2+12,cy2+24,"#44aaff",2.5);
+    W(ctx,cx2-12,cy2+30,cx2+12,cy2+30,"#44aaff",2.5);
+    W(ctx,cx2,cy2+30,cx2,cy2+50,"#44aaff",2);
+    [8,5,3].forEach(function(w,i){ctx.beginPath();ctx.moveTo(cx2-w,cy2+50+i*4);ctx.lineTo(cx2+w,cy2+50+i*4);ctx.strokeStyle="#224a3a";ctx.lineWidth=1;ctx.stroke();});
+    ctx.fillStyle="#44aaff"; ctx.font="7px Share Tech Mono"; ctx.textAlign="center"; ctx.fillText(C+"µF",cx2,cy2+62);
+
+    // Load
+    if(enabled){
+      drawRes(ctx,gx+60,cy-12,22,24,"#44aaff");
+      W(ctx,gx+82,cy,W2-20,cy,"#00ff88",2); W(ctx,W2-20,cy,W2-20,cy+50,"#00ff88",2);
+      W(ctx,30,cy+50,W2-20,cy+50,"#00ff88",2); W(ctx,30,cy,30,cy+50,"#00ff88",2);
+    }
+
+    // Hysteresis window visualization
+    var gfx=20,gfy=H-50,gfw=W2-40,gfh=30;
+    ctx.fillStyle="#040c07"; rr(ctx,gfx,gfy,gfw,gfh,3); ctx.fill();
+    // Vin bar
+    var vinPct=Math.min(VIN/(VON*1.5),1);
+    var vc2=enabled?"#00ff88":"#ff3355";
+    ctx.fillStyle=vc2; ctx.shadowColor=vc2; ctx.shadowBlur=5;
+    rr(ctx,gfx,gfy,vinPct*gfw,gfh,3); ctx.fill(); ctx.shadowBlur=0;
+    // Thresholds
+    var vonX=gfx+(VON/(VON*1.5))*gfw; var voffX=gfx+(VOFF/(VON*1.5))*gfw;
+    ctx.strokeStyle="#ffe044"; ctx.lineWidth=2; ctx.setLineDash([3,4]);
+    ctx.beginPath(); ctx.moveTo(vonX,gfy-4); ctx.lineTo(vonX,gfy+gfh+4); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(voffX,gfy-4); ctx.lineTo(voffX,gfy+gfh+4); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle="#ffe044"; ctx.font="7px Share Tech Mono"; ctx.textAlign="center";
+    ctx.fillText("Von="+VON.toFixed(1)+"V",vonX,gfy-8); ctx.fillText("Voff="+VOFF.toFixed(1)+"V",voffX,gfy+gfh+12);
+    ctx.fillStyle=vc2; ctx.fillText("Vin="+VIN.toFixed(1)+"V",gfx+vinPct*gfw,gfy+gfh/2+3);
+
+    if(enabled) pars(ctx,[[44,cy],[ux-36,cy],[ux+36,cy],[gx+18,cy],[gx+60,cy],[W2-20,cy+50],[30,cy+50]],t,0.45,"rgba(0,255,136,0.85)",2);
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw); read();
+})();
+
+// ══════════════════════════════════════════════════════════════
+// SCENE 8: THERMAL SHUTDOWN
+// ══════════════════════════════════════════════════════════════
+(function(){
+  var cvs=el("c-thermal"),ctx=cvs.getContext("2d");
+  var TAMB=25,PD=2,RTH=20,TSD=150;
+  var heatParticles=[]; for(var i=0;i<40;i++) heatParticles.push({x:0,y:0,vx:0,vy:0,life:0,maxLife:1});
+  var frm=0;
+
+  function TJ(){ return TAMB+PD*RTH; }
+  function read(){
+    TAMB=parseFloat(el("th-tamb").value); PD=parseFloat(el("th-pd").value);
+    RTH=parseFloat(el("th-rth").value); TSD=parseFloat(el("th-tsd").value);
+    el("th-tamb-v").textContent=TAMB+" °C"; el("th-pd-v").textContent=PD.toFixed(1)+" W";
+    el("th-rth-v").textContent=RTH+" °C/W"; el("th-tsd-v").textContent=TSD+" °C";
+    var tj=TJ(); var margin=TSD-tj; var shutdown=tj>TSD;
+    el("th-tj").textContent=tj.toFixed(0); el("th-tamb2").textContent=TAMB;
+    el("th-margin").textContent=margin.toFixed(0);
+    el("th-tj").style.color=tempColor(tj); el("th-margin").style.color=margin<20?"var(--r)":margin<50?"var(--y)":"var(--g)";
+    el("th-status").textContent=shutdown?"SHUTDOWN!":tj>TSD-30?"WARNING":"AMAN";
+    el("th-status").style.color=shutdown?"var(--r)":tj>TSD-30?"var(--y)":"var(--g)";
+    statusBadge("th-badge",!shutdown,"SUHU NORMAL — TJ="+tj.toFixed(0)+"°C","THERMAL SHUTDOWN — TJ="+tj.toFixed(0)+"°C > "+TSD+"°C");
+  }
+  ["th-tamb","th-pd","th-rth","th-tsd"].forEach(function(id){el(id).addEventListener("input",read);});
+
+  function spawnHeat(cx,cy,heat){
+    var p=heatParticles.find(function(x){return x.life<=0;}); if(!p)return;
+    p.x=cx+(-20+Math.random()*40); p.y=cy; p.vx=(-1.5+Math.random()*3)*heat*0.7;
+    p.vy=-(0.5+Math.random()*2)*heat; p.life=25+Math.random()*30; p.maxLife=p.life;
+  }
+
+  function draw(ts){
+    if(activeS!=="thermal"){requestAnimationFrame(draw);return;}
+    var W2=cvs.width,H=cvs.height,t=ts/700;
+    ctx.clearRect(0,0,W2,H);
+    frm++;
+    var tj=TJ(); var heat=Math.min(tj/TSD,1); var shutdown=tj>TSD;
+    var tcol=tempColor(tj);
+
+    if(heat>0.2&&frm%3===0) spawnHeat(W2/2,H/2-40,heat);
+    if(heat>0.6&&frm%2===0) spawnHeat(W2/2,H/2-40,heat);
+
+    // IC / transistor body
+    var icx=W2/2,icy=H/2-10;
+    rr(ctx,icx-40,icy-34,80,68,6);
+    var bodyGrad=ctx.createLinearGradient(icx-40,icy-34,icx+40,icy+34);
+    bodyGrad.addColorStop(0,"#1a0800"); bodyGrad.addColorStop(0.5,shutdown?"#3a0800":"#1a1200"); bodyGrad.addColorStop(1,"#1a0800");
+    ctx.fillStyle=bodyGrad; ctx.strokeStyle=tcol; ctx.lineWidth=2;
+    ctx.shadowColor=tcol; ctx.shadowBlur=heat*20; ctx.fill(); ctx.stroke(); ctx.shadowBlur=0;
+    ctx.fillStyle=tcol; ctx.font="bold 10px Share Tech Mono"; ctx.textAlign="center";
+    ctx.fillText("IC / TRANSISTOR",icx,icy-12); ctx.fillText("Tj = "+tj.toFixed(0)+"°C",icx,icy+4);
+    ctx.fillStyle=shutdown?"#ff3355":"#ff9933"; ctx.font="8px Share Tech Mono"; ctx.fillText("Pd = "+PD.toFixed(1)+"W",icx,icy+18);
+
+    // Heatsink
+    var hsx=icx,hsy=icy+34;
+    ctx.fillStyle="#1a1400"; ctx.strokeStyle="#665500"; ctx.lineWidth=1.5;
+    for(var fi=0;fi<7;fi++){
+      var fx=hsx-36+fi*12;
+      ctx.fillRect(fx,hsy,8,28); ctx.strokeRect(fx,hsy,8,28);
+    }
+    ctx.fillStyle="#665500"; ctx.font="7px Share Tech Mono"; ctx.textAlign="center"; ctx.fillText("HEATSINK Rth="+RTH+"°C/W",hsx,hsy+38);
+
+    // Thermal sensor + comparator
+    var tsx=icx+100,tsy=icy;
+    ctx.beginPath(); ctx.arc(tsx,tsy,16,0,Math.PI*2);
+    ctx.fillStyle="#0a1a10"; ctx.strokeStyle=tcol; ctx.lineWidth=2; ctx.shadowColor=tcol; ctx.shadowBlur=heat*8; ctx.fill(); ctx.stroke(); ctx.shadowBlur=0;
+    ctx.fillStyle=tcol; ctx.font="8px Share Tech Mono"; ctx.textAlign="center"; ctx.fillText("🌡",tsx,tsy+4);
+    W(ctx,icx+40,icy,tsx-16,icy,tcol,1.5);
+
+    // Shutdown gate
+    var gatex=tsx+40,gatey=icy;
+    W(ctx,tsx+16,icy,gatex-14,icy,shutdown?"#ff3355":"#00ff88",2);
+    rr(ctx,gatex-14,gatey-14,28,28,4); ctx.fillStyle="#0a1a10"; ctx.strokeStyle=shutdown?"#ff3355":"#00ff88"; ctx.lineWidth=2; ctx.fill(); ctx.stroke();
+    ctx.fillStyle=shutdown?"#ff3355":"#00ff88"; ctx.font="7px Share Tech Mono"; ctx.textAlign="center";
+    ctx.fillText(shutdown?"SD":"ON",gatex,gatey+3);
+    W(ctx,gatex+14,icy,gatex+50,icy,shutdown?"#0d3320":"#00ff88",2);
+    if(!shutdown){
+      drawRes(ctx,gatex+50,icy-12,22,24,"#44aaff");
+      ctx.fillStyle="#44aaff"; ctx.font="7px Share Tech Mono"; ctx.textAlign="center"; ctx.fillText("Load",gatex+61,icy+22);
+    } else {
+      ctx.fillStyle="#ff3355"; ctx.font="bold 9px Share Tech Mono"; ctx.textAlign="center"; ctx.shadowColor="#ff3355"; ctx.shadowBlur=12;
+      ctx.fillText("✕ OUTPUT OFF",gatex+50,icy+8); ctx.shadowBlur=0;
+    }
+
+    // Temperature gauge (vertical)
+    var gx=20,gy2=15,gh=H-55;
+    ctx.fillStyle="#040c07"; rr(ctx,gx,gy2,18,gh,3); ctx.fill(); ctx.strokeStyle="#0d3320"; ctx.lineWidth=1; rr(ctx,gx,gy2,18,gh,3); ctx.stroke();
+    var fillH=Math.min(heat,1)*gh;
+    var fillGrad=ctx.createLinearGradient(0,gy2,0,gy2+gh);
+    fillGrad.addColorStop(0,"#ff3355"); fillGrad.addColorStop(0.4,"#ff9933"); fillGrad.addColorStop(0.7,"#ffe044"); fillGrad.addColorStop(1,"#00ff88");
+    ctx.fillStyle=fillGrad; ctx.shadowColor=tcol; ctx.shadowBlur=6;
+    ctx.fillRect(gx+2,gy2+gh-fillH,14,fillH); ctx.shadowBlur=0;
+    // TSD line
+    var tsdY=gy2+gh*(1-TSD/TSD); // =gy2 (top)
+    ctx.strokeStyle="#ff3355"; ctx.lineWidth=1.5; ctx.setLineDash([3,4]);
+    ctx.beginPath(); ctx.moveTo(gx-4,gy2+4); ctx.lineTo(gx+22,gy2+4); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle="#ff3355"; ctx.font="7px Share Tech Mono"; ctx.textAlign="left"; ctx.fillText(TSD+"°",gx+22,gy2+8);
+    // Tj marker
+    var tjY=gy2+gh*(1-tj/TSD);
+    tjY=Math.max(gy2+4,tjY);
+    ctx.strokeStyle=tcol; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(gx-3,tjY); ctx.lineTo(gx+21,tjY); ctx.stroke();
+    ctx.fillStyle=tcol; ctx.font="7px Share Tech Mono"; ctx.textAlign="left"; ctx.fillText(tj.toFixed(0)+"°",gx+22,tjY+4);
+
+    // Heat particles
+    heatParticles.forEach(function(p){
+      if(p.life<=0)return; p.x+=p.vx; p.y+=p.vy; p.vx*=0.97; p.vy*=0.97; p.life--;
+      if(p.y<0||p.life<=0){p.life=0;return;}
+      var a=p.life/p.maxLife; var hue=Math.round(50-heat*50);
+      ctx.beginPath(); ctx.arc(p.x,p.y,2.5,0,Math.PI*2);
+      ctx.fillStyle="hsla("+hue+",100%,60%,"+(a*0.8)+")"; ctx.shadowColor=ctx.fillStyle; ctx.shadowBlur=5; ctx.fill(); ctx.shadowBlur=0;
+    });
+
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw); read();
+})();
+</script>
+</body>
+</html>
